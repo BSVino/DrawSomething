@@ -48,3 +48,16 @@ void Window::Open(const char* title, int width, int height)
 
 	SDL_ShowCursor(true);
 }
+
+bool Window::IsOpen()
+{
+	if (m_SDL_window)
+		return (!!(SDL_GetWindowFlags(m_SDL_window)&SDL_WINDOW_SHOWN));
+	else
+		return true;
+}
+
+double Window::GetTime()
+{
+	return (double)(SDL_GetTicks()) / 1000;
+}

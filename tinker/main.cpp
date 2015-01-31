@@ -1,5 +1,7 @@
 #include "window.h"
+
 #include "shell.h"
+#include "tinker_platform.h"
 
 #include "gamecode.h"
 
@@ -21,9 +23,30 @@ int main(int argc, char** args)
 
 	g_gamecode.Initialize("drawsomething.dll");
 
-	while (true)
+	double frame_end_time = 0;
+	double frame_start_time = 0;
+
+#ifdef _DEBUG
+	double target_frame_time = 1.0f/30;
+#else
+	double target_frame_time = 1.0f/60;
+#endif
+
+	bool game_active = true;
+
+	while (window.IsOpen() && game_active)
 	{
-		g_gamecode.m_game_frame();
+		frame_end_time = window.GetTime();
+
+		double next_frame_time = frame_start_time + target_frame_time;
+
+		double time_to_sleep_seconds = next_frame_time - frame_end_time;
+		if (time_to_sleep_seconds > 0.001)
+			SleepMS((size_t)(time_to_sleep_seconds * 1000));
+
+		frame_start_time = window.GetTime();
+
+		game_active = g_gamecode.m_game_frame();
 	}
 
 	return 0;

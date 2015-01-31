@@ -1,6 +1,6 @@
 #pragma once
 
-typedef void(*GameFrameProcedure)();
+typedef bool (*GameFrameProcedure)();
 
 struct GameCode
 {
