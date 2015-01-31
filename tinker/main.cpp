@@ -8,7 +8,8 @@
 #include <direct.h>
 #define chdir _chdir
 
-GameCode g_gamecode;
+GameCode g_server_code;
+GameCode g_client_code;
 
 int main(int argc, char** args)
 {
@@ -21,7 +22,8 @@ int main(int argc, char** args)
 
 	window.Open("Tinker", 1280, 720);
 
-	g_gamecode.Initialize("drawsomething.dll");
+	g_server_code.Initialize("drawsomethingserver.dll");
+	g_client_code.Initialize("drawsomethingclient.dll");
 
 	double frame_end_time = 0;
 	double frame_start_time = 0;
@@ -46,7 +48,8 @@ int main(int argc, char** args)
 
 		frame_start_time = window.GetTime();
 
-		game_active = g_gamecode.m_game_frame();
+		game_active = g_server_code.m_game_frame();
+		game_active &= g_client_code.m_game_frame();
 	}
 
 	return 0;

@@ -5,7 +5,12 @@ VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tinker2", "Tinker2.vcxproj", "{48B92BCB-71AF-4016-91A1-620647B6F6F2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DrawSomething", "drawsomething\DrawSomething.vcxproj", "{DC7FC75C-0D74-4532-A9FC-6B8A142E3E68}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DrawSomethingServer", "drawsomething\DrawSomethingServer.vcxproj", "{DC7FC75C-0D74-4532-A9FC-6B8A142E3E68}"
+	ProjectSection(ProjectDependencies) = postProject
+		{48B92BCB-71AF-4016-91A1-620647B6F6F2} = {48B92BCB-71AF-4016-91A1-620647B6F6F2}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DrawSomethingClient", "drawsomething\DrawSomethingClient.vcxproj", "{D399AB6F-61A9-4161-A47E-D7B51CF3C5AC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{48B92BCB-71AF-4016-91A1-620647B6F6F2} = {48B92BCB-71AF-4016-91A1-620647B6F6F2}
 	EndProjectSection
@@ -34,6 +39,14 @@ Global
 		{DC7FC75C-0D74-4532-A9FC-6B8A142E3E68}.Release|Win32.Build.0 = Release|Win32
 		{DC7FC75C-0D74-4532-A9FC-6B8A142E3E68}.Release|x64.ActiveCfg = Release|x64
 		{DC7FC75C-0D74-4532-A9FC-6B8A142E3E68}.Release|x64.Build.0 = Release|x64
+		{D399AB6F-61A9-4161-A47E-D7B51CF3C5AC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D399AB6F-61A9-4161-A47E-D7B51CF3C5AC}.Debug|Win32.Build.0 = Debug|Win32
+		{D399AB6F-61A9-4161-A47E-D7B51CF3C5AC}.Debug|x64.ActiveCfg = Debug|x64
+		{D399AB6F-61A9-4161-A47E-D7B51CF3C5AC}.Debug|x64.Build.0 = Debug|x64
+		{D399AB6F-61A9-4161-A47E-D7B51CF3C5AC}.Release|Win32.ActiveCfg = Release|Win32
+		{D399AB6F-61A9-4161-A47E-D7B51CF3C5AC}.Release|Win32.Build.0 = Release|Win32
+		{D399AB6F-61A9-4161-A47E-D7B51CF3C5AC}.Release|x64.ActiveCfg = Release|x64
+		{D399AB6F-61A9-4161-A47E-D7B51CF3C5AC}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
