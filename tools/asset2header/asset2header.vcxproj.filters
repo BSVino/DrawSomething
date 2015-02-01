@@ -13,22 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Archivos de recursos\renderer">
-      <UniqueIdentifier>{d3f13e08-a187-412d-a7c1-0db38a7bb903}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ds_main_client.cpp">
-      <Filter>Archivos de recursos</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\ext-deps\gl3w\src\gl3w.c">
-      <Filter>Archivos de recursos</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\tinker\client\renderer\shaders.cpp">
-      <Filter>Archivos de recursos\renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\tinker\assets.cpp">
-      <Filter>Archivos de recursos</Filter>
+    <ClCompile Include="asset2header.cpp">
+      <Filter>Archivos de código fuente</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

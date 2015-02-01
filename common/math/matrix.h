@@ -18,7 +18,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #ifndef LW_MATRIX_H
 #define LW_MATRIX_H
 
-#include <vector.h>
+#include "vector.h"
 
 // The red pill
 

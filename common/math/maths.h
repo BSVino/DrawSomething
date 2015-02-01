@@ -177,7 +177,7 @@ inline float Flicker(const char* pszValues, float flTime, float flLength)
 	if (!pszValues)
 		return 0;
 
-	int iValues = strlen(pszValues);
+	size_t iValues = strlen(pszValues);
 	if (iValues == 0)
 		return 0;
 

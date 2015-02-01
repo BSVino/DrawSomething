@@ -30,7 +30,7 @@ void Alert(const tstring& sMessage);
 void CreateMinidump(void* pInfo);
 tstring GetClipboard();
 void SetClipboard(const tstring& sBuf);
-tvector<tstring> ListDirectory(const tstring& sDirectory, bool bDirectories = true);
+tvector<tstring> ListDirectory(const char* directory, bool include_directories = true);
 bool IsFile(const tstring& sPath);
 bool IsDirectory(const tstring& sPath);
 void CreateDirectoryNonRecursive(const tstring& sPath);

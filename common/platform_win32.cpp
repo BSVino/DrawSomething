@@ -157,16 +157,15 @@ void SetClipboard(const tstring& sBuf)
 	CloseClipboard();
 }
 
-tvector<tstring> ListDirectory(const tstring& sFullDirectory, bool bDirectories)
+tvector<tstring> ListDirectory(const char* directory, bool include_directories)
 {
-	tstring sDirectory = sFullDirectory;
-	if (sDirectory.startswith("$ASSETS/"))
-		sDirectory = sDirectory.substr(8);
+	if (tstrncmp(directory, "$ASSETS/", strlen(directory), 8) == 0)
+		directory += 8;
 
 	tvector<tstring> asResult;
 
 	char szPath[MAX_PATH];
-	sprintf(szPath, "%s\\*", sDirectory.c_str());
+	sprintf(szPath, "%s\\*", directory);
 
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFileA(szPath, &fd);
@@ -175,7 +174,7 @@ tvector<tstring> ListDirectory(const tstring& sFullDirectory, bool bDirectories)
 	{
 		do
 		{
-			if (!bDirectories && (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			if (!include_directories && (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				continue;
 
 			// Duh.

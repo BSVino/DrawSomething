@@ -2,3 +2,6 @@
 /*.sdf
 /*.suo
 x64
+/ipch
+/tinker/assets.cpp
+/tinker/assets.h

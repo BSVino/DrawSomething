@@ -1,12 +1,12 @@
-#include "tinker_platform.h"
-#include "../tinker/gamecode.h"
-#include "shell.h"
-
 #include <GL3/gl3w.h>
 
-struct ClientData
-{
-};
+#include "tinker_platform.h"
+#include "shell.h"
+
+#include "gamecode.h"
+#include "client/renderer/shaders.h"
+
+#include "ds_client.h"
 
 ClientData* g_client_data;
 
@@ -25,6 +25,10 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 		return 0;
 
 	g_client_data = new(game_data->m_memory) ClientData();
+
+	GLint samples;
+	glGetIntegerv(GL_SAMPLES, &samples);
+	g_client_data->m_shaders.Initialize(samples);
 
 	return 1;
 }

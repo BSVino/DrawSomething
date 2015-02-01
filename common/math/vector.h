@@ -135,7 +135,7 @@ public:
 typedef TemplateVector<float> Vector;
 typedef TemplateVector<double> DoubleVector;
 
-#include <color.h>
+#include "color.h"
 
 template <class unit_t>
 inline TemplateVector<unit_t>::TemplateVector()

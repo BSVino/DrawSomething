@@ -115,7 +115,7 @@ PRAGMA_WARNING_POP \
 	} while (0)
 #else
 // If you hit this, the code is either incomplete or untested.
-#define TUnimplemented() TAssertNoMsg(false)
+#define TUnimplemented() TAssert(false)
 #endif
 
 #ifdef _DEBUG
@@ -173,5 +173,15 @@ private:
 // A platform whose rendering capabilities are limited.
 #define T_PLATFORM_MOBILE
 #endif
+
+inline size_t tmin(size_t a, size_t b)
+{
+	return (a < b) ? a : b;
+}
+
+inline size_t tmax(size_t a, size_t b)
+{
+	return (a > b) ? a : b;
+}
 
 #endif

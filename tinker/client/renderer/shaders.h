@@ -15,73 +15,72 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#ifndef DT_SHADERS_H
+#define DT_SHADERS_H
 
-#ifdef WITH_EASTL
-#include <EASTL/vector.h>
-#include <EASTL/heap.h>
+#include <tvector.h>
+#include <tmap.h>
 
-#define TVECTOR_BASE eastl::vector<T>
-using eastl::remove;
-using eastl::find;
-using eastl::push_heap;
-using eastl::pop_heap;
-using eastl::make_heap;
-using eastl::sort_heap;
-#else
-#include <vector>
-#include <algorithm>
+#include <tstring.h>
+#include <vector.h>
+#include <matrix.h>
 
-#define TVECTOR_BASE std::vector<T>
-using std::remove;
-using std::find;
-#endif
+#include "assets.h"
 
-template <class T>
-class tvector : public TVECTOR_BASE
+#define MAX_TEXTURE_CHANNELS 2
+
+struct Shader
 {
-public:
-	inline tvector()
-		: TVECTOR_BASE()
-	{}
+	size_t m_vshader;
+	size_t m_fshader;
+	size_t m_program;
 
-public:
-	void erase_value(const T& value)
-	{
-		this->erase(remove(tvector<T>::begin(), tvector<T>::end(), value), tvector<T>::end());
-	}
+	size_t m_position_attribute;
+	size_t m_normal_attribute;
+	size_t m_tangent_attribute;
+	size_t m_bitangent_attribute;
+	size_t m_texcoord_attributes[MAX_TEXTURE_CHANNELS];
+	size_t m_color_attribute;
 
-#ifndef WITH_EASTL
-	using TVECTOR_BASE::push_back;
+	Shader();
 
-	T& push_back()
-	{
-		TVECTOR_BASE::push_back(T());
-		return TVECTOR_BASE::back();
-	}
-
-	void set_capacity(size_t n = ~0)
-	{
-		size_t iSize = TVECTOR_BASE::size();
-		if((n == ~0) || (n <= iSize))
-		{
-			if(n < iSize)
-				TVECTOR_BASE::resize(n);
-
-			tvector temp(*this); 
-			swap(temp, *this);
-		}
-		else
-			TVECTOR_BASE::resize(n);
-	}
-#endif
-
-	void sort()
-	{
-#ifdef WITH_EASTL
-		eastl::sort(begin(), end());
-#else
-		std::sort(begin(), end());
-#endif
-	}
+	bool Compile(size_t index, struct ShaderLibrary* library);
+	void Destroy();
 };
+
+struct ShaderLibrary
+{
+	Shader m_shaders[MAX_SHADERS];
+
+	tstring* m_header;
+	tstring* m_functions;
+	tstring* m_main;
+
+	int m_samples;
+
+	int m_compiled : 1;
+
+	ShaderLibrary();
+	~ShaderLibrary();
+
+	void Initialize(int samples);
+	void Destroy();
+
+	void CompileShaders();
+
+	Shader*			GetShader(const tstring& sName);
+	Shader*			GetShader(size_t i);
+
+	size_t			GetProgram(const tstring& sName);
+
+	void				DestroyShaders();
+
+	bool				IsCompiled() { return !!m_compiled; };
+
+	void					ClearLog();
+	void					WriteLog(const tstring& sFile, const char* pszLog, const char* pszShaderText);
+
+	bool					m_bLogNeedsClearing;
+};
+
+#endif

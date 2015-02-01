@@ -1,3 +1,0 @@
-Name: line
-Vertex: line
-Fragment: line

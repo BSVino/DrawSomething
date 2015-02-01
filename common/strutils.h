@@ -470,9 +470,9 @@ inline size_t tstrlen(const tchar* s)
 	return std::char_traits<tchar>::length(s);
 }
 
-inline int tstrncmp(const tchar* s1, const tchar* s2, size_t n)
+inline int tstrncmp(const char* s1, const char* s2, size_t n1, size_t n2)
 {
-	return std::char_traits<tchar>::compare(s1, s2, n);
+	return strncmp(s1, s2, tmin(n1, n2));
 }
 
 inline void TMsgStdOut(const tstring& sOut)
