@@ -37,8 +37,13 @@ int main(int argc, char** args)
 	bool game_active = true;
 
 	// TODO: Make some callbacks into the main tinker2 binary to eliminate duplicate code.
-	g_server_code.m_game_init(&g_server_code.m_game_data, argc, args);
-	g_client_code.m_game_init(&g_client_code.m_game_data, argc, args);
+	if (!g_server_code.m_game_init(&g_server_code.m_game_data, argc, args))
+		return 1;
+
+	if (!g_client_code.m_game_init(&g_client_code.m_game_data, argc, args))
+		return 1;
+
+	SetLowPeriodScheduler();
 
 	while (window.IsOpen() && game_active)
 	{
@@ -58,6 +63,8 @@ int main(int argc, char** args)
 		game_active = g_server_code.m_game_frame(&g_server_code.m_game_data);
 		game_active &= g_client_code.m_game_frame(&g_client_code.m_game_data);
 	}
+
+	ClearLowPeriodScheduler();
 
 	return 0;
 }

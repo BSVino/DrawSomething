@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ext-deps\gl3w\src\gl3w.c">
-      <Filter>Archivos de código fuente</Filter>
-    </ClCompile>
     <ClCompile Include="gamecode.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>

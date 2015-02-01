@@ -25,9 +25,9 @@ void GameCode::Load()
 	if (!CopyFileTo(binary_directory + m_binary_name, tmp_binary_name))
 		return;
 
-	tstring dbg = binary_directory + tstring(m_binary_name).substr(0, strlen(m_binary_name) - 3) + "pdb";
-	tstring dbg_copy = tmp_binary_name.substr(0, tmp_binary_name.length() - 3) + "pdb";
-	CopyFileTo(dbg, dbg_copy);
+	tstring pdb = binary_directory + tstring(m_binary_name).substr(0, strlen(m_binary_name) - 3) + "pdb";
+	tstring pdb_copy = tmp_binary_name.substr(0, tmp_binary_name.length() - 3) + "pdb";
+	CopyFileTo(pdb, pdb_copy);
 
 	m_binary_handle = LoadBinary(tmp_binary_name.c_str());
 #else
@@ -43,7 +43,10 @@ void GameCode::Load()
 #endif
 
 	m_game_frame = (GameFrameProcedure)GetProcedureAddress(m_binary_handle, "GameFrame");
+	TAssert(m_game_frame);
+
 	m_game_init = (GameInitializeProcedure)GetProcedureAddress(m_binary_handle, "GameInitialize");
+	TAssert(m_game_init);
 }
 
 void GameCode::Refresh()
@@ -51,6 +54,13 @@ void GameCode::Refresh()
 #ifdef _DEBUG
 	tstring binary_directory(g_shell.m_binary_directory);
 	if (GetFileModificationTime((binary_directory + m_binary_name).c_str()) > m_binary_modified_time)
-		Load();
+	{
+		tstring pdb = binary_directory + tstring(m_binary_name).substr(0, strlen(m_binary_name) - 3) + "pdb";
+		if (IsFile(binary_directory + m_binary_name) && IsFile(pdb))
+		{
+			SleepMS(200); // Let the compiler finish writing stuff. Otherwise, crash.
+			Load();
+		}
+	}
 #endif
 }

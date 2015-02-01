@@ -2,9 +2,6 @@
 
 #include <SDL.h>
 
-#include <GL3/gl3w.h>
-
-
 void Window::Open(const char* title, int width, int height)
 {
 	int init_mode = SDL_INIT_VIDEO | SDL_INIT_TIMER;
@@ -39,12 +36,6 @@ void Window::Open(const char* title, int width, int height)
 	SDL_GL_CreateContext(m_SDL_window);
 
 	SDL_GL_SetSwapInterval(1);
-
-#if defined(__gl3w_h_)
-	GLenum err = gl3wInit();
-	if (0 != err)
-		exit(0);
-#endif
 
 	SDL_ShowCursor(true);
 }

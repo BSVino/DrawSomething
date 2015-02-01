@@ -18,5 +18,8 @@
     <ClCompile Include="ds_main_client.cpp">
       <Filter>Archivos de recursos</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\gl3w\src\gl3w.c">
+      <Filter>Archivos de recursos</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

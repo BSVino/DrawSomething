@@ -9,6 +9,8 @@ struct ServerData
 	Player m_players[MAX_PLAYERS];
 };
 
+ServerData* g_server_data;
+
 extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** args)
 {
 	g_shell.Initialize(argc, args);
@@ -17,10 +19,10 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 	if (game_data->m_memory_size < sizeof(ServerData))
 		return 0;
 
+	g_server_data = new(game_data->m_memory) ServerData();
+
 	return 1;
 }
-
-ServerData* g_server_data;
 
 extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 {
@@ -28,7 +30,7 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 	if (game_data->m_memory_size < sizeof(ServerData))
 		return 0;
 
-	g_server_data = (ServerData*)game_data;
+	g_server_data = (ServerData*)game_data->m_memory;
 
 	return 1;
 }
