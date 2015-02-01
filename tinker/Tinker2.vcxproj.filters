@@ -15,23 +15,17 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tinker\main.cpp">
-      <Filter>Archivos de recursos</Filter>
+    <ClCompile Include="..\..\ext-deps\gl3w\src\gl3w.c">
+      <Filter>Archivos de código fuente</Filter>
     </ClCompile>
-    <ClCompile Include="tinker\window.cpp">
-      <Filter>Archivos de recursos</Filter>
+    <ClCompile Include="gamecode.cpp">
+      <Filter>Archivos de código fuente</Filter>
     </ClCompile>
-    <ClCompile Include="..\ext-deps\gl3w\src\gl3w.c">
-      <Filter>Archivos de recursos</Filter>
+    <ClCompile Include="main.cpp">
+      <Filter>Archivos de código fuente</Filter>
     </ClCompile>
-    <ClCompile Include="common\shell.cpp">
-      <Filter>Archivos de recursos</Filter>
-    </ClCompile>
-    <ClCompile Include="tinker\gamecode.cpp">
-      <Filter>Archivos de recursos</Filter>
-    </ClCompile>
-    <ClCompile Include="common\platform_win32.cpp">
-      <Filter>Archivos de recursos</Filter>
+    <ClCompile Include="window.cpp">
+      <Filter>Archivos de código fuente</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

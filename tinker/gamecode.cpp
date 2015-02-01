@@ -4,11 +4,14 @@
 
 #include "tinker_platform.h"
 
-void GameCode::Initialize(char* binary)
+void GameCode::Initialize(char* binary, size_t memory_size)
 {
 	m_binary_name = binary;
 
 	Load();
+
+	m_game_data.m_memory = malloc(memory_size);
+	m_game_data.m_memory_size = memory_size;
 }
 
 void GameCode::Load()
@@ -40,6 +43,7 @@ void GameCode::Load()
 #endif
 
 	m_game_frame = (GameFrameProcedure)GetProcedureAddress(m_binary_handle, "GameFrame");
+	m_game_init = (GameInitializeProcedure)GetProcedureAddress(m_binary_handle, "GameInitialize");
 }
 
 void GameCode::Refresh()

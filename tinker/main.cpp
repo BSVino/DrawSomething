@@ -22,8 +22,8 @@ int main(int argc, char** args)
 
 	window.Open("Tinker", 1280, 720);
 
-	g_server_code.Initialize("drawsomethingserver.dll");
-	g_client_code.Initialize("drawsomethingclient.dll");
+	g_server_code.Initialize("drawsomethingserver.dll", 1024*1024);
+	g_client_code.Initialize("drawsomethingclient.dll", 1024*1024);
 
 	double frame_end_time = 0;
 	double frame_start_time = 0;
@@ -35,6 +35,10 @@ int main(int argc, char** args)
 #endif
 
 	bool game_active = true;
+
+	// TODO: Make some callbacks into the main tinker2 binary to eliminate duplicate code.
+	g_server_code.m_game_init(&g_server_code.m_game_data, argc, args);
+	g_client_code.m_game_init(&g_client_code.m_game_data, argc, args);
 
 	while (window.IsOpen() && game_active)
 	{
@@ -51,8 +55,8 @@ int main(int argc, char** args)
 
 		frame_start_time = window.GetTime();
 
-		game_active = g_server_code.m_game_frame();
-		game_active &= g_client_code.m_game_frame();
+		game_active = g_server_code.m_game_frame(&g_server_code.m_game_data);
+		game_active &= g_client_code.m_game_frame(&g_client_code.m_game_data);
 	}
 
 	return 0;
