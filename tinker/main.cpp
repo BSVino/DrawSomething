@@ -38,6 +38,9 @@ int main(int argc, char** args)
 
 	while (window.IsOpen() && game_active)
 	{
+		g_server_code.Refresh();
+		g_client_code.Refresh();
+
 		frame_end_time = window.GetTime();
 
 		double next_frame_time = frame_start_time + target_frame_time;

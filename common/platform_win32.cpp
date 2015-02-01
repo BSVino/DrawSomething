@@ -410,9 +410,14 @@ void ClearLowPeriodScheduler()
 	timeEndPeriod(1);
 }
 
-size_t LoadBinary(char* binary)
+size_t LoadBinary(const char* binary)
 {
 	return (size_t)LoadLibraryA(binary);
+}
+
+void FreeBinary(size_t binary)
+{
+	FreeLibrary((HMODULE)binary);
 }
 
 void* GetProcedureAddress(size_t binary_handle, char* procedure_name)
