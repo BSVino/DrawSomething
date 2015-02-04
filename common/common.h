@@ -105,6 +105,12 @@ PRAGMA_WARNING_POP \
 
 #endif
 
+// TCheck and TAssert are the same thing internally but TAssert means program
+// state is definitely wrong and probably unrecoverable (eg algorithm
+// invariants), while TCheck just means something less serious but still
+// unexpected happened.
+#define TCheck(x) TAssert(x)
+
 #if defined(__ANDROID__)
 // If you hit this, the code is either incomplete or untested.
 #define TUnimplemented() do { \

@@ -78,7 +78,7 @@ void Context::UseShader(char* program_name)
 	m_frame->m_shader = m_renderer->m_shaders->FindShader(program_name);
 
 	if (*program_name)
-		TAssert(m_frame->m_shader != SHADER_INVALID);
+		TCheck(m_frame->m_shader != SHADER_INVALID);
 
 	UseShader(m_frame->m_shader);
 }
@@ -285,7 +285,7 @@ void Context::Vertex(const Vector& v)
 void Context::EndRender()
 {
 	bool valid_shader = m_frame->m_shader < MAX_SHADERS && m_frame->m_shader >= 0;
-	TAssert(valid_shader);
+	TCheck(valid_shader);
 	if (!valid_shader)
 	{
 		UseShader(SHADER_MODEL);

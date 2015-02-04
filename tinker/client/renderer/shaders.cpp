@@ -225,7 +225,7 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 
 	FILE* f = tfopen_asset(asset_shaders[index].vertex_file, "r");
 
-	TAssert(f);
+	TCheck(f);
 	if (!f)
 	{
 		TMsg(tstring("Could not open vertex program source: ") + asset_shaders[index].vertex_file + "\n");
@@ -243,7 +243,7 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 
 	f = tfopen_asset(asset_shaders[index].fragment_file, "r");
 
-	TAssert(f);
+	TCheck(f);
 	if (!f)
 	{
 		TMsg(tstring("Could not open fragment program source: ") + asset_shaders[index].fragment_file + "\n");
@@ -340,7 +340,7 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 	GLint uniform_size;
 	GLenum uniform_type;
 
-	TAssert(MAX_UNIFORMS < 100); // If this grows too much it may be time to substitute it with a different data type.
+	TCheck(MAX_UNIFORMS < 100); // If this grows too much it may be time to substitute it with a different data type.
 
 	for (int i = 0; i < num_uniforms; i++)
 	{

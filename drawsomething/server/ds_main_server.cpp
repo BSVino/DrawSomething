@@ -20,7 +20,7 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 {
 	g_shell.Initialize(argc, args);
 
-	TAssert(game_data->m_memory_size >= sizeof(ServerData));
+	TCheck(game_data->m_memory_size >= sizeof(ServerData));
 	if (game_data->m_memory_size < sizeof(ServerData))
 		return 0;
 
@@ -31,7 +31,7 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 
 extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 {
-	TAssert(game_data->m_memory_size >= sizeof(ServerData));
+	TCheck(game_data->m_memory_size >= sizeof(ServerData));
 	if (game_data->m_memory_size < sizeof(ServerData))
 		return 0;
 

@@ -242,7 +242,7 @@ void Matrix4x4::SetAngles(const EAngle& angDir)
 void Matrix4x4::SetRotation(float flAngle, const Vector& v)
 {
 	// Normalize beforehand
-	TAssert(fabs(v.LengthSqr() - 1) < 0.000001f);
+	TCheck(fabs(v.LengthSqr() - 1) < 0.000001f);
 
 	// c = cos(angle), s = sin(angle), t = (1-c)
 	// [ xxt+c   xyt-zs  xzt+ys ]
@@ -326,7 +326,7 @@ void Matrix4x4::SetScale(const Vector& vecScale)
 void Matrix4x4::SetReflection(const Vector& vecPlane)
 {
 	// Normalize beforehand or use ::SetReflection()
-	TAssert(fabs(vecPlane.LengthSqr() - 1) < 0.000001f);
+	TCheck(fabs(vecPlane.LengthSqr() - 1) < 0.000001f);
 
 	m[0][0] = 1 - 2 * vecPlane.x * vecPlane.x;
 	m[1][1] = 1 - 2 * vecPlane.y * vecPlane.y;
@@ -399,7 +399,7 @@ Matrix4x4 Matrix4x4::ConstructCameraView(const Vector& vecPosition, const Vector
 	
 	m.Identity();
 
-	TAssert(fabs(vecDirection.LengthSqr() - 1) < 0.0001f);
+	TCheck(fabs(vecDirection.LengthSqr() - 1) < 0.0001f);
 
 	Vector vecCamSide = vecDirection.Cross(vecUp).Normalized();
 	Vector vecCamUp = vecCamSide.Cross(vecDirection);
@@ -544,28 +544,28 @@ EAngle Matrix4x4::GetAngles() const
 	bool b = fabs(GetForwardVector().LengthSqr() - 1) < 0.001f;
 	if (!b)
 	{
-		TAssert(b);
+		TCheck(b);
 		return EAngle(0, 0, 0);
 	}
 
 	b = fabs(GetUpVector().LengthSqr() - 1) < 0.001f;
 	if (!b)
 	{
-		TAssert(b);
+		TCheck(b);
 		return EAngle(0, 0, 0);
 	}
 
 	b = fabs(GetLeftVector().LengthSqr() - 1) < 0.001f;
 	if (!b)
 	{
-		TAssert(b);
+		TCheck(b);
 		return EAngle(0, 0, 0);
 	}
 
 	b = GetForwardVector().Cross(GetLeftVector()).Equals(GetUpVector(), 0.001f);
 	if (!b)
 	{
-		TAssert(b);
+		TCheck(b);
 		return EAngle(0, 0, 0);
 	}
 #endif
@@ -688,9 +688,9 @@ void Matrix4x4::SetUpVector(const Vector& v)
 // Not a true inversion, only works if the matrix is a translation/rotation matrix.
 void Matrix4x4::InvertRT()
 {
-	TAssert(fabs(GetForwardVector().LengthSqr() - 1) < 0.00001f);
-	TAssert(fabs(GetLeftVector().LengthSqr() - 1) < 0.00001f);
-	TAssert(fabs(GetUpVector().LengthSqr() - 1) < 0.00001f);
+	TCheck(fabs(GetForwardVector().LengthSqr() - 1) < 0.00001f);
+	TCheck(fabs(GetLeftVector().LengthSqr() - 1) < 0.00001f);
+	TCheck(fabs(GetUpVector().LengthSqr() - 1) < 0.00001f);
 
 	Matrix4x4 t;
 
@@ -707,9 +707,9 @@ void Matrix4x4::InvertRT()
 
 Matrix4x4 Matrix4x4::InvertedRT() const
 {
-	TAssert(fabs(GetForwardVector().LengthSqr() - 1) < 0.00001f);
-	TAssert(fabs(GetLeftVector().LengthSqr() - 1) < 0.00001f);
-	TAssert(fabs(GetUpVector().LengthSqr() - 1) < 0.00001f);
+	TCheck(fabs(GetForwardVector().LengthSqr() - 1) < 0.00001f);
+	TCheck(fabs(GetLeftVector().LengthSqr() - 1) < 0.00001f);
+	TCheck(fabs(GetUpVector().LengthSqr() - 1) < 0.00001f);
 
 	Matrix4x4 r;
 
@@ -898,9 +898,9 @@ void DoubleMatrix4x4::SetUpVector(const DoubleVector& v)
 
 DoubleMatrix4x4 DoubleMatrix4x4::InvertedRT() const
 {
-	TAssert(fabs(GetForwardVector().LengthSqr() - 1) < 0.00001);
-	TAssert(fabs(GetLeftVector().LengthSqr() - 1) < 0.00001);
-	TAssert(fabs(GetUpVector().LengthSqr() - 1) < 0.00001);
+	TCheck(fabs(GetForwardVector().LengthSqr() - 1) < 0.00001);
+	TCheck(fabs(GetLeftVector().LengthSqr() - 1) < 0.00001);
+	TCheck(fabs(GetUpVector().LengthSqr() - 1) < 0.00001);
 
 	DoubleMatrix4x4 r;
 

@@ -36,7 +36,7 @@ void GameCode::Load()
 	m_binary_handle = LoadBinary(m_binary_name);
 #endif
 
-	TAssert(m_binary_handle);
+	TCheck(m_binary_handle);
 	if (!m_binary_handle)
 		return;
 
