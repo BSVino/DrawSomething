@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\ext-deps\gl3w\src\gl3w.c" />
+    <ClCompile Include="..\..\..\Viewback\server\viewback.c" />
     <ClCompile Include="..\..\tinker\assets.cpp" />
     <ClCompile Include="..\..\tinker\client\renderer\context.cpp" />
     <ClCompile Include="..\..\tinker\client\renderer\renderer.cpp" />

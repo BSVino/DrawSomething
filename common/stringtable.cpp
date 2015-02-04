@@ -30,3 +30,20 @@ char* st_get(StringTable& st, StringTableIndex string)
 {
 	return &st.data()[string];
 }
+
+StringTableIndex st_find(StringTable& st, char* s)
+{
+	size_t st_size = st.size();
+	const char* p = st.data();
+	do
+	{
+		if (strcmp(p, s) == 0)
+			return (StringTableIndex)(p - st.data());
+
+		p += strlen(p)+1;
+	} while ((size_t)(p - st.data()) < st_size);
+
+	return (StringTableIndex)~0;
+}
+
+

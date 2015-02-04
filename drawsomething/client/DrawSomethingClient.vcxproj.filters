@@ -16,6 +16,9 @@
     <Filter Include="Archivos de recursos\renderer">
       <UniqueIdentifier>{d3f13e08-a187-412d-a7c1-0db38a7bb903}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de recursos\viewback">
+      <UniqueIdentifier>{17d168c0-8ecf-4a36-9bd1-c3fc012d2d75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ds_main_client.cpp">
@@ -38,6 +41,9 @@
     </ClCompile>
     <ClCompile Include="..\..\tinker\client\renderer\context.cpp">
       <Filter>Archivos de recursos\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Viewback\server\viewback.c">
+      <Filter>Archivos de recursos\viewback</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
