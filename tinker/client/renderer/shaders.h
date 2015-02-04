@@ -42,9 +42,11 @@ struct Shader
 	size_t m_texcoord_attributes[MAX_TEXTURE_CHANNELS];
 	size_t m_color_attribute;
 
+	UniformIndex m_uniforms[MAX_UNIFORMS];
+
 	Shader();
 
-	bool Compile(size_t index, struct ShaderLibrary* library);
+	bool Compile(ShaderIndex index, struct ShaderLibrary* library);
 	void Destroy();
 };
 
@@ -59,6 +61,7 @@ struct ShaderLibrary
 	int m_samples;
 
 	int m_compiled : 1;
+	int m_log_needs_clearing : 1;
 
 	ShaderLibrary();
 	~ShaderLibrary();
@@ -67,20 +70,12 @@ struct ShaderLibrary
 	void Destroy();
 
 	void CompileShaders();
+	void DestroyShaders();
 
-	Shader*			GetShader(const tstring& sName);
-	Shader*			GetShader(size_t i);
+	ShaderIndex FindShader(char* name);
 
-	size_t			GetProgram(const tstring& sName);
-
-	void				DestroyShaders();
-
-	bool				IsCompiled() { return !!m_compiled; };
-
-	void					ClearLog();
-	void					WriteLog(const tstring& sFile, const char* pszLog, const char* pszShaderText);
-
-	bool					m_bLogNeedsClearing;
+	void ClearLog();
+	void WriteLog(const tstring& file, const char* log, const char* shader_text);
 };
 
 #endif

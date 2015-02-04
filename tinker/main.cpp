@@ -22,8 +22,8 @@ int main(int argc, char** args)
 
 	window.Open("Tinker", 1280, 720);
 
-	g_server_code.Initialize("drawsomethingserver.dll", 1024*1024);
-	g_client_code.Initialize("drawsomethingclient.dll", 1024*1024);
+	g_server_code.Initialize("drawsomethingserver.dll", 1024 * 1024, &window.m_data);
+	g_client_code.Initialize("drawsomethingclient.dll", 1024 * 1024, &window.m_data);
 
 	double frame_end_time = 0;
 	double frame_start_time = 0;
@@ -60,8 +60,12 @@ int main(int argc, char** args)
 
 		frame_start_time = window.GetTime();
 
+		window.PollEvents();
+
 		game_active = g_server_code.m_game_frame(&g_server_code.m_game_data);
 		game_active &= g_client_code.m_game_frame(&g_client_code.m_game_data);
+
+		window.SwapBuffers();
 	}
 
 	ClearLowPeriodScheduler();

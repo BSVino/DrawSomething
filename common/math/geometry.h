@@ -992,7 +992,7 @@ inline bool LineSegmentIntersectsSphere(const Vector& v1, const Vector& v2, cons
 	{
 		// We are inside the sphere. Is this even possible? I dunno. I'm putting an assert here to see.
 		// If it's still here later that means no.
-		TAssertNoMsg(false);
+		TAssert(false);
 		vecPoint = v1;
 		vecNormal = (v1 - s).Normalized();
 		return true;
@@ -1016,7 +1016,7 @@ inline bool LineSegmentIntersectsSphere(const Vector& v1, const Vector& v2, cons
 	vecNormal = vecDifference / flDifferenceLength;
 	if (flDifferenceLength < flRadius)
 		vecPoint += vecNormal * ((flRadius - flDifferenceLength) + 0.00001f);
-	TAssertNoMsg((vecPoint - s).LengthSqr() >= flRadius*flRadius);
+	TAssert((vecPoint - s).LengthSqr() >= flRadius*flRadius);
 
 	return true;
 }
@@ -1155,7 +1155,7 @@ inline bool	TriangleIntersectsAABB( const TemplateAABB<F>& oBox, const TemplateV
 
 inline bool	ConvexHullIntersectsAABB(const AABB& oBox, const tvector<Vector>& avecPoints, const tvector<size_t>& aiTriangles)
 {
-	TAssertNoMsg(aiTriangles.size()%3 == 0);
+	TAssert(aiTriangles.size() % 3 == 0);
 
 	Vector vecCenter = oBox.Center();
 	Vector n;

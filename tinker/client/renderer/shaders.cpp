@@ -118,14 +118,14 @@ void ShaderLibrary::CompileShaders()
 	{
 		// If this is a recompile just blow through them.
 		for (size_t i = 0; i < MAX_SHADERS; i++)
-			m_shaders[i].Compile(i, this);
+			m_shaders[i].Compile((ShaderIndex)i, this);
 	}
 	else
 	{
 		bool shaders_compiled = true;
 		for (size_t i = 0; i < MAX_SHADERS; i++)
 		{
-			shaders_compiled &= m_shaders[i].Compile(i, this);
+			shaders_compiled &= m_shaders[i].Compile((ShaderIndex)i, this);
 
 			if (!shaders_compiled)
 				break;
@@ -148,9 +148,20 @@ void ShaderLibrary::DestroyShaders()
 	m_compiled = false;
 }
 
+ShaderIndex ShaderLibrary::FindShader(char* name)
+{
+	for (int i = 0; i < MAX_SHADERS; i++)
+	{
+		if (strcmp(name, asset_shaders[i].name) == 0)
+			return (ShaderIndex)i;
+	}
+
+	return SHADER_INVALID;
+}
+
 void ShaderLibrary::ClearLog()
 {
-	m_bLogNeedsClearing = true;
+	m_log_needs_clearing = true;
 }
 
 void ShaderLibrary::WriteLog(const tstring& sFile, const char* pszLog, const char* pszShaderText)
@@ -164,12 +175,12 @@ void ShaderLibrary::WriteLog(const tstring& sFile, const char* pszLog, const cha
 
 	TMsg(tsprintf("Log file location: %s\n", sLogFile.c_str()));
 
-	if (m_bLogNeedsClearing)
+	if (m_log_needs_clearing)
 	{
 		// Only clear it if we're actually going to write to it so we don't create the file.
 		FILE* fp = tfopen(sLogFile, "w");
 		fclose(fp);
-		m_bLogNeedsClearing = false;
+		m_log_needs_clearing = false;
 	}
 
 	FILE* fp = tfopen(sLogFile, "a");
@@ -195,7 +206,7 @@ Shader::Shader()
 	m_program = 0;
 }
 
-bool Shader::Compile(size_t index, ShaderLibrary* library)
+bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 {
 	tstring shader_header_text = *library->m_header;
 
@@ -320,6 +331,34 @@ bool Shader::Compile(size_t index, ShaderLibrary* library)
 	m_color_attribute = glGetAttribLocation((GLuint)m_program, "vecVertexColor");
 
 	TAssert(m_position_attribute != ~0);
+
+	int num_uniforms;
+	glGetProgramiv((GLuint)m_program, GL_ACTIVE_UNIFORMS, &num_uniforms);
+
+	char uniform_name[256];
+	GLsizei uniform_name_length;
+	GLint uniform_size;
+	GLenum uniform_type;
+
+	TAssert(MAX_UNIFORMS < 100); // If this grows too much it may be time to substitute it with a different data type.
+
+	for (int i = 0; i < num_uniforms; i++)
+	{
+		glGetActiveUniform((GLuint)m_program, i, sizeof(uniform_name), &uniform_name_length, &uniform_size, &uniform_type, uniform_name);
+
+		UniformIndex k;
+		for (k = (UniformIndex)0; k < MAX_UNIFORMS; k = (UniformIndex)(k+1))
+		{
+			if (strcmp(asset_shaders[index].uniform_names[k], uniform_name) == 0)
+				break;
+		}
+
+		// TODO: This should be an assert.
+		if (k == MAX_UNIFORMS)
+			continue;
+
+		m_uniforms[k] = (UniformIndex)glGetUniformLocation((GLuint)m_program, uniform_name);
+	}
 
 	return true;
 }

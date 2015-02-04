@@ -86,8 +86,8 @@ int main(int argc, char** args)
 
 	KVData data;
 
-	fprintf(fp_header, "struct AssetShader {\n\tconst char* vertex_file;\n\tconst char* fragment_file;\n};\n\n// This is guaranteed to be sorted.\nextern AssetShader asset_shaders[];\n");
-	fprintf(fp_source, "// This is guaranteed to be sorted.\nAssetShader asset_shaders[] = {\n");
+	fprintf(fp_header, "typedef enum {\n\tSHADER_INVALID = -1,\n");
+	fprintf(fp_source, "// This is guaranteed to be sorted by name.\nAssetShader asset_shaders[] = {\n");
 
 	for (size_t i = 0; i < shaders.size(); i++)
 	{
@@ -98,11 +98,17 @@ int main(int argc, char** args)
 
 		fclose(fp);
 
-		fprintf(fp_source, "\t{\"shaders/%s.vs\", \"shaders/%s.fs\" },\n", data.FindChildValueString(-1, "Vertex"), data.FindChildValueString(-1, "Fragment"));
+		fprintf(fp_source, "\t{ \"%s\", \"shaders/%s.vs\", \"shaders/%s.fs\", \"mProjection\", \"mView\", \"mGlobal\", },\n", data.FindChildValueString(-1, "Name"), data.FindChildValueString(-1, "Vertex"), data.FindChildValueString(-1, "Fragment"));
+		fprintf(fp_header, "\tSHADER_%s = %d,\n", tstring(data.FindChildValueString(-1, "Name")).toupper().c_str(), i);
 	}
 
-	fprintf(fp_header, "#define MAX_SHADERS %d\n\n", shaders.size());
+	fprintf(fp_header, "\tMAX_SHADERS = %d,\n} ShaderIndex;\n\n", shaders.size());
+
+	fprintf(fp_header, "typedef enum {\n\tUNIFORM_INVALID = -1,\n\t// Common uniforms\n\tUNIFORM_PROJECTION = 0,\n\tUNIFORM_VIEW = 1,\n\tUNIFORM_GLOBAL = 2,\n\tMAX_UNIFORMS = 3,\n} UniformIndex;\n\n");
+
 	fprintf(fp_source, "};\n\n");
+
+	fprintf(fp_header, "struct AssetShader {\n\tconst char* name;\n\tconst char* vertex_file;\n\tconst char* fragment_file;\n\tconst char* uniform_names[MAX_UNIFORMS];\n};\n// This is guaranteed to be sorted by name.\nextern AssetShader asset_shaders[];\n\n");
 
 	fclose(fp_header);
 	fclose(fp_source);

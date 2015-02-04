@@ -1,0 +1,45 @@
+Name: model
+Vertex: pass
+Fragment: model
+
+Parameter: DiffuseTexture
+{
+	Uniform: bDiffuse
+	{
+		Value: yes
+	}
+	Uniform: iDiffuse
+	{
+		Texture: [value]
+	}
+}
+
+Parameter: Color
+{
+	Uniform: vecColor
+	{
+		Value: [value]
+	}
+}
+
+Parameter: Diffuse
+{
+	Uniform: vecDiffuse
+	{
+		Value: [value]
+	}
+}
+
+Parameter: Blend
+{
+	Blend: [value]
+}
+
+Defaults
+{
+	bDiffuse: no
+	vecColor: 1 1 1 1
+	vecDiffuse: 1 1 1 1
+	flAlpha: 1
+	bColorSwapInAlpha: off
+}

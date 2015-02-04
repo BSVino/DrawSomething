@@ -4,11 +4,17 @@
 #include "shell.h"
 
 #include "gamecode.h"
-#include "client/renderer/shaders.h"
 
 #include "ds_client.h"
 
 ClientData* g_client_data;
+
+extern "C" TDLLEXPORT void GameLoad()
+{
+#if defined(__gl3w_h_)
+	gl3wInit(); // We don't care about the return value
+#endif
+}
 
 extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** args)
 {
@@ -24,7 +30,7 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 	if (game_data->m_memory_size < sizeof(ClientData))
 		return 0;
 
-	g_client_data = new(game_data->m_memory) ClientData();
+	g_client_data = new(game_data->m_memory) ClientData(game_data->m_window_data);
 
 	GLint samples;
 	glGetIntegerv(GL_SAMPLES, &samples);
@@ -36,6 +42,8 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 {
 	g_client_data = (ClientData*)game_data->m_memory;
+
+	g_client_data->m_renderer.Draw();
 
 	return 1;
 }

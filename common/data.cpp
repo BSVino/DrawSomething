@@ -157,7 +157,7 @@ int DataParseBlock(KVData* data, KVEntryIndex parent, KVEntryIndex* block)
 	if (!DataParseKeyValue(&key, &value))
 		return 0;
 
-	TAssert(data->m_data.size() < (KVEntryIndex)~0);
+	TAssert(data->m_data.size() < TInvalid(KVEntryIndex));
 
 	KVEntryIndex index = *block = (KVEntryIndex)data->m_data.size();
 	KVEntry& entry = data->m_data.push_back();
@@ -200,7 +200,7 @@ int DataParseBlocks(KVData* data, KVEntryIndex parent)
 
 	while (DataParseBlock(data, parent, &block))
 	{
-		if (last_block == (KVEntryIndex)~0)
+		if (last_block == TInvalid(KVEntryIndex))
 			first_block = block;
 		else
 			data->m_data[last_block].next_sibling = block;
@@ -215,7 +215,7 @@ int DataParseBlocks(KVData* data, KVEntryIndex parent)
 	if (num_children)
 		data->m_data[block].next_sibling = ~0;
 
-	if (parent != (KVEntryIndex)~0)
+	if (parent != TInvalid(KVEntryIndex))
 	{
 		data->m_data[parent].first_child = first_block;
 		data->m_data[parent].num_children = num_children;
@@ -283,10 +283,10 @@ void KVData::Reset()
 KVEntryIndex KVData::FindEntryIndex(KVEntryIndex parent, char* key)
 {
 	KVEntryIndex first = 0;
-	if (parent != (KVEntryIndex)~0)
+	if (parent != TInvalid(KVEntryIndex))
 		first = m_data[parent].first_child;
 
-	for (KVEntryIndex i = first; i != (KVEntryIndex)~0; i = m_data[i].next_sibling)
+	for (KVEntryIndex i = first; i != TInvalid(KVEntryIndex); i = m_data[i].next_sibling)
 		if (strcmp(st_get(m_strings, m_data[i].key), key) == 0)
 			return i;
 
@@ -296,7 +296,7 @@ KVEntryIndex KVData::FindEntryIndex(KVEntryIndex parent, char* key)
 char* KVData::FindChildValueString(KVEntryIndex parent, char* key, char* def)
 {
 	KVEntryIndex entry = FindEntryIndex(parent, key);
-	if (entry == (KVEntryIndex)~0)
+	if (entry == TInvalid(KVEntryIndex))
 		return def;
 
 	return st_get(m_strings, m_data[entry].value);

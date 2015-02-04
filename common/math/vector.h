@@ -279,7 +279,7 @@ inline void TemplateVector<unit_t>::Normalize()
 	unit_t flLength = Length();
 	if (!flLength)
 	{
-		TAssertNoMsg(false);
+		TAssert(false);
 		*this=TemplateVector(0,0,1);
 	}
 	else
@@ -292,7 +292,7 @@ inline const TemplateVector<unit_t> TemplateVector<unit_t>::Normalized() const
 	unit_t flLength = Length();
 	if (!flLength)
 	{
-		TAssertNoMsg(false);
+		TAssert(false);
 		return TemplateVector(0,0,1);
 	}
 	else

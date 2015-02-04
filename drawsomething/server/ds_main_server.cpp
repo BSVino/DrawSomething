@@ -11,6 +11,11 @@ struct ServerData
 
 ServerData* g_server_data;
 
+extern "C" TDLLEXPORT void GameLoad()
+{
+
+}
+
 extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** args)
 {
 	g_shell.Initialize(argc, args);

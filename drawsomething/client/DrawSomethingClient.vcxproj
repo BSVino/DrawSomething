@@ -21,8 +21,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\ext-deps\gl3w\src\gl3w.c" />
     <ClCompile Include="..\..\tinker\assets.cpp" />
+    <ClCompile Include="..\..\tinker\client\renderer\context.cpp" />
+    <ClCompile Include="..\..\tinker\client\renderer\renderer.cpp" />
     <ClCompile Include="..\..\tinker\client\renderer\shaders.cpp" />
     <ClCompile Include="ds_main_client.cpp" />
+    <ClCompile Include="renderer\ds_renderer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <RootNamespace>DrawSomethingGame</RootNamespace>
