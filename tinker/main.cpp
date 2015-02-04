@@ -22,8 +22,8 @@ int main(int argc, char** args)
 
 	window.Open("Tinker", 1280, 720);
 
-	g_server_code.Initialize("drawsomethingserver.dll", 1024 * 1024, &window.m_data);
-	g_client_code.Initialize("drawsomethingclient.dll", 1024 * 1024, &window.m_data);
+	g_server_code.Initialize("drawsomethingserver.dll", &window.m_data);
+	g_client_code.Initialize("drawsomethingclient.dll", &window.m_data);
 
 	double frame_end_time = 0;
 	double frame_start_time = 0;

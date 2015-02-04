@@ -9,7 +9,12 @@
 
 ClientData* g_client_data;
 
-extern "C" TDLLEXPORT void GameLoad()
+extern "C" TDLLEXPORT size_t GetMemorySize()
+{
+	return sizeof(ClientData);
+}
+
+extern "C" TDLLEXPORT void LibraryLoaded()
 {
 #if defined(__gl3w_h_)
 	gl3wInit(); // We don't care about the return value

@@ -11,9 +11,13 @@ struct ServerData
 
 ServerData* g_server_data;
 
-extern "C" TDLLEXPORT void GameLoad()
+extern "C" TDLLEXPORT size_t GetMemorySize()
 {
+	return sizeof(ServerData);
+}
 
+extern "C" TDLLEXPORT void LibraryLoaded()
+{
 }
 
 extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** args)

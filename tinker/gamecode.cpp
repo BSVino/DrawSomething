@@ -5,15 +5,15 @@
 #include "shell.h"
 #include "window.h"
 
-void GameCode::Initialize(char* binary, size_t memory_size, struct WindowData* window_data)
+void GameCode::Initialize(char* binary, struct WindowData* window_data)
 {
 	m_binary_name = binary;
 
 	Load();
 
 	m_game_data.m_window_data = window_data;
-	m_game_data.m_memory = malloc(memory_size);
-	m_game_data.m_memory_size = memory_size;
+	m_game_data.m_memory_size = m_get_memory_size();
+	m_game_data.m_memory = malloc(m_game_data.m_memory_size);
 }
 
 void GameCode::Load()
@@ -44,16 +44,19 @@ void GameCode::Load()
 	m_binary_modified_time = GetFileModificationTime((binary_directory + m_binary_name).c_str());
 #endif
 
+	m_get_memory_size = (GetMemorySizeProcedure)GetProcedureAddress(m_binary_handle, "GetMemorySize");
+	TAssert(m_get_memory_size);
+
 	m_game_frame = (GameFrameProcedure)GetProcedureAddress(m_binary_handle, "GameFrame");
 	TAssert(m_game_frame);
 
 	m_game_init = (GameInitializeProcedure)GetProcedureAddress(m_binary_handle, "GameInitialize");
 	TAssert(m_game_init);
 
-	m_game_load = (GameLoadProcedure)GetProcedureAddress(m_binary_handle, "GameLoad");
-	TAssert(m_game_load);
+	m_library_loaded = (LibraryLoadedProcedure)GetProcedureAddress(m_binary_handle, "LibraryLoaded");
+	TAssert(m_library_loaded);
 
-	m_game_load();
+	m_library_loaded();
 }
 
 void GameCode::Refresh()

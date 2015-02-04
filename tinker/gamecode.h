@@ -10,9 +10,10 @@ struct GameData
 	size_t  m_memory_size;
 };
 
+typedef size_t(*GetMemorySizeProcedure)();
 typedef bool(*GameInitializeProcedure)(GameData* game_data, int argc, char** args);
 typedef bool(*GameFrameProcedure)(GameData* game_data);
-typedef void(*GameLoadProcedure)();
+typedef void(*LibraryLoadedProcedure)();
 
 struct GameCode
 {
@@ -24,11 +25,12 @@ struct GameCode
 
 	GameData m_game_data;
 
+	GetMemorySizeProcedure m_get_memory_size;
 	GameInitializeProcedure m_game_init;
 	GameFrameProcedure m_game_frame;
-	GameLoadProcedure m_game_load;
+	LibraryLoadedProcedure m_library_loaded;
 
-	void Initialize(char* binary, size_t memory_size, struct WindowData* window_data);
+	void Initialize(char* binary, struct WindowData* window_data);
 	void Load();
 	void Refresh();
 };
