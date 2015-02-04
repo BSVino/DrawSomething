@@ -2,6 +2,8 @@
 
 #include <SDL.h>
 
+#include "input.h"
+
 void Window::Open(const char* title, int width, int height)
 {
 	int init_mode = SDL_INIT_VIDEO | SDL_INIT_TIMER;
@@ -39,7 +41,7 @@ void Window::Open(const char* title, int width, int height)
 
 	SDL_GL_SetSwapInterval(1);
 
-	SDL_ShowCursor(true);
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 bool Window::IsOpen()
@@ -58,8 +60,10 @@ double Window::GetTime()
 	return (double)(SDL_GetTicks()) / 1000;
 }
 
-void Window::PollEvents()
+void Window::PollEvents(ControlData* input)
 {
+	input->mouse_dx = input->mouse_dy = 0;
+
 	SDL_Event e;
 
 	while (SDL_PollEvent(&e))
@@ -68,6 +72,14 @@ void Window::PollEvents()
 		{
 		case SDL_QUIT:
 			m_open = false;
+			break;
+
+		case SDL_MOUSEMOTION:
+			if (SDL_GetWindowFlags(m_SDL_window)&SDL_WINDOW_INPUT_FOCUS)
+			{
+				input->mouse_dx = e.motion.xrel;
+				input->mouse_dy = e.motion.yrel;
+			}
 			break;
 
 		default:

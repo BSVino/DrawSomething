@@ -45,6 +45,7 @@ void GetScreenDPI(float& xdpi, float& ydpi); // The number of physical pixels pe
 void EnableMulticast();
 void SetLowPeriodScheduler();
 void ClearLowPeriodScheduler();
+void InitializeNetworking();
 size_t LoadBinary(const char* binary);
 void FreeBinary(size_t binary);
 void* GetProcedureAddress(size_t binary_handle, char* procedure_name);

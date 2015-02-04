@@ -5,6 +5,9 @@
 struct GameData
 {
 	struct WindowData* m_window_data;
+	struct ControlData* m_input;
+
+	double m_game_time;
 
 	void*   m_memory;
 	size_t  m_memory_size;
@@ -30,7 +33,7 @@ struct GameCode
 	GameFrameProcedure m_game_frame;
 	LibraryLoadedProcedure m_library_loaded;
 
-	void Initialize(char* binary, struct WindowData* window_data);
+	void Initialize(char* binary, struct WindowData* window_data, struct ControlData* input);
 	void Load();
 	void Refresh();
 };

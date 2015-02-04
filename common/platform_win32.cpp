@@ -409,6 +409,13 @@ void ClearLowPeriodScheduler()
 	timeEndPeriod(1);
 }
 
+void InitializeNetworking()
+{
+	WSADATA wsadata;
+	int result = WSAStartup(MAKEWORD(2, 0), &wsadata);
+	TCheck(!result);
+}
+
 size_t LoadBinary(const char* binary)
 {
 	return (size_t)LoadLibraryA(binary);

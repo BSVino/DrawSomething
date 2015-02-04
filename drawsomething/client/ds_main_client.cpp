@@ -4,6 +4,7 @@
 #include "shell.h"
 
 #include "gamecode.h"
+#include "input.h"
 
 #include "ds_client.h"
 
@@ -19,6 +20,8 @@ extern "C" TDLLEXPORT void LibraryLoaded()
 #if defined(__gl3w_h_)
 	gl3wInit(); // We don't care about the return value
 #endif
+
+	InitializeNetworking();
 }
 
 extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** args)
@@ -47,6 +50,9 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 {
 	g_client_data = (ClientData*)game_data->m_memory;
+
+	g_client_data->m_renderer.m_pitch -= game_data->m_input->mouse_dy;
+	g_client_data->m_renderer.m_yaw -= game_data->m_input->mouse_dx;
 
 	g_client_data->m_renderer.Draw();
 

@@ -20,7 +20,7 @@ struct Window
 
 	double GetTime();
 
-	void PollEvents();
+	void PollEvents(struct ControlData* input);
 
 	void SwapBuffers();
 };

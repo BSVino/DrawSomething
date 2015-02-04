@@ -4,6 +4,7 @@
 #include "tinker_platform.h"
 
 #include "gamecode.h"
+#include "input.h"
 
 #include <direct.h>
 #define chdir _chdir
@@ -22,8 +23,10 @@ int main(int argc, char** args)
 
 	window.Open("Tinker", 1280, 720);
 
-	g_server_code.Initialize("drawsomethingserver.dll", &window.m_data);
-	g_client_code.Initialize("drawsomethingclient.dll", &window.m_data);
+	ControlData input;
+
+	g_server_code.Initialize("drawsomethingserver.dll", &window.m_data, &input);
+	g_client_code.Initialize("drawsomethingclient.dll", &window.m_data, &input);
 
 	double frame_end_time = 0;
 	double frame_start_time = 0;
@@ -58,9 +61,9 @@ int main(int argc, char** args)
 		if (time_to_sleep_seconds > 0.001)
 			SleepMS((size_t)(time_to_sleep_seconds * 1000));
 
-		frame_start_time = window.GetTime();
+		g_server_code.m_game_data.m_game_time = g_client_code.m_game_data.m_game_time = frame_start_time = window.GetTime();
 
-		window.PollEvents();
+		window.PollEvents(&input);
 
 		game_active = g_server_code.m_game_frame(&g_server_code.m_game_data);
 		game_active &= g_client_code.m_game_frame(&g_client_code.m_game_data);

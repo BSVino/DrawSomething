@@ -112,7 +112,7 @@ int main(int argc, char** args)
 
 	if (input_time < output_time)
 	{
-		printf("PLAYROOM: No source files have changed. Skipping code generation.\n");
+		printf("PLAYROOM: No asset files have changed. Skipping code generation.\n");
 		return 0;
 	}
 
