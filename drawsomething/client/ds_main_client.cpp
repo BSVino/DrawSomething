@@ -26,7 +26,7 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 		return 0;
 #endif
 
-	TAssert(game_data->m_memory_size >= sizeof(ClientData));
+	TCheck(game_data->m_memory_size >= sizeof(ClientData));
 	if (game_data->m_memory_size < sizeof(ClientData))
 		return 0;
 
