@@ -11,6 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DrawSomethingServer", "draw
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DrawSomethingClient", "drawsomething\client\DrawSomethingClient.vcxproj", "{D399AB6F-61A9-4161-A47E-D7B51CF3C5AC}"
 	ProjectSection(ProjectDependencies) = postProject
+		{15C5492C-AEEF-4054-B393-528C5F117D4B} = {15C5492C-AEEF-4054-B393-528C5F117D4B}
 		{DC7FC75C-0D74-4532-A9FC-6B8A142E3E68} = {DC7FC75C-0D74-4532-A9FC-6B8A142E3E68}
 		{503C4083-C975-48A0-8C28-4AFE74C7614F} = {503C4083-C975-48A0-8C28-4AFE74C7614F}
 		{48B92BCB-71AF-4016-91A1-620647B6F6F2} = {48B92BCB-71AF-4016-91A1-620647B6F6F2}
@@ -24,6 +25,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tinker2", "tinker\Tinker2.v
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "playroom", "tools\playroom\playroom.vcxproj", "{15C5492C-AEEF-4054-B393-528C5F117D4B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{503C4083-C975-48A0-8C28-4AFE74C7614F} = {503C4083-C975-48A0-8C28-4AFE74C7614F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
