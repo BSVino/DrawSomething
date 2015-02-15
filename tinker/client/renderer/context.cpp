@@ -61,13 +61,13 @@ Context::~Context()
 	}
 }
 
-void Context::SetProjection(const Matrix4x4& m)
+void Context::SetProjection(const mat4& m)
 {
 	m_frame->m_projection = m;
 	m_frame->m_projection_updated = false;
 }
 
-void Context::SetView(const Matrix4x4& m)
+void Context::SetView(const mat4& m)
 {
 	m_frame->m_view = m;
 	m_frame->m_view_updated = false;
@@ -99,7 +99,7 @@ void Context::UseShader(ShaderIndex shader)
 	m_frame->m_view_updated = false;
 }
 
-void Context::SetUniform(UniformIndex uniform, const Matrix4x4& value)
+void Context::SetUniform(UniformIndex uniform, const mat4& value)
 {
 	glUniformMatrix4fv(m_renderer->m_shaders->m_shaders[m_frame->m_shader].m_uniforms[uniform], 1, false, value);
 }
@@ -212,12 +212,12 @@ void Context::TexCoord(float s, float t, int channel)
 {
 	TAssert(channel == 0); // EndRender() needs updating if you want to use another channel.
 
-	m_texcoords[channel] = Vector2D(s, t);
+	m_texcoords[channel] = vec2(s, t);
 
 	m_has_texcoord = true;
 }
 
-void Context::TexCoord(const Vector2D& v, int channel)
+void Context::TexCoord(const vec2& v, int channel)
 {
 	TAssert(channel == 0); // EndRender() needs updating if you want to use another channel.
 
@@ -226,46 +226,28 @@ void Context::TexCoord(const Vector2D& v, int channel)
 	m_has_texcoord = true;
 }
 
-void Context::TexCoord(const DoubleVector2D& v, int channel)
+void Context::TexCoord(const vec3& v, int channel)
 {
 	TAssert(channel == 0); // EndRender() needs updating if you want to use another channel.
 
-	m_texcoords[channel] = Vector2D(v);
+	m_texcoords[channel] = vec2(v);
 
 	m_has_texcoord = true;
 }
 
-void Context::TexCoord(const Vector& v, int channel)
-{
-	TAssert(channel == 0); // EndRender() needs updating if you want to use another channel.
-
-	m_texcoords[channel] = v;
-
-	m_has_texcoord = true;
-}
-
-void Context::TexCoord(const DoubleVector& v, int channel)
-{
-	TAssert(channel == 0); // EndRender() needs updating if you want to use another channel.
-
-	m_texcoords[channel] = DoubleVector2D(v);
-
-	m_has_texcoord = true;
-}
-
-void Context::Normal(const Vector& v)
+void Context::Normal(const vec3& v)
 {
 	m_normal = v;
 	m_has_normal = true;
 }
 
-void Context::Color(const ::Color& c)
+void Context::Color(const color4& c)
 {
 	m_color = c;
 	m_has_color = true;
 }
 
-void Context::Vertex(const Vector& v)
+void Context::Vertex(const vec3& v)
 {
 	if (m_has_texcoord)
 	{
@@ -324,7 +306,7 @@ void Context::EndRender()
 	if (m_has_color && shader->m_color_attribute != ~0)
 	{
 		glEnableVertexAttribArray((GLuint)shader->m_color_attribute);
-		glVertexAttribPointer((GLuint)shader->m_color_attribute, 3, GL_UNSIGNED_BYTE, true, sizeof(::Color), m_renderer->m_colors.data());
+		glVertexAttribPointer((GLuint)shader->m_color_attribute, 3, GL_UNSIGNED_BYTE, true, sizeof(color4), m_renderer->m_colors.data());
 	}
 
 	TAssert(shader->m_position_attribute != ~0);

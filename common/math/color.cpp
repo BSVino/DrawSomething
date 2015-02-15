@@ -21,208 +21,183 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "vector.h"
 
-Color::Color()
+color4::color4()
 {
 }
 
-Color::Color(Vector v)
+color4::color4(vec3 v)
 {
-	SetColor((int)(v.x*255), (int)(v.y*255), (int)(v.z*255), 255);
+	SetColor((int)(v.x * 255), (int)(v.y * 255), (int)(v.z * 255), 255);
 }
 
-Color::Color(int _r, int _g, int _b)
+color4::color4(int _r, int _g, int _b)
 {
 	SetColor(_r, _g, _b, 255);
 }
 
-Color::Color(int _r, int _g, int _b, int _a)
+color4::color4(int _r, int _g, int _b, int _a)
 {
 	SetColor(_r, _g, _b, _a);
 }
 
-Color::Color(float _r, float _g, float _b)
+color4::color4(float _r, float _g, float _b)
 {
 	SetColor(_r, _g, _b, 1.0f);
 }
 
-Color::Color(float _r, float _g, float _b, float _a)
+color4::color4(float _r, float _g, float _b, float _a)
 {
 	SetColor(_r, _g, _b, _a);
 }
 
-void Color::SetColor(int _r, int _g, int _b, int _a)
+void color4::SetColor(int _r, int _g, int _b, int _a)
 {
-	red = (unsigned char)_r;
-	green = (unsigned char)_g;
-	blue = (unsigned char)_b;
-	alpha = (unsigned char)_a;
+	r = (unsigned char)_r;
+	g = (unsigned char)_g;
+	b = (unsigned char)_b;
+	a = (unsigned char)_a;
 }
 
-void Color::SetColor(float _r, float _g, float _b, float _a)
+void color4::SetColor(float _r, float _g, float _b, float _a)
 {
-	red = (unsigned char)(_r * 255);
-	green = (unsigned char)(_g * 255);
-	blue = (unsigned char)(_b * 255);
-	alpha = (unsigned char)(_a * 255);
-}
-
-void Color::SetRed(int _r)
-{
-	red = (unsigned char)_r;
-}
-
-void Color::SetGreen(int _g)
-{
-	green = (unsigned char)_g;
-}
-
-void Color::SetBlue(int _b)
-{
-	blue = (unsigned char)_b;
-}
-
-void Color::SetAlpha(int _a)
-{
-	alpha = (unsigned char)_a;
-}
-
-void Color::SetAlpha(float f)
-{
-	alpha = (unsigned char)(f * 255);
+	r = (unsigned char)(_r * 255);
+	g = (unsigned char)(_g * 255);
+	b = (unsigned char)(_b * 255);
+	a = (unsigned char)(_a * 255);
 }
 
 // From: http://en.wikipedia.org/wiki/HSL_and_HSV#Converting_to_RGB
-void Color::SetHSL(float flHue, float flSaturation, float flLightness)
+void color4::SetHSL(float hue, float saturation, float lightness)
 {
-	float flHue6 = flHue/60;
-	float flChroma = (1 - fabs(2 * flLightness - 1)) * flSaturation;
-	float flX = flChroma * (1 - fabs(fmod(flHue6, 2.0f) - 1.0f));
+	float hue6 = hue / 60;
+	float chroma = (1 - fabs(2 * lightness - 1)) * saturation;
+	float x = chroma * (1 - fabs(fmod(hue6, 2.0f) - 1.0f));
 
-	float flR1, flG1, flB1;
-	if (flHue6 < 1)
+	float r1, g1, b1;
+	if (hue6 < 1)
 	{
-		flR1 = flChroma;
-		flG1 = flX;
-		flB1 = 0;
+		r1 = chroma;
+		g1 = x;
+		b1 = 0;
 	}
-	else if (flHue6 < 2)
+	else if (hue6 < 2)
 	{
-		flR1 = flX;
-		flG1 = flChroma;
-		flB1 = 0;
+		r1 = x;
+		g1 = chroma;
+		b1 = 0;
 	}
-	else if (flHue6 < 3)
+	else if (hue6 < 3)
 	{
-		flR1 = 0;
-		flG1 = flChroma;
-		flB1 = flX;
+		r1 = 0;
+		g1 = chroma;
+		b1 = x;
 	}
-	else if (flHue6 < 4)
+	else if (hue6 < 4)
 	{
-		flR1 = 0;
-		flG1 = flX;
-		flB1 = flChroma;
+		r1 = 0;
+		g1 = x;
+		b1 = chroma;
 	}
-	else if (flHue6 < 5)
+	else if (hue6 < 5)
 	{
-		flR1 = flX;
-		flG1 = 0;
-		flB1 = flChroma;
+		r1 = x;
+		g1 = 0;
+		b1 = chroma;
 	}
 	else
 	{
-		flR1 = flChroma;
-		flG1 = 0;
-		flB1 = flX;
+		r1 = chroma;
+		g1 = 0;
+		b1 = x;
 	}
 
-	float flM = flLightness - flChroma/2;
+	float m = lightness - chroma / 2;
 
-	*this = Color(flR1+flM, flG1+flM, flB1+flM);
+	*this = color4(r1 + m, g1 + m, b1 + m);
 }
 
 // From: http://en.wikipedia.org/wiki/HSL_and_HSV#General_approach
-void Color::GetHSL(float& flHue, float& flSaturation, float& flLightness)
+void color4::GetHSL(float& hue, float& saturation, float& lightness)
 {
-	float r = ((float)red)/255;
-	float g = ((float)green)/255;
-	float b = ((float)blue)/255;
+	float R = ((float)r) / 255;
+	float G = ((float)g) / 255;
+	float B = ((float)b) / 255;
 
-	float M = std::max(std::max(r, g), b);
-	float m = std::min(std::min(r, g), b);
+	float M = std::max(std::max(R, G), B);
+	float m = std::min(std::min(R, G), B);
 
-	float flChroma = M - m;
+	float chroma = M - m;
 
-	if (flChroma == 0)
-		flHue = 0;
-	else if (r > g && r > b)
-		flHue = fmod((g - b)/flChroma, 6.0f) * 60;
-	else if (g > r && g > b)
-		flHue = ((blue - r)/flChroma + 2) * 60;
-	else if (b > r && b > g)
-		flHue = ((r - g)/flChroma + 4) * 60;
+	if (chroma == 0)
+		hue = 0;
+	else if (R > G && R > B)
+		hue = fmod((G - B) / chroma, 6.0f) * 60;
+	else if (G > R && G > B)
+		hue = ((B - R) / chroma + 2) * 60;
+	else if (B > R && B > G)
+		hue = ((R - G) / chroma + 4) * 60;
 
-	flLightness = (M + m)/2;
+	lightness = (M + m) / 2;
 
-	flSaturation = 0;
-	if (flChroma > 0)
-		flSaturation = flChroma / (1 - fabs(2*flLightness - 1));
+	saturation = 0;
+	if (chroma > 0)
+		saturation = chroma / (1 - fabs(2 * lightness - 1));
 }
 
-Color Color::operator-() const
+color4 color4::operator-() const
 {
-	return Color(255-red, 255-green, 255-blue, alpha);
+	return color4(255 - r, 255 - g, 255 - b, a);
 }
 
-Color Color::operator+(const Color& v) const
+color4 color4::operator+(const color4& v) const
 {
-	return Color(red+v.red, green+v.green, blue+v.blue, alpha+v.alpha);
+	return color4(r + v.r, g + v.g, b + v.b, a + v.a);
 }
 
-Color Color::operator-(const Color& v) const
+color4 color4::operator-(const color4& v) const
 {
-	return Color(red-v.red, green-v.green, blue-v.blue, alpha-v.alpha);
+	return color4(r - v.r, g - v.g, b - v.b, a - v.a);
 }
 
-Color Color::operator*(float s) const
+color4 color4::operator*(float s) const
 {
-	return Color((int)(red*s), (int)(green*s), (int)(blue*s), (int)alpha);
+	return color4((int)(r*s), (int)(g*s), (int)(b*s), (int)a);
 }
 
-Color Color::operator/(float s) const
+color4 color4::operator/(float s) const
 {
-	return Color((int)(red/s), (int)(green/s), (int)(blue/s), (int)alpha);
+	return color4((int)(r / s), (int)(g / s), (int)(b / s), (int)a);
 }
 
-void Color::operator+=(const Color& v)
+void color4::operator+=(const color4& v)
 {
-	red += v.red;
-	green += v.green;
-	blue += v.blue;
+	r += v.r;
+	g += v.g;
+	b += v.b;
 }
 
-void Color::operator-=(const Color& v)
+void color4::operator-=(const color4& v)
 {
-	red -= v.red;
-	green -= v.green;
-	blue -= v.blue;
+	r -= v.r;
+	g -= v.g;
+	b -= v.b;
 }
 
-void Color::operator*=(float s)
+void color4::operator*=(float s)
 {
-	red = (unsigned char)(s*red);
-	green = (unsigned char)(s*green);
-	blue = (unsigned char)(s*blue);
+	r = (unsigned char)(s*r);
+	g = (unsigned char)(s*g);
+	b = (unsigned char)(s*b);
 }
 
-void Color::operator/=(float s)
+void color4::operator/=(float s)
 {
-	red = (unsigned char)(red / s);
-	green = (unsigned char)(green / s);
-	blue = (unsigned char)(blue / s);
+	r = (unsigned char)(r / s);
+	g = (unsigned char)(g / s);
+	b = (unsigned char)(b / s);
 }
 
-Color Color::operator*(const Color& v) const
+color4 color4::operator*(const color4& v) const
 {
-	return Color(red*(float)(v.red/255), green*(float)(v.green/255), blue*(float)(v.blue/255), alpha*(float)(v.alpha/255));
+	return color4(r*(float)(v.r / 255), g*(float)(v.g / 255), b*(float)(v.b / 255), a*(float)(v.a / 255));
 }

@@ -17,7 +17,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 #include "frustum.h"
 
-void Frustum::CreateFrom(const Matrix4x4& m)
+void Frustum::CreateFrom(const mat4& m)
 {
 	p[FRUSTUM_RIGHT].n.x = m.m[0][3] - m.m[0][0];
 	p[FRUSTUM_RIGHT].n.y = m.m[1][3] - m.m[1][0];

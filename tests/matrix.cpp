@@ -12,7 +12,7 @@
 
 void test_matrix()
 {
-	Matrix4x4 m;
+	mat4 m;
 
 	// Test identity
 	TAssert(m.IsIdentity());
@@ -392,14 +392,14 @@ void test_matrix()
 	m.Identity();
 	m.SetReflection(Vector(1, 0, 0));
 	m.AddReflection(Vector(0, 1, 0));
-	TAssert(m == Matrix4x4(Vector(-1, 0, 0), Vector(0, -1, 0), Vector(0, 0, 1)));
+	TAssert(m == mat4(Vector(-1, 0, 0), Vector(0, -1, 0), Vector(0, 0, 1)));
 	TAssert(m * Vector(1, 1, 0) == Vector(-1, -1, 0));
 
 	m.Identity();
 	m.SetAngles(EAngle(0, -90, 0));
 	m.AddScale(Vector(2, 2, 2));
 	m.AddReflection(Vector(0, 0, 1));
-	TAssert(m == Matrix4x4(Vector(0, -2, 0), Vector(2, 0, 0), Vector(0, 0, -2)));
+	TAssert(m == mat4(Vector(0, -2, 0), Vector(2, 0, 0), Vector(0, 0, -2)));
 	TAssert(m * Vector(1, 0, 0) == Vector(0, -2, 0));
 	TAssert(m * Vector(-1, 0, 0) == Vector(0, 2, 0));
 	TAssert(m * Vector(0, 1, 0) == Vector(2, 0, 0));
@@ -409,7 +409,7 @@ void test_matrix()
 	TAssert(m * Vector(1, 1, 1) == Vector(2, -2, -2));
 	TAssert(m * Vector(-1, -1, -1) == Vector(-2, 2, 2));
 
-	Matrix4x4 n;
+	mat4 n;
 
 	// Test matrix multiplication for n = identity (More mult tests at the end)
 	m.Identity();
@@ -552,7 +552,7 @@ void test_matrix()
 	TAssert(m.GetUpVector() == Vector(-1, 0, 0));
 
 	// Test Translation/Rotation inversion
-	m = Matrix4x4().AddAngles(EAngle(0, -90, 0)).InvertedRT();
+	m = mat4().AddAngles(EAngle(0, -90, 0)).InvertedRT();
 	TAssert(m.GetForwardVector() == Vector(0, 1, 0));
 	TAssert(m.GetLeftVector() == Vector(-1, 0, 0));
 	TAssert(m.GetUpVector() == Vector(0, 0, 1));
@@ -628,7 +628,7 @@ void test_matrix()
 	m.SetTranslation(Vector(2, 3, 4));
 	n.SetTranslation(Vector(1, 2, 3));
 	// First test that the result matrix is correct
-	TAssert((m * n) == Matrix4x4(Vector(1, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1), Vector(3, 5, 7)));
+	TAssert((m * n) == mat4(Vector(1, 0, 0), Vector(0, 1, 0), Vector(0, 0, 1), Vector(3, 5, 7)));
 	// Local to global
 	TAssert(m * (n * Vector(0, 0, 0)) == Vector(3, 5, 7));
 	TAssert(m * (n * Vector(1, 1, 1)) == Vector(4, 6, 8));
@@ -661,13 +661,13 @@ void test_matrix()
 	n.Identity();
 	m.SetAngles(EAngle(0, -90, 0));
 	n.SetAngles(EAngle(45, 0, 0));
-	TAssert((m * n) == Matrix4x4(Vector(0, -1, 1).Normalized(), Vector(1, 0, 0), Vector(0, 1, 1).Normalized()));
-	TAssert((n * m) == Matrix4x4(Vector(0, -1, 0).Normalized(), Vector(1, 0, 1).Normalized(), Vector(-1, 0, 1).Normalized()));
+	TAssert((m * n) == mat4(Vector(0, -1, 1).Normalized(), Vector(1, 0, 0), Vector(0, 1, 1).Normalized()));
+	TAssert((n * m) == mat4(Vector(0, -1, 0).Normalized(), Vector(1, 0, 1).Normalized(), Vector(-1, 0, 1).Normalized()));
 
 	m.InvertRT();
 	n.InvertRT();
-	TAssert((n * m) == Matrix4x4(Vector(0, 1, 0).Normalized(), Vector(-1, 0, 1).Normalized(), Vector(1, 0, 1).Normalized()));
-	TAssert((m * n) == Matrix4x4(Vector(0, 1, -1).Normalized(), Vector(-1, 0, 0).Normalized(), Vector(0, 1, 1).Normalized()));
+	TAssert((n * m) == mat4(Vector(0, 1, 0).Normalized(), Vector(-1, 0, 1).Normalized(), Vector(1, 0, 1).Normalized()));
+	TAssert((m * n) == mat4(Vector(0, 1, -1).Normalized(), Vector(-1, 0, 0).Normalized(), Vector(0, 1, 1).Normalized()));
 
 	m.Identity();
 	n.Identity();

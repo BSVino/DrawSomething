@@ -10,9 +10,9 @@ struct Context
 	Renderer::RenderFrame* m_frame;
 
 	// For building meshes
-	Vector   m_normal;
-	Vector2D m_texcoords[MAX_TEXTURE_CHANNELS];
-	::Color  m_color;
+	vec3   m_normal;
+	vec2   m_texcoords[MAX_TEXTURE_CHANNELS];
+	color4 m_color;
 	int m_drawmode;
 	int m_has_texcoord : 1;
 	int m_has_normal : 1;
@@ -21,15 +21,15 @@ struct Context
 	Context(Renderer* renderer, bool inherit = true);
 	~Context();
 
-	void SetProjection(const Matrix4x4& m);
-	void SetView(const Matrix4x4& m);
+	void SetProjection(const mat4& m);
+	void SetView(const mat4& m);
 
-	inline Matrix4x4 GetProjection() { return m_frame->m_projection; }
-	inline Matrix4x4 GetView() { return m_frame->m_view; }
+	inline mat4 GetProjection() { return m_frame->m_projection; }
+	inline mat4 GetView() { return m_frame->m_view; }
 
 	void UseShader(char* shader_name);
 	void UseShader(ShaderIndex shader); // Can save on the program name lookup
-	void SetUniform(UniformIndex uniform, const Matrix4x4& value);
+	void SetUniform(UniformIndex uniform, const mat4& value);
 
 	// Immediate mode emulation
 	void BeginRenderTris();
@@ -41,13 +41,11 @@ struct Context
 	void BeginRenderPoints(float size = 1);
 	void BeginRenderDebugLines();
 	void TexCoord(float s, float t, int channel = 0);
-	void TexCoord(const Vector2D& v, int channel = 0);
-	void TexCoord(const DoubleVector2D& v, int channel = 0);
-	void TexCoord(const Vector& v, int channel = 0);
-	void TexCoord(const DoubleVector& v, int channel = 0);
-	void Normal(const Vector& v);
-	void Color(const ::Color& c);	// Per-attribute color
-	void Vertex(const Vector& v);
+	void TexCoord(const vec2& v, int channel = 0);
+	void TexCoord(const vec3& v, int channel = 0);
+	void Normal(const vec3& v);
+	void Color(const color4& c);	// Per-attribute color
+	void Vertex(const vec3& v);
 	void EndRender();
 };
 

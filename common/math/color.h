@@ -15,79 +15,59 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef LW_COLOR_H
-#define LW_COLOR_H
+#pragma once
 
 #include "maths.h"
 
-template <class unit_t>
-class TemplateVector;
-
-class Color
+struct color4
 {
-public:
-					Color();
-					Color(class TemplateVector<float> v);
-					Color(int _r, int _g, int _b);
-					Color(int _r, int _g, int _b, int _a);
-					Color(float _r, float _g, float _b);
-					Color(float _r, float _g, float _b, float _a);
+	unsigned char r, g, b, a;
 
-	void			SetColor(int _r, int _g, int _b, int _a);
-	void			SetColor(float _r, float _g, float _b, float _a);
-	void			SetRed(int _r);
-	void			SetGreen(int _g);
-	void			SetBlue(int _b);
-	void			SetAlpha(int _a);
-	void			SetAlpha(float f);
+	color4();
+	explicit color4(struct vec3 v);
+	color4(int _r, int _g, int _b);
+	color4(int _r, int _g, int _b, int _a);
+	color4(float _r, float _g, float _b);
+	color4(float _r, float _g, float _b, float _a);
 
-	void			SetHSL(float h, float s, float l);
-	void			GetHSL(float& h, float& s, float& l);
+	void SetColor(int _r, int _g, int _b, int _a);
+	void SetColor(float _r, float _g, float _b, float _a);
 
-	int				r() const { return red; };
-	int				g() const { return green; };
-	int				b() const { return blue; };
-	int				a() const { return alpha; };
+	void SetHSL(float h, float s, float l);
+	void GetHSL(float& h, float& s, float& l);
 
-	Color	operator-(void) const;
+	color4 operator - (void) const;
 
-	Color	operator+(const Color& v) const;
-	Color	operator-(const Color& v) const;
-	Color	operator*(float s) const;
-	Color	operator/(float s) const;
+	color4 operator+(const color4& v) const;
+	color4 operator-(const color4& v) const;
+	color4 operator*(float s) const;
+	color4 operator/(float s) const;
 
-	void	operator+=(const Color &v);
-	void	operator-=(const Color &v);
-	void	operator*=(float s);
-	void	operator/=(float s);
+	void operator+=(const color4 &v);
+	void operator-=(const color4 &v);
+	void operator*=(float s);
+	void operator/=(float s);
 
-	Color	operator*(const Color& v) const;
+	color4 operator*(const color4& v) const;
 
-	friend Color operator*( float f, const Color& v )
+	friend color4 operator*(float f, const color4& v)
 	{
-		return Color( v.red*f, v.green*f, v.blue*f, v.alpha*f );
+		return color4(v.r*f, v.g*f, v.b*f, v.a*f);
 	}
 
-	friend Color operator/( float f, const Color& v )
+	friend color4 operator/(float f, const color4& v)
 	{
-		return Color( f/v.red, f/v.green, f/v.blue, f/v.alpha );
+		return color4(f / v.r, f / v.g, f / v.b, f / v.a);
 	}
 
 	operator unsigned char*()
 	{
-		return(&red);
+		return &r;
 	}
 
 	operator const unsigned char*() const
 	{
-		return(&red);
+		return &r;
 	}
-
-private:
-	unsigned char	red;
-	unsigned char	green;
-	unsigned char	blue;
-	unsigned char	alpha;
 };
 
-#endif

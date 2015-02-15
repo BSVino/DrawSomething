@@ -4,9 +4,13 @@
 
 struct Artist
 {
-	Vector m_position;
-	Vector m_eye_height;
-	EAngle m_looking;
+	vec3 m_position;
+	eangle m_looking;
+
+	Artist()
+		: m_position(0, 0, 0), m_looking(0, 0, 0)
+	{
+	}
 
 #ifdef DS_CLIENT
 	void HandleInput(struct ControlData* input);

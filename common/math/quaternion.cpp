@@ -20,7 +20,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include "vector.h"
 #include "matrix.h"
 
-Quaternion::Quaternion()
+quaternion::quaternion()
 {
 	x = 0;
 	y = 0;
@@ -28,7 +28,7 @@ Quaternion::Quaternion()
 	w = 1;
 }
 
-Quaternion::Quaternion(float X, float Y, float Z, float W)
+quaternion::quaternion(float X, float Y, float Z, float W)
 {
 	x = X;
 	y = Y;
@@ -36,7 +36,7 @@ Quaternion::Quaternion(float X, float Y, float Z, float W)
 	w = W;
 }
 
-Quaternion::Quaternion(const Quaternion& q)
+quaternion::quaternion(const quaternion& q)
 {
 	x = q.x;
 	y = q.y;
@@ -44,25 +44,25 @@ Quaternion::Quaternion(const Quaternion& q)
 	w = q.w;
 }
 
-Quaternion::Quaternion(const Matrix4x4& m)
+quaternion::quaternion(const mat4& m)
 {
 	// Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
 	// article "Quaternion Calculus and Fast Animation".
 
-	float flTrace = m.Trace();
-	float flRoot;
+	float trace = m.Trace();
+	float root;
 
-	if ( flTrace > 0 )
+	if (trace > 0)
 	{
 		// |w| > 1/2, may as well choose w > 1/2
-		flRoot = sqrt(flTrace + 1);  // 2w
+		root = sqrt(trace + 1);  // 2w
 
-		w = flRoot/2;
+		w = root / 2;
 
-		flRoot = 0.5f/flRoot;  // 1/(4w)
-		x = (m.m[2][1]-m.m[1][2])*flRoot;
-		y = (m.m[1][0]-m.m[0][1])*flRoot;
-		z = (m.m[0][2]-m.m[2][0])*flRoot;
+		root = 0.5f / root;  // 1/(4w)
+		x = (m.m[2][1] - m.m[1][2])*root;
+		y = (m.m[1][0] - m.m[0][1])*root;
+		z = (m.m[0][2] - m.m[2][0])*root;
 	}
 	else
 	{
@@ -70,45 +70,45 @@ Quaternion::Quaternion(const Matrix4x4& m)
 
 		// |w| <= 1/2
 		int i = 0;
-		if ( m.m[2][2] > m.m[0][0] )
+		if (m.m[2][2] > m.m[0][0])
 			i = 1;
-		if ( m.m[1][1] > m.m[i][i] )
+		if (m.m[1][1] > m.m[i][i])
 			i = 2;
 		int j = NEXT[i];
 		int k = NEXT[j];
 
-		flRoot = sqrt(m.m[i][i]-m.m[j][j]-m.m[k][k]+1);
-		float* apflQuat[3] = { &x, &y, &z };
-		*apflQuat[i] = flRoot/2;
-		flRoot = 0.5f/flRoot;
-		w = (m.m[j][k]-m.m[k][j])*flRoot;
-		*apflQuat[j] = (m.m[i][j]+m.m[j][i])*flRoot;
-		*apflQuat[k] = (m.m[i][k]+m.m[k][i])*flRoot;
+		root = sqrt(m.m[i][i] - m.m[j][j] - m.m[k][k] + 1);
+		float* quat[3] = { &x, &y, &z };
+		*quat[i] = root / 2;
+		root = 0.5f / root;
+		w = (m.m[j][k] - m.m[k][j])*root;
+		*quat[j] = (m.m[i][j] + m.m[j][i])*root;
+		*quat[k] = (m.m[i][k] + m.m[k][i])*root;
 	}
 }
 
-EAngle Quaternion::GetAngles() const
+eangle quaternion::GetAngles() const
 {
 	float sqx = x*x;
 	float sqy = y*y;
 	float sqz = z*z;
 	float sqw = w*w;
-	
-	EAngle angResult;
-	angResult.p = atan2(2*(y*z + x*w), (-sqx-sqy+sqz+sqw)) *180/M_PI;
-	angResult.y = asin(-2*(x*z - y*w)) *180/M_PI;
-	angResult.r = atan2(2*(x*y + z*w), (sqx-sqy-sqz+sqw)) *180/M_PI;
-	return angResult;
+
+	eangle r;
+	r.p = atan2(2 * (y*z + x*w), (-sqx - sqy + sqz + sqw)) * 180 / M_PI;
+	r.y = asin(-2 * (x*z - y*w)) * 180 / M_PI;
+	r.r = atan2(2 * (x*y + z*w), (sqx - sqy - sqz + sqw)) * 180 / M_PI;
+	return r;
 }
 
-void Quaternion::SetAngles(const EAngle& a)
+void quaternion::SetAngles(const eangle& a)
 {
-	float c1 = cos(-a.y/2 *M_PI/180);
-	float s1 = sin(-a.y/2 *M_PI/180);
-	float c2 = cos(a.p/2 *M_PI/180);
-	float s2 = sin(a.p/2 *M_PI/180);
-	float c3 = cos(a.r/2 *M_PI/180);
-	float s3 = sin(a.r/2 *M_PI/180);
+	float c1 = cos(-a.y / 2 * M_PI / 180);
+	float s1 = sin(-a.y / 2 * M_PI / 180);
+	float c2 = cos(a.p / 2 * M_PI / 180);
+	float s2 = sin(a.p / 2 * M_PI / 180);
+	float c3 = cos(a.r / 2 * M_PI / 180);
+	float s3 = sin(a.r / 2 * M_PI / 180);
 
 	float c1c2 = c1*c2;
 	float s1s2 = s1*s2;
@@ -119,42 +119,42 @@ void Quaternion::SetAngles(const EAngle& a)
 	w = c1c2*c3 - s1s2*s3;
 }
 
-void Quaternion::SetRotation(float flAngle, const Vector& v)
+void quaternion::SetRotation(float angle, const vec3& v)
 {
-	float flHalfAngle = flAngle/2;
-	float flSin = sin(flHalfAngle);
+	float half_angle = angle / 2;
+	float sin_half_angle = sin(half_angle);
 
-	x = flSin*v.x;
-	y = flSin*v.y;
-	z = flSin*v.z;
+	x = sin_half_angle*v.x;
+	y = sin_half_angle*v.y;
+	z = sin_half_angle*v.z;
 
-	w = cos(flHalfAngle);
+	w = cos(half_angle);
 }
 
-void Quaternion::Normalize()
+void quaternion::Normalize()
 {
 	float m = sqrt(w*w + x*x + y*y + z*z);
-	w = w/m;
-	x = x/m;
-	y = y/m;
-	z = z/m;
+	w = w / m;
+	x = x / m;
+	y = y / m;
+	z = z / m;
 }
 
-Quaternion Quaternion::operator*(const Quaternion& q)
+quaternion quaternion::operator*(const quaternion& q)
 {
-	Quaternion r;
+	quaternion r;
 	r.w = w*q.w - x*q.x - y*q.y - z*q.z;
 	r.x = w*q.x + x*q.w + y*q.z - z*q.y;
 	r.y = w*q.y + y*q.w + z*q.x - x*q.z;
 	r.z = w*q.z + z*q.w + x*q.y - y*q.x;
-    return r;
+	return r;
 }
 
-const Quaternion& Quaternion::operator*=(const Quaternion& q)
+const quaternion& quaternion::operator*=(const quaternion& q)
 {
 	w = w*q.w - x*q.x - y*q.y - z*q.z;
 	x = w*q.x + x*q.w + y*q.z - z*q.y;
 	y = w*q.y + y*q.w + z*q.x - x*q.z;
 	z = w*q.z + z*q.w + x*q.y - y*q.x;
-    return *this;
+	return *this;
 }

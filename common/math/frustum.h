@@ -33,7 +33,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 class Frustum
 {
 public:
-	void		CreateFrom(const Matrix4x4& m);
+	void		CreateFrom(const mat4& m);
 	bool		TouchesSphere(const Vector& vecCenter, float flRadius);
 	bool		TouchesSphereSidesOnly(const Vector& vecCenter, float flRadius);
 	bool		ContainsSphereSidesOnly(const Vector& vecCenter, float flRadius);

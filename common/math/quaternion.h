@@ -15,38 +15,32 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef LW_QUATERNION_H
-#define LW_QUATERNION_H
+#pragma once
 
 #include "vector.h"
 
-class Matrix4x4;
-class EAngle;
+struct mat4;
+struct eangle;
 
-class Quaternion
+struct quaternion
 {
-public:
-						Quaternion ();
-						Quaternion (float x, float y, float z, float w);
-						Quaternion (const Quaternion& q);
-						Quaternion (const Matrix4x4& m);
-
-public:
-	EAngle				GetAngles() const;
-	void				SetAngles(const EAngle& a);
-
-	void				SetRotation(float flAngle, const Vector& v);
-
-	void				Normalize();
-
-	Quaternion			operator*(const Quaternion& q);
-	const Quaternion&	operator*=(const Quaternion& q);
-
-public:
 	float x;
 	float y;
 	float z;
 	float w;
-};
 
-#endif
+	quaternion();
+	quaternion(float x, float y, float z, float w);
+	quaternion(const quaternion& q);
+	explicit quaternion(const mat4& m);
+
+	eangle GetAngles() const;
+	void SetAngles(const eangle& a);
+
+	void SetRotation(float angle, const vec3& v);
+
+	void Normalize();
+
+	quaternion operator*(const quaternion& q);
+	const quaternion& operator*=(const quaternion& q);
+};
