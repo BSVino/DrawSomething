@@ -15,10 +15,31 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ds_main_server.cpp">
+    <ClCompile Include="..\..\..\ext-deps\enet\win32.c">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\tinker\server\net_host.cpp">
+    <ClCompile Include="..\..\..\ext-deps\enet\callbacks.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\enet\compress.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\enet\host.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\enet\list.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\enet\packet.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\enet\peer.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\enet\protocol.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\enet\unix.c">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
   </ItemGroup>

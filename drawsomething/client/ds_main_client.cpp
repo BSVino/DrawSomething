@@ -60,6 +60,9 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 
 	vb_static_retrieve(&g_client_data->m_vb1, &g_client_data->m_vb2);
 
+	g_client_data->m_client.Initialize();
+	g_client_data->m_client.Connect("localhost");
+
 	return 1;
 }
 
@@ -70,6 +73,8 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 	vb_static_reset(g_client_data->m_vb1, g_client_data->m_vb2);
 
 	vb_server_update(game_data->m_game_time);
+
+	g_client_data->m_client.Service();
 
 	g_client_data->m_players[0].HandleInput(game_data->m_input);
 

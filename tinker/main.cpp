@@ -16,17 +16,30 @@ int main(int argc, char** args)
 {
 	g_shell.Initialize(argc, args);
 
-	if (g_shell.GetCommandLineSwitchValue("-game"))
+	if (g_shell.HasCommandLineSwitchValue("-game"))
 		chdir(g_shell.GetCommandLineSwitchValue("-game"));
+
+	bool server = true;
+	bool client = true;
+
+	if (g_shell.HasCommandLineSwitchValue("-server"))
+		client = false;
+
+	if (g_shell.HasCommandLineSwitchValue("-connect"))
+		server = false;
 
 	Window window;
 
-	window.Open("Tinker", 1280, 720);
+	if (client)
+		window.Open("Tinker", 1280, 720);
 
 	ControlData input;
 
-	g_server_code.Initialize("drawsomethingserver.dll", &window.m_data, &input);
-	g_client_code.Initialize("drawsomethingclient.dll", &window.m_data, &input);
+	if (server)
+		g_server_code.Initialize("drawsomethingserver.dll", &window.m_data, &input);
+
+	if (client)
+		g_client_code.Initialize("drawsomethingclient.dll", &window.m_data, &input);
 
 	double frame_end_time = 0;
 	double frame_start_time = 0;
@@ -40,35 +53,80 @@ int main(int argc, char** args)
 	bool game_active = true;
 
 	// TODO: Make some callbacks into the main tinker2 binary to eliminate duplicate code.
-	if (!g_server_code.m_game_init(&g_server_code.m_game_data, argc, args))
+	if (server && !g_server_code.m_game_init(&g_server_code.m_game_data, argc, args))
 		return 1;
 
-	if (!g_client_code.m_game_init(&g_client_code.m_game_data, argc, args))
+	if (client && !g_client_code.m_game_init(&g_client_code.m_game_data, argc, args))
 		return 1;
 
 	SetLowPeriodScheduler();
 
-	while (window.IsOpen() && game_active)
+	if (server && client)
 	{
-		g_server_code.Refresh();
-		g_client_code.Refresh();
+		while (window.IsOpen() && game_active)
+		{
+			g_server_code.Refresh();
+			g_client_code.Refresh();
 
-		frame_end_time = window.GetTime();
+			frame_end_time = window.GetTime();
 
-		double next_frame_time = frame_start_time + target_frame_time;
+			double next_frame_time = frame_start_time + target_frame_time;
 
-		double time_to_sleep_seconds = next_frame_time - frame_end_time;
-		if (time_to_sleep_seconds > 0.001)
-			SleepMS((size_t)(time_to_sleep_seconds * 1000));
+			double time_to_sleep_seconds = next_frame_time - frame_end_time;
+			if (time_to_sleep_seconds > 0.001)
+				SleepMS((size_t)(time_to_sleep_seconds * 1000));
 
-		g_server_code.m_game_data.m_game_time = g_client_code.m_game_data.m_game_time = frame_start_time = window.GetTime();
+			g_server_code.m_game_data.m_game_time = g_client_code.m_game_data.m_game_time = frame_start_time = window.GetTime();
 
-		window.PollEvents(&input);
+			window.PollEvents(&input);
 
-		game_active = g_server_code.m_game_frame(&g_server_code.m_game_data);
-		game_active &= g_client_code.m_game_frame(&g_client_code.m_game_data);
+			game_active = g_server_code.m_game_frame(&g_server_code.m_game_data);
+			game_active &= g_client_code.m_game_frame(&g_client_code.m_game_data);
 
-		window.SwapBuffers();
+			window.SwapBuffers();
+		}
+	}
+	else if (server)
+	{
+		while (game_active)
+		{
+			g_server_code.Refresh();
+
+			frame_end_time = window.GetTime();
+
+			double next_frame_time = frame_start_time + target_frame_time;
+
+			double time_to_sleep_seconds = next_frame_time - frame_end_time;
+			if (time_to_sleep_seconds > 0.001)
+				SleepMS((size_t)(time_to_sleep_seconds * 1000));
+
+			g_server_code.m_game_data.m_game_time = frame_start_time = window.GetTime();
+
+			game_active = g_server_code.m_game_frame(&g_server_code.m_game_data);
+		}
+	}
+	else // client only
+	{
+		while (window.IsOpen() && game_active)
+		{
+			g_client_code.Refresh();
+
+			frame_end_time = window.GetTime();
+
+			double next_frame_time = frame_start_time + target_frame_time;
+
+			double time_to_sleep_seconds = next_frame_time - frame_end_time;
+			if (time_to_sleep_seconds > 0.001)
+				SleepMS((size_t)(time_to_sleep_seconds * 1000));
+
+			g_client_code.m_game_data.m_game_time = frame_start_time = window.GetTime();
+
+			window.PollEvents(&input);
+
+			game_active = g_client_code.m_game_frame(&g_client_code.m_game_data);
+
+			window.SwapBuffers();
+		}
 	}
 
 	ClearLowPeriodScheduler();

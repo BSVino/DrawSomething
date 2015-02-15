@@ -1,13 +1,8 @@
+#include "ds_server.h"
+
 #include "tinker_platform.h"
-#include "../tinker/gamecode.h"
+#include "gamecode.h"
 #include "shell.h"
-
-#include "artist.h"
-
-struct ServerData
-{
-	Artist m_artists[MAX_ARTISTS];
-};
 
 ServerData* g_server_data;
 
@@ -30,6 +25,9 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 
 	g_server_data = new(game_data->m_memory) ServerData();
 
+	g_server_data->m_host.Initialize();
+	g_server_data->m_host.Create(MAX_ARTISTS);
+
 	return 1;
 }
 
@@ -40,6 +38,8 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 		return 0;
 
 	g_server_data = (ServerData*)game_data->m_memory;
+
+	g_server_data->m_host.Service();
 
 	return 1;
 }

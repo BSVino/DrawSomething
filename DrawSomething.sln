@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "playroom", "tools\playroom\
 		{503C4083-C975-48A0-8C28-4AFE74C7614F} = {503C4083-C975-48A0-8C28-4AFE74C7614F}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enet", "tinker\enet\enet.vcxproj", "{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -73,7 +75,8 @@ Global
 		{503C4083-C975-48A0-8C28-4AFE74C7614F}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{503C4083-C975-48A0-8C28-4AFE74C7614F}.Release|Win32.ActiveCfg = Release|Win32
 		{503C4083-C975-48A0-8C28-4AFE74C7614F}.Release|Win32.Build.0 = Release|Win32
-		{503C4083-C975-48A0-8C28-4AFE74C7614F}.Release|x64.ActiveCfg = Release|Win32
+		{503C4083-C975-48A0-8C28-4AFE74C7614F}.Release|x64.ActiveCfg = Release|x64
+		{503C4083-C975-48A0-8C28-4AFE74C7614F}.Release|x64.Build.0 = Release|x64
 		{48B92BCB-71AF-4016-91A1-620647B6F6F2}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{48B92BCB-71AF-4016-91A1-620647B6F6F2}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{48B92BCB-71AF-4016-91A1-620647B6F6F2}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -98,6 +101,18 @@ Global
 		{15C5492C-AEEF-4054-B393-528C5F117D4B}.Release|Win32.Build.0 = Release|Win32
 		{15C5492C-AEEF-4054-B393-528C5F117D4B}.Release|x64.ActiveCfg = Release|x64
 		{15C5492C-AEEF-4054-B393-528C5F117D4B}.Release|x64.Build.0 = Release|x64
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Debug|Win32.Build.0 = Debug|Win32
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Debug|x64.ActiveCfg = Debug|x64
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Debug|x64.Build.0 = Debug|x64
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Release|Win32.ActiveCfg = Release|Win32
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Release|Win32.Build.0 = Release|Win32
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Release|x64.ActiveCfg = Release|x64
+		{1FFFEE4A-43E9-4011-969B-0D4B9F5E0746}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

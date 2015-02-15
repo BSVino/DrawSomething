@@ -8,6 +8,7 @@ struct Shell
 	char   m_binary_directory[256];
 
 	void Initialize(int argc, char** args);
+	bool HasCommandLineSwitchValue(const char* swtch);
 	const char* GetCommandLineSwitchValue(const char* swtch);
 };
 

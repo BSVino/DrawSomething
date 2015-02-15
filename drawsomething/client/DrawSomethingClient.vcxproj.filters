@@ -13,46 +13,49 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Archivos de recursos\renderer">
+    <Filter Include="Archivos de código fuente\game">
+      <UniqueIdentifier>{e26c2761-e099-4bde-b821-a52340a417a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de código fuente\renderer">
       <UniqueIdentifier>{d3f13e08-a187-412d-a7c1-0db38a7bb903}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Archivos de recursos\viewback">
+    <Filter Include="Archivos de código fuente\viewback">
       <UniqueIdentifier>{17d168c0-8ecf-4a36-9bd1-c3fc012d2d75}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Archivos de recursos\game">
-      <UniqueIdentifier>{e26c2761-e099-4bde-b821-a52340a417a1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ds_main_client.cpp">
-      <Filter>Archivos de recursos</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\ext-deps\gl3w\src\gl3w.c">
-      <Filter>Archivos de recursos</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\tinker\client\renderer\shaders.cpp">
-      <Filter>Archivos de recursos\renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\tinker\assets.cpp">
-      <Filter>Archivos de recursos</Filter>
+      <Filter>Archivos de código fuente\renderer</Filter>
     </ClCompile>
     <ClCompile Include="renderer\ds_renderer.cpp">
-      <Filter>Archivos de recursos\renderer</Filter>
+      <Filter>Archivos de código fuente\renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\tinker\client\renderer\renderer.cpp">
-      <Filter>Archivos de recursos\renderer</Filter>
+      <Filter>Archivos de código fuente\renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\tinker\client\renderer\context.cpp">
-      <Filter>Archivos de recursos\renderer</Filter>
+      <Filter>Archivos de código fuente\renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Viewback\server\viewback.c">
-      <Filter>Archivos de recursos\viewback</Filter>
+      <Filter>Archivos de código fuente\viewback</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\artist.cpp">
-      <Filter>Archivos de recursos\game</Filter>
+      <Filter>Archivos de código fuente\game</Filter>
     </ClCompile>
     <ClCompile Include="game\c_artist.cpp">
-      <Filter>Archivos de recursos\game</Filter>
+      <Filter>Archivos de código fuente\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tinker\assets.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="ds_main_client.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ext-deps\gl3w\src\gl3w.c">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tinker\client\net_client.cpp">
+      <Filter>Archivos de código fuente</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

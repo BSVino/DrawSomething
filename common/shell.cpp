@@ -21,6 +21,17 @@ void Shell::Initialize(int argc, char** args)
 	m_binary_directory[i + 1] = '\0';
 }
 
+bool Shell::HasCommandLineSwitchValue(const char* swtch)
+{
+	for (size_t i = 0; i < m_argc; i++)
+	{
+		if (strcmp(m_args[i], swtch) == 0)
+			return true;
+	}
+
+	return false;
+}
+
 const char* Shell::GetCommandLineSwitchValue(const char* swtch)
 {
 	// -1 to prevent buffer overrun

@@ -14,7 +14,7 @@
     <LocalDebuggerWorkingDirectory>C:\git\DrawSomething\x64\Debug</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>C:\git\DrawSomething\x64\Debug\Tinker2.exe</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>-game C:\git\DrawSomething\install</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-game C:\git\DrawSomething\install -connect localhost</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>

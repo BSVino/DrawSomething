@@ -13,34 +13,34 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Archivos de recursos\maths">
+    <Filter Include="Archivos de código fuente\maths">
       <UniqueIdentifier>{6a612f28-20c1-45be-ae98-c17edccf1dfc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="common\platform_win32.cpp">
-      <Filter>Archivos de recursos</Filter>
-    </ClCompile>
-    <ClCompile Include="common\shell.cpp">
-      <Filter>Archivos de recursos</Filter>
-    </ClCompile>
-    <ClCompile Include="common\stringtable.cpp">
-      <Filter>Archivos de recursos</Filter>
-    </ClCompile>
-    <ClCompile Include="common\data.cpp">
-      <Filter>Archivos de recursos</Filter>
-    </ClCompile>
     <ClCompile Include="common\math\color.cpp">
-      <Filter>Archivos de recursos\maths</Filter>
+      <Filter>Archivos de código fuente\maths</Filter>
     </ClCompile>
     <ClCompile Include="common\math\vector.cpp">
-      <Filter>Archivos de recursos\maths</Filter>
+      <Filter>Archivos de código fuente\maths</Filter>
     </ClCompile>
     <ClCompile Include="common\math\matrix.cpp">
-      <Filter>Archivos de recursos\maths</Filter>
+      <Filter>Archivos de código fuente\maths</Filter>
     </ClCompile>
     <ClCompile Include="common\math\quaternion.cpp">
-      <Filter>Archivos de recursos\maths</Filter>
+      <Filter>Archivos de código fuente\maths</Filter>
+    </ClCompile>
+    <ClCompile Include="common\data.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="common\platform_win32.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="common\shell.cpp">
+      <Filter>Archivos de código fuente</Filter>
+    </ClCompile>
+    <ClCompile Include="common\stringtable.cpp">
+      <Filter>Archivos de código fuente</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
