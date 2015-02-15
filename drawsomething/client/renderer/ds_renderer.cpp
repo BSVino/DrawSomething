@@ -9,7 +9,7 @@ void DSRenderer::Draw()
 	base.ClearColor(Color(78, 188, 239, 255));
 	base.ClearDepth();
 
-	base.SetCamera(Vector(0, 0, 1.6f), AngleVector(EAngle(m_pitch, m_yaw, 0)), Vector(0, 0, 1), 90, 0.01f, 1000);
+	base.SetCamera(Vector(0, 0, 1.6f), AngleVector(EAngle(g_client_data->m_players[0].m_looking.p, g_client_data->m_players[0].m_looking.y, 0)), Vector(0, 0, 1), 90, 0.01f, 1000);
 
 	Context c(&base);
 	base.StartRendering(&c);

@@ -3,12 +3,16 @@
 #include "stringtable.h"
 
 #include "client/renderer/shaders.h"
+
 #include "renderer/ds_renderer.h"
+#include "artist.h"
 
 struct ClientData
 {
 	ShaderLibrary m_shaders;
 	DSRenderer    m_renderer;
+
+	Artist m_players[MAX_ARTISTS];
 
 	// Viewback stuff.
 	void* m_vb1;

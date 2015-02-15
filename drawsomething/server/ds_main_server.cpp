@@ -2,11 +2,11 @@
 #include "../tinker/gamecode.h"
 #include "shell.h"
 
-#include "player.h"
+#include "artist.h"
 
 struct ServerData
 {
-	Player m_players[MAX_PLAYERS];
+	Artist m_artists[MAX_ARTISTS];
 };
 
 ServerData* g_server_data;

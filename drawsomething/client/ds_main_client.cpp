@@ -71,10 +71,9 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 
 	vb_server_update(game_data->m_game_time);
 
-	g_client_data->m_renderer.m_pitch -= game_data->m_input->mouse_dy;
-	g_client_data->m_renderer.m_yaw -= game_data->m_input->mouse_dx;
+	g_client_data->m_players[0].HandleInput(game_data->m_input);
 
-	vb_data_send_float_s(vb_str("pitch"), g_client_data->m_renderer.m_pitch);
+	vb_data_send_float_s(vb_str("pitch"), g_client_data->m_players[0].m_looking.p);
 
 	g_client_data->m_renderer.Draw();
 

@@ -39,5 +39,8 @@
     <ClCompile Include="common\math\matrix.cpp">
       <Filter>Archivos de recursos\maths</Filter>
     </ClCompile>
+    <ClCompile Include="common\math\quaternion.cpp">
+      <Filter>Archivos de recursos\maths</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

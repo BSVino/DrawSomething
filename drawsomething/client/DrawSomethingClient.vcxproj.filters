@@ -19,6 +19,9 @@
     <Filter Include="Archivos de recursos\viewback">
       <UniqueIdentifier>{17d168c0-8ecf-4a36-9bd1-c3fc012d2d75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de recursos\game">
+      <UniqueIdentifier>{e26c2761-e099-4bde-b821-a52340a417a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ds_main_client.cpp">
@@ -44,6 +47,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Viewback\server\viewback.c">
       <Filter>Archivos de recursos\viewback</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\artist.cpp">
+      <Filter>Archivos de recursos\game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\c_artist.cpp">
+      <Filter>Archivos de recursos\game</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
