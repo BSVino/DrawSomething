@@ -9,6 +9,7 @@
 #include "input.h"
 
 #include "ds_client.h"
+#include "net_ds.h"
 
 ClientData* g_client_data;
 
@@ -62,6 +63,7 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 
 	g_client_data->m_client.Initialize();
 	g_client_data->m_client.Connect("localhost");
+	net_register_replications();
 
 	return 1;
 }
@@ -74,11 +76,12 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 
 	vb_server_update(game_data->m_game_time);
 
-	g_client_data->m_client.Service();
-
 	g_client_data->m_players[0].HandleInput(game_data->m_input);
 
 	vb_data_send_float_s(vb_str("pitch"), g_client_data->m_players[0].m_looking.p);
+
+	// This receives updates from the server, but it also sends commands, so we do it after we handle input.
+	g_client_data->m_client.Service();
 
 	g_client_data->m_renderer.Draw();
 

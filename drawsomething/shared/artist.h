@@ -7,12 +7,15 @@ struct Artist
 	vec3 m_position;
 	eangle m_looking;
 
+	uint8 m_active : 1;
+
 	Artist()
 		: m_position(0, 0, 0), m_looking(0, 0, 0)
 	{
+		m_active = 0;
 	}
 
-#ifdef DS_CLIENT
+#ifdef CLIENT_LIBRARY
 	void HandleInput(struct ControlData* input);
 #endif
 };

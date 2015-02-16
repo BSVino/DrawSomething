@@ -4,6 +4,8 @@
 #include "gamecode.h"
 #include "shell.h"
 
+#include "net_ds.h"
+
 ServerData* g_server_data;
 
 extern "C" TDLLEXPORT size_t GetMemorySize()
@@ -27,6 +29,7 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 
 	g_server_data->m_host.Initialize();
 	g_server_data->m_host.Create(MAX_ARTISTS);
+	net_register_replications();
 
 	return 1;
 }

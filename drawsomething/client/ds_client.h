@@ -4,6 +4,7 @@
 
 #include "client/renderer/shaders.h"
 #include "client/net_client.h"
+#include "net_ds.h"
 
 #include "renderer/ds_renderer.h"
 #include "artist.h"
@@ -14,8 +15,10 @@ struct ClientData
 	DSRenderer    m_renderer;
 
 	Artist m_players[MAX_ARTISTS];
+	Artist m_local_player_replicated;
 
 	NetClient m_client;
+	DSNetShared m_net_shared;
 
 	// Viewback stuff.
 	void* m_vb1;

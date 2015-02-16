@@ -22,6 +22,9 @@
     <Filter Include="Archivos de código fuente\viewback">
       <UniqueIdentifier>{17d168c0-8ecf-4a36-9bd1-c3fc012d2d75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de código fuente\net">
+      <UniqueIdentifier>{37918fc5-69c0-457f-beb7-5135db80c9d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tinker\client\renderer\shaders.cpp">
@@ -55,7 +58,13 @@
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
     <ClCompile Include="..\..\tinker\client\net_client.cpp">
-      <Filter>Archivos de código fuente</Filter>
+      <Filter>Archivos de código fuente\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\net_ds.cpp">
+      <Filter>Archivos de código fuente\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tinker\shared\net_shared.cpp">
+      <Filter>Archivos de código fuente\net</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

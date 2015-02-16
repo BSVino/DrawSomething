@@ -13,13 +13,22 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Archivos de código fuente\net">
+      <UniqueIdentifier>{9efcd423-89bf-44b5-b802-1fcddfb3a680}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ds_main_server.cpp">
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\net_ds.cpp">
+      <Filter>Archivos de código fuente\net</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\tinker\server\net_host.cpp">
-      <Filter>Archivos de código fuente</Filter>
+      <Filter>Archivos de código fuente\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tinker\shared\net_shared.cpp">
+      <Filter>Archivos de código fuente\net</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

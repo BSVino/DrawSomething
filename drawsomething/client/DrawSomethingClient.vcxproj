@@ -26,7 +26,9 @@
     <ClCompile Include="..\..\tinker\client\renderer\context.cpp" />
     <ClCompile Include="..\..\tinker\client\renderer\renderer.cpp" />
     <ClCompile Include="..\..\tinker\client\renderer\shaders.cpp" />
+    <ClCompile Include="..\..\tinker\shared\net_shared.cpp" />
     <ClCompile Include="..\shared\artist.cpp" />
+    <ClCompile Include="..\shared\net_ds.cpp" />
     <ClCompile Include="ds_main_client.cpp" />
     <ClCompile Include="game\c_artist.cpp" />
     <ClCompile Include="renderer\ds_renderer.cpp" />
@@ -84,8 +86,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\shared;..\..\..\viewback\server;..\..\tinker;..\..\..\ext-deps\gl3w\include;..\..\common;..\..\common\math;../../../ext-deps/enet/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DS_CLIENT;VIEWBACK_TIME_DOUBLE;_CRT_SECURE_NO_WARNINGS;_WINDLL;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;..\shared;..\..\..\viewback\server;..\..\tinker;..\..\..\ext-deps\gl3w\include;..\..\common;..\..\common\math;../../../ext-deps/enet/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>CLIENT_LIBRARY;VIEWBACK_TIME_DOUBLE;_CRT_SECURE_NO_WARNINGS;_WINDLL;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
@@ -103,8 +105,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\shared;..\..\..\viewback\server;..\..\tinker;..\..\..\ext-deps\gl3w\include;..\..\common;..\..\common\math;../../../ext-deps/enet/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DS_CLIENT;VIEWBACK_TIME_DOUBLE;_CRT_SECURE_NO_WARNINGS;_WINDLL;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;..\shared;..\..\..\viewback\server;..\..\tinker;..\..\..\ext-deps\gl3w\include;..\..\common;..\..\common\math;../../../ext-deps/enet/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>CLIENT_LIBRARY;VIEWBACK_TIME_DOUBLE;_CRT_SECURE_NO_WARNINGS;_WINDLL;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
@@ -126,8 +128,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\shared;..\..\..\viewback\server;..\..\tinker;..\..\..\ext-deps\gl3w\include;..\..\common;..\..\common\math;../../../ext-deps/enet/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DS_CLIENT;VIEWBACK_TIME_DOUBLE;_CRT_SECURE_NO_WARNINGS;_WINDLL;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;..\shared;..\..\..\viewback\server;..\..\tinker;..\..\..\ext-deps\gl3w\include;..\..\common;..\..\common\math;../../../ext-deps/enet/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>CLIENT_LIBRARY;VIEWBACK_TIME_DOUBLE;_CRT_SECURE_NO_WARNINGS;_WINDLL;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
@@ -149,8 +151,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\shared;..\..\..\viewback\server;..\..\tinker;..\..\..\ext-deps\gl3w\include;..\..\common;..\..\common\math;../../../ext-deps/enet/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DS_CLIENT;VIEWBACK_TIME_DOUBLE;_CRT_SECURE_NO_WARNINGS;_WINDLL;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;..\shared;..\..\..\viewback\server;..\..\tinker;..\..\..\ext-deps\gl3w\include;..\..\common;..\..\common\math;../../../ext-deps/enet/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>CLIENT_LIBRARY;VIEWBACK_TIME_DOUBLE;_CRT_SECURE_NO_WARNINGS;_WINDLL;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
