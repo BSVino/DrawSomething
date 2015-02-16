@@ -9,6 +9,8 @@ void NetClient::Initialize()
 	enet_initialize();
 
 	m_shared.Initialize();
+
+	m_peer_index = TInvalid(net_peer_t);
 }
 
 void NetClient::Connect(const char* connect)
@@ -20,6 +22,10 @@ void NetClient::Connect(const char* connect)
 	address.port = 51072;
 
 	m_enetpeer = enet_host_connect(m_enetclient, &address, 1, 0);
+
+#ifdef _DEBUG
+	enet_peer_timeout(m_enetpeer, MAXUINT32, MAXUINT32, MAXUINT32);
+#endif
 
 	ENetEvent event;
 	if (enet_host_service(m_enetclient, &event, 5000) <= 0 || event.type != ENET_EVENT_TYPE_CONNECT)
@@ -50,13 +56,10 @@ void NetClient::Service()
 		ReplicatedField* table_entry = &m_shared.m_replicated_fields_table[table_entry_index];
 		ReplicatedInstanceEntity* entity_instance = &m_shared.m_replicated_entities[entity_instance_index];
 
-		if (!table_entry->m_control)
-			continue;
-
 		if (memcmp(ENTITY_FIELD_OFFSET(entity_instance->m_entity, table_entry->m_offset), ENTITY_FIELD_OFFSET(entity_instance->m_entity_copy, table_entry->m_offset), table_entry->m_size) == 0)
 			continue;
 
-		m_shared.WriteValueChange(packet_contents, &packet_size, table_entry_index, entity_instance_index);
+		m_shared.Packet_WriteValueChange(packet_contents, &packet_size, table_entry_index, entity_instance_index);
 
 		memcpy(ENTITY_FIELD_OFFSET(entity_instance->m_entity_copy, table_entry->m_offset), ENTITY_FIELD_OFFSET(entity_instance->m_entity, table_entry->m_offset), table_entry->m_size);
 	}
@@ -95,7 +98,8 @@ void NetClient::Service()
 			}
 
 			case 'V':
-				TUnimplemented();
+				TAssert(((uint16)event.packet->dataLength) == event.packet->dataLength);
+				m_shared.Packet_ReadValueChanges(event.packet->data, (uint16)event.packet->dataLength);
 				break;
 
 			case 'W':
@@ -118,3 +122,33 @@ void NetClient::Service()
 	}
 }
 
+void NetClient::AddEntityFromServer(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index)
+{
+	m_shared.m_replicated_entities[entity_instance_index].m_entity_table_index = entity_table_index;
+	m_shared.m_replicated_entities[entity_instance_index].m_entity_index = entity_index;
+	m_shared.m_replicated_entities[entity_instance_index].m_peer_index = GetPeerIndex(entity_instance_index, entity_table_index, entity_index);
+	m_shared.m_replicated_entities[entity_instance_index].m_entity = GetEntityMemory(entity_instance_index, entity_table_index, entity_index);
+	m_shared.m_replicated_entities[entity_instance_index].m_entity_copy = GetEntityReplicatedMemory(entity_instance_index, entity_table_index, entity_index);
+
+	void* replicated_memory = m_shared.m_replicated_entities[entity_instance_index].m_entity;
+	void* replicated_memory_copy = m_shared.m_replicated_entities[entity_instance_index].m_entity_copy;
+
+	if (replicated_memory_copy)
+	{
+		int max = m_shared.m_replicated_entities_table[entity_table_index].m_field_table_start + m_shared.m_replicated_entities_table[entity_table_index].m_field_table_length;
+		for (int k = m_shared.m_replicated_entities_table[entity_table_index].m_field_table_start; k < max; k++)
+		{
+			ReplicatedField* table_entry = &m_shared.m_replicated_fields_table[k];
+
+			// We are only going to replicate controls to the server. Don't bother with anything else.
+			if (!table_entry->m_control)
+				continue;
+
+			memcpy(ENTITY_FIELD_OFFSET(replicated_memory_copy, m_shared.m_replicated_fields_table[k].m_offset), ENTITY_FIELD_OFFSET(replicated_memory, m_shared.m_replicated_fields_table[k].m_offset), m_shared.m_replicated_fields_table[k].m_size);
+
+			m_shared.m_replicated_fields[m_shared.m_replicated_fields_size].m_table_entry = k;
+			m_shared.m_replicated_fields[m_shared.m_replicated_fields_size].m_instance_entry = entity_instance_index;
+			m_shared.m_replicated_fields_size += 1;
+		}
+	}
+}

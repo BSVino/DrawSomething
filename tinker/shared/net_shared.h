@@ -29,6 +29,8 @@ struct ReplicatedInstanceEntity
 {
 	void* m_entity;          // The live copy
 	void* m_entity_copy;     // The duplicate for comparison to see if data has changed
+	uint16 m_entity_index;   // Index of the entity, game-specified data
+	replicated_entity_t m_entity_table_index; // Index into m_replicated_entities_table
 	net_peer_t m_peer_index; // Non-negative if this entity is a client connected to the server, negative otherwise.
 };
 
@@ -73,12 +75,11 @@ struct NetShared
 
 	replicated_entity_t Replicated_AddEntity();
 	replicated_field_t Replicated_AddField(uint16 offset, uint8 size, field_type_t type);
-	replicated_entity_instance_t AddReplicated(replicated_entity_t entity_table_index, void* replicated_memory, void* replicated_memory_copy);
 
 	// The header for the value changed packet should be already written here, WriteValueChange just appends an entry.
-	void WriteValueChange(uint8* packet_contents, uint16* packet_size, replicated_field_t table_entry_index, replicated_entity_instance_t entity_instance_index);
+	void Packet_WriteValueChange(uint8* packet_contents, uint16* packet_size, replicated_field_t table_entry_index, replicated_entity_instance_t entity_instance_index);
 	// Reads all of the value changed packet and updates fields and everything.
-	void ReadValueChanges(uint8* packet, uint16 packet_size);
+	void Packet_ReadValueChanges(uint8* packet, uint16 packet_size);
 };
 
 /*

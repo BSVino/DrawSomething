@@ -45,31 +45,7 @@ replicated_field_t NetShared::Replicated_AddField(uint16 offset, uint8 size, fie
 	return m_replicated_fields_table_size++;
 }
 
-replicated_entity_instance_t NetShared::AddReplicated(replicated_entity_t entity_table_index, void* replicated_memory, void* replicated_memory_copy)
-{
-	TAssert(entity_table_index >= 0 && entity_table_index < m_replicated_entities_table_size);
-	TAssert(m_replicated_fields_size + m_replicated_entities_table[entity_table_index].m_field_table_length < MAX_INSTANCE_FIELDS);
-
-	replicated_entity_instance_t entity_instance_index = m_replicated_entities_size;
-	m_replicated_entities[entity_instance_index].m_entity = replicated_memory;
-	m_replicated_entities[entity_instance_index].m_entity_copy = replicated_memory_copy;
-	m_replicated_entities[entity_instance_index].m_peer_index = -1;
-	m_replicated_entities_size += 1;
-
-	int max = m_replicated_entities_table[entity_table_index].m_field_table_start + m_replicated_entities_table[entity_table_index].m_field_table_length;
-	for (int k = m_replicated_entities_table[entity_table_index].m_field_table_start; k < max; k++)
-	{
-		memcpy(ENTITY_FIELD_OFFSET(replicated_memory_copy, m_replicated_fields_table[k].m_offset), ENTITY_FIELD_OFFSET(replicated_memory, m_replicated_fields_table[k].m_offset), m_replicated_fields_table[k].m_size);
-
-		m_replicated_fields[m_replicated_fields_size].m_table_entry = k;
-		m_replicated_fields[m_replicated_fields_size].m_instance_entry = entity_instance_index;
-		m_replicated_fields_size += 1;
-	}
-
-	return entity_instance_index;
-}
-
-void NetShared::WriteValueChange(uint8* packet_contents, uint16* packet_size, replicated_field_t table_entry_index, replicated_entity_instance_t entity_instance_index)
+void NetShared::Packet_WriteValueChange(uint8* packet_contents, uint16* packet_size, replicated_field_t table_entry_index, replicated_entity_instance_t entity_instance_index)
 {
 	ReplicatedField* table_entry = &m_replicated_fields_table[table_entry_index];
 	ReplicatedInstanceEntity* entity_instance = &m_replicated_entities[entity_instance_index];
@@ -142,7 +118,7 @@ void NetShared::WriteValueChange(uint8* packet_contents, uint16* packet_size, re
 	*packet_size += item_size;
 }
 
-void NetShared::ReadValueChanges(uint8* packet, uint16 packet_size)
+void NetShared::Packet_ReadValueChanges(uint8* packet, uint16 packet_size)
 {
 	TAssert(packet[0] == 'V');
 	int values = packet[1];

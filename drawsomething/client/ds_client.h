@@ -14,8 +14,8 @@ struct ClientData
 	ShaderLibrary m_shaders;
 	DSRenderer    m_renderer;
 
-	Artist m_players[MAX_ARTISTS];
-	Artist m_local_player_replicated;
+	Artist m_artists[MAX_ARTISTS];
+	Artist m_local_artist_replicated;
 
 	NetClient m_client;
 	DSNetShared m_net_shared;
@@ -28,6 +28,15 @@ struct ClientData
 	ClientData(struct WindowData* window_data)
 		: m_renderer(&m_shaders, window_data)
 	{
+	}
+
+	Artist* GetLocalArtist()
+	{
+		net_peer_t local = m_client.m_peer_index;
+		if (local == TInvalid(net_peer_t))
+			return NULL;
+
+		return &m_artists[local];
 	}
 };
 

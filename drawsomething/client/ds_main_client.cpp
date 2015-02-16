@@ -76,9 +76,14 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 
 	vb_server_update(game_data->m_game_time);
 
-	g_client_data->m_players[0].HandleInput(game_data->m_input);
+	Artist* local = g_client_data->GetLocalArtist();
 
-	vb_data_send_float_s(vb_str("pitch"), g_client_data->m_players[0].m_looking.p);
+	if (local)
+	{
+		local->HandleInput(game_data->m_input);
+
+		vb_data_send_float_s(vb_str("pitch"), local->m_looking.p);
+	}
 
 	// This receives updates from the server, but it also sends commands, so we do it after we handle input.
 	g_client_data->m_client.Service();

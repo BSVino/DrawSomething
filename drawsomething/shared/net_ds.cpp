@@ -33,26 +33,38 @@ void net_register_replications()
 }
 
 #ifdef CLIENT_LIBRARY
-void NetClient::AddEntityFromServer(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index)
+void* NetClient::GetEntityMemory(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index)
+{
+	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index)
+		return &g_client_data->m_artists[entity_index];
+
+	TUnimplemented();
+	return NULL;
+}
+
+void* NetClient::GetEntityReplicatedMemory(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index)
 {
 	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index)
 	{
-		m_shared.m_replicated_entities[entity_instance_index].m_entity = &g_client_data->m_players[entity_index];
-
-		TAssert(((net_peer_t)entity_index) == entity_index);
-		m_shared.m_replicated_entities[entity_instance_index].m_peer_index = (net_peer_t)entity_index;
-
 		if (entity_index == g_client_data->m_client.m_peer_index)
-		{
-			m_shared.m_replicated_entities[entity_instance_index].m_entity_copy = &g_client_data->m_local_player_replicated;
-
-			m_shared.AddReplicated(entity_table_index, &g_client_data->m_players[entity_index], &g_client_data->m_local_player_replicated);
-		}
+			return &g_client_data->m_local_artist_replicated;
 		else
-			m_shared.m_replicated_entities[entity_instance_index].m_entity_copy = NULL;
+			return NULL;
 	}
-	else
-		TUnimplemented();
+
+	TUnimplemented();
+	return NULL;
+}
+
+net_peer_t NetClient::GetPeerIndex(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index)
+{
+	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index)
+	{
+		TAssert(((net_peer_t)entity_index) == entity_index);
+		return (net_peer_t)entity_index;
+	}
+
+	return TInvalid(net_peer_t);
 }
 #else
 void NetHost::ClientConnectedCallback(net_peer_t peer_index)

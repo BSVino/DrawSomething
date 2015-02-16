@@ -6,10 +6,15 @@
 
 void DSRenderer::Draw()
 {
+	Artist* local = g_client_data->GetLocalArtist();
+
+	if (!local)
+		return;
+
 	base.ClearColor(color4(78, 188, 239, 255));
 	base.ClearDepth();
 
-	base.SetCamera(vec3(0, 0, 1.6f), AngleVector(eangle(g_client_data->m_players[0].m_looking.p, g_client_data->m_players[0].m_looking.y, 0)), vec3(0, 0, 1), 90, 0.01f, 1000);
+	base.SetCamera(vec3(0, 0, 1.6f), AngleVector(eangle(local->m_looking.p, local->m_looking.y, 0)), vec3(0, 0, 1), 90, 0.01f, 1000);
 
 	Context c(&base);
 	base.StartRendering(&c);
