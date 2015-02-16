@@ -22,9 +22,12 @@ void GameCode::Load()
 	FreeBinary(m_binary_handle);
 
 #ifdef _DEBUG
+	srand(time(0));
+
 	tstring binary_directory(g_shell.m_binary_directory);
-	CreateDirectoryNonRecursive(binary_directory + "tmp" T_DIR_SEP);
-	tstring tmp_binary_name(binary_directory + "tmp" T_DIR_SEP + m_binary_name);
+	tstring tmp_dir = tsprintf("tmp%d", rand());
+	CreateDirectoryNonRecursive(binary_directory + tmp_dir + T_DIR_SEP);
+	tstring tmp_binary_name(binary_directory + tmp_dir + T_DIR_SEP + m_binary_name);
 	while (!CopyFileTo(binary_directory + m_binary_name, tmp_binary_name))
 		SleepMS(100); // Let the compiler finish writing stuff. Otherwise, crash.
 
