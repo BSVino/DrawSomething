@@ -42,6 +42,9 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 
 	g_server_data = (ServerData*)game_data->m_memory;
 
+	g_server_data->m_game_time = game_data->m_game_time;
+	g_server_data->m_frame_time = (float)game_data->m_frame_time;
+
 	g_server_data->m_host.Service();
 
 	return 1;

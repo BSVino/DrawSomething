@@ -72,6 +72,9 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 {
 	g_client_data = (ClientData*)game_data->m_memory;
 
+	g_client_data->m_game_time = game_data->m_game_time;
+	g_client_data->m_frame_time = (float)game_data->m_frame_time;
+
 	vb_static_reset(g_client_data->m_vb1, g_client_data->m_vb2);
 
 	vb_server_update(game_data->m_game_time);

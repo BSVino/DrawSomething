@@ -20,6 +20,9 @@ struct ClientData
 	NetClient m_client;
 	DSNetShared m_net_shared;
 
+	double m_game_time;
+	float m_frame_time;
+
 	// Viewback stuff.
 	void* m_vb1;
 	void* m_vb2;

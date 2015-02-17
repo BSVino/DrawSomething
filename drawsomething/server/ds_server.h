@@ -12,6 +12,9 @@ struct ServerData
 
 	NetHost m_host;
 	DSNetShared m_net_shared;
+
+	double m_game_time;
+	float m_frame_time;
 };
 
 extern ServerData* g_server_data;

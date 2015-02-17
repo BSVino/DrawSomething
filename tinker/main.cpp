@@ -96,8 +96,6 @@ int main(int argc, char** args)
 			double time_to_sleep_seconds = next_frame_time - frame_end_time;
 			if (time_to_sleep_seconds > 0.001)
 				SleepMS((size_t)(time_to_sleep_seconds * 1000));
-			else
-				TCheck(false);
 		}
 	}
 	else if (server)
@@ -130,8 +128,6 @@ int main(int argc, char** args)
 			double time_to_sleep_seconds = next_frame_time - frame_end_time;
 			if (time_to_sleep_seconds > 0.001)
 				SleepMS((size_t)(time_to_sleep_seconds * 1000));
-			else
-				TCheck(false);
 		}
 	}
 	else // client only
@@ -168,8 +164,6 @@ int main(int argc, char** args)
 			double time_to_sleep_seconds = next_frame_time - frame_end_time;
 			if (time_to_sleep_seconds > 0.001)
 				SleepMS((size_t)(time_to_sleep_seconds * 1000));
-			else
-				TCheck(false);
 		}
 	}
 

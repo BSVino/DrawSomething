@@ -26,7 +26,11 @@ void net_register_replications()
 	Artist a;
 
 	ds_net->m_replicated_artist = net_interface->Replicated_AddEntity();
+
 	current_field = net_interface->Replicated_AddField(STRUCT_OFFSET(a, m_looking), sizeof(a.m_looking) * 2 / 3, FT_FLOAT); // Only send the first two floats, pitch and yaw. Roll never changes.
+	net_interface->m_replicated_fields_table[current_field].m_control = true;
+
+	current_field = net_interface->Replicated_AddField(STRUCT_OFFSET(a, m_position), sizeof(a.m_position), FT_FLOAT);
 	net_interface->m_replicated_fields_table[current_field].m_control = true;
 
 	TAssert(current_field <= MAX_REPLICATED_FIELDS);

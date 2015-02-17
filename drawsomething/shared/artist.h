@@ -10,7 +10,7 @@ struct Artist
 	uint8 m_active : 1;
 
 	Artist()
-		: m_position(0, 0, 0), m_looking(0, 0, 0)
+		: m_position(0, 0, 1.6f), m_looking(0, 0, 0)
 	{
 		m_active = 0;
 	}
