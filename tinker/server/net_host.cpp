@@ -125,7 +125,7 @@ replicated_entity_instance_t NetHost::AddReplicated(replicated_entity_t entity_t
 	m_shared.m_replicated_entities[entity_instance_index].m_entity_copy = replicated_memory_copy;
 	m_shared.m_replicated_entities[entity_instance_index].m_entity_table_index = entity_table_index;
 	m_shared.m_replicated_entities[entity_instance_index].m_entity_index = entity_index;
-	m_shared.m_replicated_entities[entity_instance_index].m_peer_index = -1;
+	m_shared.m_replicated_entities[entity_instance_index].m_peer_index = TInvalid(net_peer_t);
 	m_shared.m_replicated_entities_size += 1;
 
 	int max = m_shared.m_replicated_entities_table[entity_table_index].m_field_table_start + m_shared.m_replicated_entities_table[entity_table_index].m_field_table_length;
@@ -133,12 +133,12 @@ replicated_entity_instance_t NetHost::AddReplicated(replicated_entity_t entity_t
 	{
 		memcpy(ENTITY_FIELD_OFFSET(replicated_memory_copy, m_shared.m_replicated_fields_table[k].m_offset), ENTITY_FIELD_OFFSET(replicated_memory, m_shared.m_replicated_fields_table[k].m_offset), m_shared.m_replicated_fields_table[k].m_size);
 
-		m_shared.m_replicated_fields[m_shared.m_replicated_fields_size].m_table_entry = k;
+		m_shared.m_replicated_fields[m_shared.m_replicated_fields_size].m_table_entry = (replicated_field_t)k;
 		m_shared.m_replicated_fields[m_shared.m_replicated_fields_size].m_instance_entry = entity_instance_index;
 		m_shared.m_replicated_fields_size += 1;
 	}
 
-	Packet_WriteCreateEntity(-1, entity_table_index, entity_index, entity_instance_index);
+	Packet_WriteCreateEntity(TInvalid(net_peer_t), entity_table_index, entity_index, entity_instance_index);
 
 	return entity_instance_index;
 }
@@ -164,7 +164,7 @@ void NetHost::ClientConnected(net_peer_t peer_index)
 	{
 		// Inform the new client of all existing ents
 		for (int k = 0; k < m_shared.m_replicated_entities_size; k++)
-			Packet_WriteCreateEntity(peer_index, m_shared.m_replicated_entities[k].m_entity_table_index, m_shared.m_replicated_entities[k].m_entity_index, k);
+			Packet_WriteCreateEntity(peer_index, m_shared.m_replicated_entities[k].m_entity_table_index, m_shared.m_replicated_entities[k].m_entity_index, (replicated_entity_instance_t)k);
 
 		uint16 packet_size; // In bytes
 		uint8 packet_contents[MAX_PACKET_LENGTH];
@@ -180,9 +180,6 @@ void NetHost::ClientConnected(net_peer_t peer_index)
 			TAssert(table_entry_index < m_shared.m_replicated_fields_table_size);
 
 			replicated_entity_instance_t entity_instance_index = m_shared.m_replicated_fields[n].m_instance_entry;
-
-			ReplicatedField* table_entry = &m_shared.m_replicated_fields_table[table_entry_index];
-			ReplicatedInstanceEntity* entity_instance = &m_shared.m_replicated_entities[entity_instance_index];
 
 			m_shared.Packet_WriteValueChange(packet_contents, &packet_size, table_entry_index, entity_instance_index);
 		}

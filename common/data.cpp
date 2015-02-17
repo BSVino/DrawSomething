@@ -18,6 +18,8 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include "data.h"
 
 #define PARSE_REQUIRE(x, error) \
+PRAGMA_WARNING_PUSH \
+PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
 do { \
 	int r = (x); \
 	if (!r) { \
@@ -25,12 +27,16 @@ do { \
 		return r; \
 		} \
 } while (0) \
+PRAGMA_WARNING_POP \
 
 #define PARSE_EAT(x) \
+PRAGMA_WARNING_PUSH \
+PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
 do { \
 	int r = DataParseEat(x); \
 	if (!r) { /*TMsg("PARSE ERROR: Expected " #x ".\n");*/ return 0; }\
 } while (0) \
+PRAGMA_WARNING_POP \
 
 typedef enum
 {
@@ -169,7 +175,7 @@ int DataParseBlock(KVData* data, KVEntryIndex parent, KVEntryIndex* block)
 	if (value.length)
 		entry.value = st_add(data->m_strings, value);
 	else
-		entry.value = -1;
+		entry.value = TInvalid(StringTableIndex);
 
 	while (DataParsePeek(TOKEN_EOL))
 		PARSE_EAT(TOKEN_EOL);
@@ -193,8 +199,8 @@ int DataParseBlock(KVData* data, KVEntryIndex parent, KVEntryIndex* block)
 */
 int DataParseBlocks(KVData* data, KVEntryIndex parent)
 {
-	KVEntryIndex first_block = ~0;
-	KVEntryIndex last_block = ~0;
+	KVEntryIndex first_block = TInvalid(KVEntryIndex);
+	KVEntryIndex last_block = TInvalid(KVEntryIndex);
 	KVEntryIndex block;
 	KVEntryIndex num_children = 0;
 
@@ -213,7 +219,7 @@ int DataParseBlocks(KVData* data, KVEntryIndex parent)
 	}
 
 	if (num_children)
-		data->m_data[block].next_sibling = ~0;
+		data->m_data[block].next_sibling = TInvalid(KVEntryIndex);
 
 	if (parent != TInvalid(KVEntryIndex))
 	{
@@ -237,10 +243,10 @@ void KVData::ReadData(FILE* fp)
 	// Prime the pump
 	DataLexNext();
 
-	DataParseBlocks(this, -1);
+	DataParseBlocks(this, TInvalid(KVEntryIndex));
 }
 
-static void SaveData(FILE* fp, KVEntry* data, size_t level)
+static void SaveData(FILE* /*fp*/, KVEntry* /*data*/, size_t /*level*/)
 {
 	TUnimplemented();
 	/*tstring sTabs;
@@ -270,8 +276,7 @@ void KVData::SaveData(FILE* fp)
 	if (!fp)
 		return;
 
-	TUnimplemented();
-	//SaveData(fp, data, 0);
+	::SaveData(fp, 0, 0);
 }
 
 void KVData::Reset()

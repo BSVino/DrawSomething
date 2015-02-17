@@ -37,7 +37,7 @@ void net_register_replications()
 }
 
 #ifdef CLIENT_LIBRARY
-void* NetClient::GetEntityMemory(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index)
+void* NetClient::GetEntityMemory(replicated_entity_instance_t /*entity_instance_index*/, replicated_entity_t entity_table_index, uint16 entity_index)
 {
 	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index)
 		return &g_client_data->m_artists[entity_index];
@@ -46,7 +46,7 @@ void* NetClient::GetEntityMemory(replicated_entity_instance_t entity_instance_in
 	return NULL;
 }
 
-void* NetClient::GetEntityReplicatedMemory(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index)
+void* NetClient::GetEntityReplicatedMemory(replicated_entity_instance_t /*entity_instance_index*/, replicated_entity_t entity_table_index, uint16 entity_index)
 {
 	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index)
 	{
@@ -60,7 +60,7 @@ void* NetClient::GetEntityReplicatedMemory(replicated_entity_instance_t entity_i
 	return NULL;
 }
 
-net_peer_t NetClient::GetPeerIndex(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index)
+net_peer_t NetClient::GetPeerIndex(replicated_entity_instance_t /*entity_instance_index*/, replicated_entity_t entity_table_index, uint16 entity_index)
 {
 	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index)
 	{

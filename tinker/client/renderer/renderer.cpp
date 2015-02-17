@@ -41,7 +41,7 @@ void Renderer::StartRendering(Context* c)
 	m_modelview = modelview;
 }
 
-void Renderer::FinishRendering(Context* c)
+void Renderer::FinishRendering(Context* /*c*/)
 {
 }
 

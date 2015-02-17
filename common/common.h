@@ -18,6 +18,8 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #ifndef COMMON_H
 #define COMMON_H
 
+#pragma warning( disable : 4201 ) // Nonstandard extension used: anonymous struct/union
+
 #define DECLARE_CLASS( className, baseClassName ) \
 	typedef baseClassName BaseClass; \
 	typedef className ThisClass; \

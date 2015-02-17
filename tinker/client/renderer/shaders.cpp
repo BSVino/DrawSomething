@@ -164,7 +164,7 @@ void ShaderLibrary::ClearLog()
 	m_log_needs_clearing = true;
 }
 
-void ShaderLibrary::WriteLog(const tstring& sFile, const char* pszLog, const char* pszShaderText)
+void ShaderLibrary::WriteLog(const tstring& /*sFile*/, const char* pszLog, const char* /*pszShaderText*/)
 {
 	if (!pszLog || strlen(pszLog) == 0)
 		return;

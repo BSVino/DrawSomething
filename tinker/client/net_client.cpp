@@ -138,7 +138,7 @@ void NetClient::AddEntityFromServer(replicated_entity_instance_t entity_instance
 
 			memcpy(ENTITY_FIELD_OFFSET(replicated_memory_copy, m_shared.m_replicated_fields_table[k].m_offset), ENTITY_FIELD_OFFSET(replicated_memory, m_shared.m_replicated_fields_table[k].m_offset), m_shared.m_replicated_fields_table[k].m_size);
 
-			m_shared.m_replicated_fields[m_shared.m_replicated_fields_size].m_table_entry = k;
+			m_shared.m_replicated_fields[m_shared.m_replicated_fields_size].m_table_entry = (replicated_field_t)k;
 			m_shared.m_replicated_fields[m_shared.m_replicated_fields_size].m_instance_entry = entity_instance_index;
 			m_shared.m_replicated_fields_size += 1;
 		}

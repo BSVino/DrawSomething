@@ -132,7 +132,6 @@ void NetShared::Packet_ReadValueChanges(uint8* packet, uint16 packet_size)
 		replicated_field_t table_entry_index = packet[current + 2];
 
 		ReplicatedField* table_entry = &m_replicated_fields_table[table_entry_index];
-		ReplicatedInstanceEntity* entity_instance = &m_replicated_entities[entity_instance_index];
 
 		uint8* dest = (uint8*)ENTITY_FIELD_OFFSET(m_replicated_entities[entity_instance_index].m_entity, m_replicated_fields_table[table_entry_index].m_offset);
 		void* src = (void*)&packet[current + 3];
