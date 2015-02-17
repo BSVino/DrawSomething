@@ -26,14 +26,6 @@ void NetClient::Connect(const char* connect)
 #ifdef _DEBUG
 	enet_peer_timeout(m_enetpeer, MAXUINT32, MAXUINT32, MAXUINT32);
 #endif
-
-	ENetEvent event;
-	if (enet_host_service(m_enetclient, &event, 5000) <= 0 || event.type != ENET_EVENT_TYPE_CONNECT)
-	{
-		TAssert(false);
-		enet_peer_reset(m_enetpeer);
-		return;
-	}
 }
 
 void NetClient::Service()
