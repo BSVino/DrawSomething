@@ -41,9 +41,6 @@ int main(int argc, char** args)
 	if (client)
 		g_client_code.Initialize("drawsomethingclient.dll", &window.m_data, &input);
 
-	double frame_end_time = 0;
-	double frame_start_time = 0;
-
 #ifdef _DEBUG
 	double target_frame_time = 1.0f/30;
 #else
@@ -63,20 +60,27 @@ int main(int argc, char** args)
 
 	if (server && client)
 	{
+		double last_frame_start_time = 0;
+		double game_time = 0;
 		while (window.IsOpen() && game_active)
 		{
+			double frame_start_time = window.GetTime();
+
+			double frame_time = frame_start_time - last_frame_start_time;
+			last_frame_start_time = frame_start_time;
+
+			if (frame_time > 1.0f / 8)
+				frame_time = 1.0f / 8;
+
+			game_time += frame_time;
+
 			g_server_code.Refresh();
 			g_client_code.Refresh();
 
-			frame_end_time = window.GetTime();
-
-			double next_frame_time = frame_start_time + target_frame_time;
-
-			double time_to_sleep_seconds = next_frame_time - frame_end_time;
-			if (time_to_sleep_seconds > 0.001)
-				SleepMS((size_t)(time_to_sleep_seconds * 1000));
-
-			g_server_code.m_game_data.m_game_time = g_client_code.m_game_data.m_game_time = frame_start_time = window.GetTime();
+			g_server_code.m_game_data.m_game_time = game_time;
+			g_server_code.m_game_data.m_frame_time = frame_time;
+			g_client_code.m_game_data.m_game_time = game_time;
+			g_client_code.m_game_data.m_frame_time = frame_time;
 
 			window.PollEvents(&input);
 
@@ -84,48 +88,88 @@ int main(int argc, char** args)
 			game_active &= g_client_code.m_game_frame(&g_client_code.m_game_data);
 
 			window.SwapBuffers();
+
+			double frame_end_time = window.GetTime();
+
+			double next_frame_time = frame_start_time + target_frame_time;
+
+			double time_to_sleep_seconds = next_frame_time - frame_end_time;
+			if (time_to_sleep_seconds > 0.001)
+				SleepMS((size_t)(time_to_sleep_seconds * 1000));
+			else
+				TCheck(false);
 		}
 	}
 	else if (server)
 	{
+		double last_frame_start_time = 0;
+		double game_time = 0;
 		while (game_active)
 		{
+			double frame_start_time = window.GetTime();
+
+			double frame_time = frame_start_time - last_frame_start_time;
+			last_frame_start_time = frame_start_time;
+
+			if (frame_time > 1.0f / 8)
+				frame_time = 1.0f / 8;
+
+			game_time += frame_time;
+
 			g_server_code.Refresh();
 
-			frame_end_time = window.GetTime();
+			g_server_code.m_game_data.m_game_time = game_time;
+			g_server_code.m_game_data.m_frame_time = frame_time;
+
+			game_active = g_server_code.m_game_frame(&g_server_code.m_game_data);
+
+			double frame_end_time = window.GetTime();
 
 			double next_frame_time = frame_start_time + target_frame_time;
 
 			double time_to_sleep_seconds = next_frame_time - frame_end_time;
 			if (time_to_sleep_seconds > 0.001)
 				SleepMS((size_t)(time_to_sleep_seconds * 1000));
-
-			g_server_code.m_game_data.m_game_time = frame_start_time = window.GetTime();
-
-			game_active = g_server_code.m_game_frame(&g_server_code.m_game_data);
+			else
+				TCheck(false);
 		}
 	}
 	else // client only
 	{
+		double last_frame_start_time = 0;
+		double game_time = 0;
 		while (window.IsOpen() && game_active)
 		{
+			double frame_start_time = window.GetTime();
+
+			double frame_time = frame_start_time - last_frame_start_time;
+			last_frame_start_time = frame_start_time;
+
+			if (frame_time > 1.0f / 8)
+				frame_time = 1.0f / 8;
+
+			game_time += frame_time;
+
 			g_client_code.Refresh();
 
-			frame_end_time = window.GetTime();
+			window.PollEvents(&input);
+
+			g_client_code.m_game_data.m_game_time = game_time;
+			g_client_code.m_game_data.m_frame_time = frame_time;
+
+			game_active = g_client_code.m_game_frame(&g_client_code.m_game_data);
+
+			window.SwapBuffers();
+
+			double frame_end_time = window.GetTime();
 
 			double next_frame_time = frame_start_time + target_frame_time;
 
 			double time_to_sleep_seconds = next_frame_time - frame_end_time;
 			if (time_to_sleep_seconds > 0.001)
 				SleepMS((size_t)(time_to_sleep_seconds * 1000));
-
-			g_client_code.m_game_data.m_game_time = frame_start_time = window.GetTime();
-
-			window.PollEvents(&input);
-
-			game_active = g_client_code.m_game_frame(&g_client_code.m_game_data);
-
-			window.SwapBuffers();
+			else
+				TCheck(false);
 		}
 	}
 

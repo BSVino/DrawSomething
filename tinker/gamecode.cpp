@@ -22,7 +22,7 @@ void GameCode::Load()
 	FreeBinary(m_binary_handle);
 
 #ifdef _DEBUG
-	srand(time(0));
+	srand((unsigned int)time(0));
 
 	tstring binary_directory(g_shell.m_binary_directory);
 	tstring tmp_dir = tsprintf("tmp%d", rand());

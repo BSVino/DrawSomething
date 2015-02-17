@@ -8,6 +8,7 @@ struct GameData
 	struct ControlData* m_input;
 
 	double m_game_time;
+	double m_frame_time;
 
 	void*   m_memory;
 	size_t  m_memory_size;
