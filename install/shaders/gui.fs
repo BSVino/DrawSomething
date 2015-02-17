@@ -1,96 +1,94 @@
-uniform vec4 vecDimensions;
+uniform vec4 u_dimensions;
 
-uniform bool bDiffuse;
-uniform sampler2D iDiffuse;
-uniform vec4 vecColor;
+uniform bool u_use_diffuse;
+uniform sampler2D u_diffuse_sampler;
+uniform vec4 u_color;
 
-uniform bool bScissor;
-uniform vec4 vecScissor;
+uniform bool u_use_scissor;
+uniform vec4 u_scissor;
 
-uniform float flBorder;
-uniform bool bHighlight;
+uniform float u_border;
+uniform bool u_highlight;
 
-in vec3 vecFragmentPosition;
-in vec2 vecFragmentTexCoord0;
-in vec3 vecFragmentNormal;
-in vec3 vecFragmentColor;
+in vec3 frag_position;
+in vec2 frag_texcoord0;
 
 vec4 fragment_program()
 {
-	vec4 vecDiffuse = vecColor;
+	vec4 diffuse = u_color;
 
-	if (bDiffuse)
-		vecDiffuse *= texture(iDiffuse, vecFragmentTexCoord0);
+	if (u_use_diffuse)
+		diffuse *= texture(u_diffuse_sampler, frag_texcoord0);
 
-	if (bScissor)
+	if (u_use_scissor)
 	{
-		if (vecFragmentPosition.x < vecScissor.x)
+		if (frag_position.x < u_scissor.x)
 			discard;
-		if (vecFragmentPosition.y < vecScissor.y)
+		if (frag_position.y < u_scissor.y)
 			discard;
-		if (vecFragmentPosition.x > vecScissor.x+vecScissor.z)
+		if (frag_position.x > u_scissor.x+u_scissor.z)
 			discard;
-		if (vecFragmentPosition.y > vecScissor.y+vecScissor.w)
+		if (frag_position.y > u_scissor.y+u_scissor.w)
 			discard;
 
-		/*if (vecFragmentPosition.x > vecScissor.x &&
-			vecFragmentPosition.y > vecScissor.y &&
-			vecFragmentPosition.x < vecScissor.x+vecScissor.z &&
-			vecFragmentPosition.y < vecScissor.y+vecScissor.w)
+		/*if (frag_position.x > u_scissor.x &&
+			frag_position.y > u_scissor.y &&
+			frag_position.x < u_scissor.x+u_scissor.z &&
+			frag_position.y < u_scissor.y+u_scissor.w)
 		{
-			vecDiffuse += vec4(0.5, 0.5, 0.0, 0.0);
+			diffuse += vec4(0.5, 0.5, 0.0, 0.0);
 		}*/
 	}
 
-	if (flBorder > 0.0)
+	if (u_border > 0.0)
 	{
-		float x = vecDimensions.x;
-		float y = vecDimensions.y;
-		float w = vecDimensions.z;
-		float h = vecDimensions.w;
+		float x = u_dimensions.x;
+		float y = u_dimensions.y;
+		float w = u_dimensions.z;
+		float h = u_dimensions.w;
 
-		float flBorderStrength = 0.2;
-		float flDistanceLeft = RemapVal(abs(x - vecFragmentPosition.x), 0.0, flBorder, flBorderStrength, 0.0);
-		float flDistanceTop = RemapVal(abs(y - vecFragmentPosition.y), 0.0, flBorder, flBorderStrength, 0.0);
-		float flDistanceRight = RemapVal(abs(x+w - vecFragmentPosition.x), 0.0, flBorder, flBorderStrength, 0.0);
-		float flDistanceBottom = RemapVal(abs(y+h - vecFragmentPosition.y), 0.0, flBorder, flBorderStrength, 0.0);
+		float border_strength = 0.2;
+		float distance_left = RemapVal(abs(x - frag_position.x), 0.0, u_border, border_strength, 0.0);
+		float distance_top = RemapVal(abs(y - frag_position.y), 0.0, u_border, border_strength, 0.0);
+		float distance_right = RemapVal(abs(x+w - frag_position.x), 0.0, u_border, border_strength, 0.0);
+		float distance_bottom = RemapVal(abs(y+h - frag_position.y), 0.0, u_border, border_strength, 0.0);
 
-		float flDistance = max(max(max(flDistanceLeft, flDistanceRight), flDistanceTop), flDistanceBottom);
-		if (flDistance > 0.0)
+		float distance = max(max(max(distance_left, distance_right), distance_top), distance_bottom);
+		if (distance > 0.0)
 		{
-			vecDiffuse.r += flDistance;
-			vecDiffuse.g += flDistance;
-			vecDiffuse.b += flDistance;
-			vecDiffuse.a += flDistance * 1.0/flBorderStrength;
+			diffuse.r += distance;
+			diffuse.g += distance;
+			diffuse.b += distance;
+			diffuse.a += distance * 1.0/border_strength;
 		}
 	}
 
-	vec4 vecFragColor = vecDiffuse;
+	vec4 frag_color = diffuse;
 
-	if (vecColor.a > 0.0 && bHighlight)
+	if (u_color.a > 0.0 && u_highlight)
 	{
-		float y = vecDimensions.y;
-		float m = vecDimensions.x + vecDimensions.z/2.0;	// Midpoint
+		float y = u_dimensions.y;
+		float m = u_dimensions.x + u_dimensions.z/2.0;	// Midpoint
 
-		float flDistance = abs(y - vecFragmentPosition.y);
-		float flGlowCutoff = RemapValSmooth(flDistance, 250.0, 260.0, 1.0, 0.0);
+		float distance = abs(y - frag_position.y);
+		float glow_cutoff = RemapValSmooth(distance, 250.0, 260.0, 1.0, 0.0);
 
-		float flAdd = RemapValSmooth(flDistance, 0.0, 250.0, 0.1, 0.01);
-		float flGlow = RemapValSmooth(LengthSqr(vecFragmentPosition.xy - vec2(m, y)), 0.0, 300.0*300.0, 0.08, 0.0);
-		if (flGlow > 0.0)
-			flAdd += flGlow;
+		float add = RemapValSmooth(distance, 0.0, 250.0, 0.1, 0.01);
+		float glow = RemapValSmooth(length_sqr(frag_position.xy - vec2(m, y)), 0.0, 300.0*300.0, 0.08, 0.0);
+		if (glow > 0.0)
+			add += glow;
 
-		flAdd *= flGlowCutoff;
-		vecFragColor.r += flAdd;
-		vecFragColor.g += flAdd;
-		vecFragColor.b += flAdd;
+		add *= glow_cutoff;
+		frag_color.r += add;
+		frag_color.g += add;
+		frag_color.b += add;
 
 		// Reduce banding.
-		float rand = Rand(vecFragmentTexCoord0)/200.0;
-		vecFragColor.r += rand;
-		vecFragColor.g += rand;
-		vecFragColor.b += rand;
+		float rand = Rand(frag_texcoord0)/200.0;
+		frag_color.r += rand;
+		frag_color.g += rand;
+		frag_color.b += rand;
 	}
 
-	return vecFragColor;
+	return frag_color;
 }

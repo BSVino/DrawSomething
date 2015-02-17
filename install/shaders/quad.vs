@@ -1,11 +1,11 @@
-in vec3 vecPosition;
-in vec2 vecTexCoord0;
+in vec3 vert_position;
+in vec2 vert_texcoord0;
 
-out vec2 vecFragmentTexCoord0;
+out vec2 frag_texcoord0;
 
 vec4 vertex_program()
 {
-	vecFragmentTexCoord0 = vec2(vecTexCoord0.x, 1.0-vecTexCoord0.y);
+	frag_texcoord0 = vec2(vert_texcoord0.x, 1.0-vert_texcoord0.y);
 
-	return vec4(vecPosition, 1.0);
+	return vec4(vert_position, 1.0);
 }

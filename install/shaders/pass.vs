@@ -1,21 +1,19 @@
-uniform vec4 vecColor;
+in vec3 vert_position;
+in vec3 vert_normal;
+in vec2 vert_texcoord0;
+in vec3 vert_color;
 
-in vec3 vecPosition;
-in vec3 vecNormal;
-in vec2 vecTexCoord0;
-in vec3 vecVertexColor;
-
-out vec3 vecFragmentPosition;
-out vec3 vecFragmentNormal;
-out vec2 vecFragmentTexCoord0;
-out vec3 vecFragmentColor;
+out vec3 frag_position;
+out vec3 frag_normal;
+out vec2 frag_texcoord0;
+out vec3 frag_color;
 
 vec4 vertex_program()
 {
-	vecFragmentPosition = (mGlobal * vec4(vecPosition, 1.0)).xyz;
-	vecFragmentNormal = vecNormal;
-	vecFragmentTexCoord0 = vec2(vecTexCoord0.x, 1.0-vecTexCoord0.y);
-	vecFragmentColor = vecVertexColor;
+	frag_position = (u_global * vec4(vert_position, 1.0)).xyz;
+	frag_normal = vert_normal;
+	frag_texcoord0 = vec2(vert_texcoord0.x, 1.0-vert_texcoord0.y);
+	frag_color = vert_color;
 
-	return mProjection * mView * mGlobal * vec4(vecPosition, 1.0);
+	return u_projection * u_view * u_global * vec4(vert_position, 1.0);
 }

@@ -1,29 +1,29 @@
-uniform sampler2D iSource;
-uniform float flBrightness;
-uniform float flScale;
+uniform sampler2D u_source_sampler;
+uniform float u_brightness;
+uniform float u_scale;
 
-in vec2 vecFragmentTexCoord0;
+in vec2 frag_texcoord0;
 
 vec4 fragment_program()
 {
-	vec4 vecFragmentColor = texture(iSource, vecFragmentTexCoord0);
+	vec4 source_color = texture(u_source_sampler, frag_texcoord0);
 
-	float flValue = vecFragmentColor.x;
-	if (vecFragmentColor.y > flValue)
-		flValue = vecFragmentColor.y;
-	if (vecFragmentColor.z > flValue)
-		flValue = vecFragmentColor.z;
+	float value = source_color.x;
+	if (source_color.y > value)
+		value = source_color.y;
+	if (source_color.z > value)
+		value = source_color.z;
 
-	if (flValue < flBrightness && flValue > flBrightness - 0.2)
+	if (value < u_brightness && value > u_brightness - 0.2)
 	{
-		float flStrength = RemapVal(flValue, flBrightness - 0.2, flBrightness, 0.0, 1.0);
-		vecFragmentColor = vecFragmentColor*flStrength;
+		float strength = RemapVal(value, u_brightness - 0.2, u_brightness, 0.0, 1.0);
+		source_color = source_color*strength;
 	}
-	else if (flValue < flBrightness - 0.2)
-		vecFragmentColor = vec4(0.0, 0.0, 0.0, 0.0);
+	else if (value < u_brightness - 0.2)
+		source_color = vec4(0.0, 0.0, 0.0, 0.0);
 
-	vec4 vecFragColor = vecFragmentColor*flScale;
-	vecFragColor.a = 1.0;
+	vec4 output_color = source_color*u_scale;
+	output_color.a = 1.0;
 
-	return vecFragColor;
+	return output_color;
 }

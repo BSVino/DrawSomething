@@ -1,37 +1,34 @@
-uniform vec4 vecColor;
+uniform vec4 u_dimensions;
 
-uniform vec4 vecDimensions;
+uniform bool u_use_texcoords;
+uniform vec4 u_texcoords;
 
-uniform bool bTexCoords;
-uniform vec4 vecTexCoords;
+in vec3 vert_position;
+in vec2 vert_texcoord0;
 
-in vec3 vecPosition;
-in vec2 vecTexCoord0;
-
-out vec3 vecFragmentPosition;
-out vec3 vecFragmentNormal;
-out vec2 vecFragmentTexCoord0;
+out vec3 frag_position;
+out vec2 frag_texcoord0;
 
 vec4 vertex_program()
 {
-	float x = vecDimensions.x;
-	float y = vecDimensions.y;
-	float w = vecDimensions.z;
-	float h = vecDimensions.w;
+	float x = u_dimensions.x;
+	float y = u_dimensions.y;
+	float w = u_dimensions.z;
+	float h = u_dimensions.w;
 
-	vecFragmentPosition = vec3(x + vecPosition.x * w, y + vecPosition.y * h, 0);
+	frag_position = vec3(x + vert_position.x * w, y + vert_position.y * h, 0);
 
-	if (bTexCoords)
+	if (u_use_texcoords)
 	{
-		float tx = vecTexCoords.x;
-		float ty = vecTexCoords.y;
-		float tw = vecTexCoords.z;
-		float th = vecTexCoords.w;
+		float tx = u_texcoords.x;
+		float ty = u_texcoords.y;
+		float tw = u_texcoords.z;
+		float th = u_texcoords.w;
 
-		vecFragmentTexCoord0 = vec2(tx + vecTexCoord0.x * tw, ty + vecTexCoord0.y * th);
+		frag_texcoord0 = vec2(tx + vert_texcoord0.x * tw, ty + vert_texcoord0.y * th);
 	}
 	else
-		vecFragmentTexCoord0 = vecTexCoord0;
+		frag_texcoord0 = vert_texcoord0;
 
-	return mProjection * mGlobal * vec4(vecFragmentPosition, 1.0);
+	return u_projection * u_global * vec4(frag_position, 1.0);
 }

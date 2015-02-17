@@ -98,7 +98,7 @@ int main(int argc, char** args)
 
 		fclose(fp);
 
-		source_text += tsprintf("\t{ \"%s\", \"shaders/%s.vs\", \"shaders/%s.fs\", \"mProjection\", \"mView\", \"mGlobal\", },\n", data.FindChildValueString(TInvalid(KVEntryIndex), "Name"), data.FindChildValueString(TInvalid(KVEntryIndex), "Vertex"), data.FindChildValueString(TInvalid(KVEntryIndex), "Fragment"));
+		source_text += tsprintf("\t{ \"%s\", \"shaders/%s.vs\", \"shaders/%s.fs\", \"u_projection\", \"u_view\", \"u_global\", },\n", data.FindChildValueString(TInvalid(KVEntryIndex), "Name"), data.FindChildValueString(TInvalid(KVEntryIndex), "Vertex"), data.FindChildValueString(TInvalid(KVEntryIndex), "Fragment"));
 		header_text += tsprintf("\tSHADER_%s = %d,\n", tstring(data.FindChildValueString(TInvalid(KVEntryIndex), "Name")).toupper().c_str(), i);
 	}
 

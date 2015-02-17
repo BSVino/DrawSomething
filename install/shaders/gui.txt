@@ -4,11 +4,11 @@ Fragment: gui
 
 Parameter: Diffuse
 {
-	Uniform: bDiffuse
+	Uniform: u_use_diffuse
 	{
 		Value: yes
 	}
-	Uniform: iDiffuse
+	Uniform: u_diffuse_sampler
 	{
 		Texture: [value]
 	}
@@ -21,5 +21,5 @@ Parameter: Blend
 
 Defaults
 {
-	bDiffuse: no
+	u_use_diffuse: no
 }

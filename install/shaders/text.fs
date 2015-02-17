@@ -1,37 +1,35 @@
-uniform sampler2D iDiffuse;
-uniform vec4 vecColor;
+uniform sampler2D u_diffuse_sampler;
+uniform vec4 u_color;
 
-uniform float flAlpha;
+uniform bool u_use_scissor;
+uniform vec4 u_scissor;
 
-uniform bool bScissor;
-uniform vec4 vecScissor;
-
-in vec3 vecFragmentPosition;
-in vec2 vecFragmentTexCoord0;
+in vec3 frag_position;
+in vec2 frag_texcoord0;
 
 vec4 fragment_program()
 {
-	vec4 vecDiffuse = vecColor * (vec4(1.0, 1.0, 1.0, texture(iDiffuse, vecFragmentTexCoord0).a));
+	vec4 diffuse = u_color * (vec4(1.0, 1.0, 1.0, texture(u_diffuse_sampler, frag_texcoord0).a));
 
-	if (bScissor)
+	if (u_use_scissor)
 	{
-		if (vecFragmentPosition.x < vecScissor.x)
+		if (frag_position.x < u_scissor.x)
 			discard;
-		if (vecFragmentPosition.y < vecScissor.y)
+		if (frag_position.y < u_scissor.y)
 			discard;
-		if (vecFragmentPosition.x > vecScissor.x+vecScissor.z)
+		if (frag_position.x > u_scissor.x+u_scissor.z)
 			discard;
-		if (vecFragmentPosition.y > vecScissor.y+vecScissor.w)
+		if (frag_position.y > u_scissor.y+u_scissor.w)
 			discard;
 
-		/*if (vecFragmentPosition.x > vecScissor.x &&
-			vecFragmentPosition.y > vecScissor.y &&
-			vecFragmentPosition.x < vecScissor.x+vecScissor.z &&
-			vecFragmentPosition.y < vecScissor.y+vecScissor.w)
+		/*if (frag_position.x > u_scissor.x &&
+			frag_position.y > u_scissor.y &&
+			frag_position.x < u_scissor.x+u_scissor.z &&
+			frag_position.y < u_scissor.y+u_scissor.w)
 		{
-			vecDiffuse += vec4(0.5, 0.5, 0.0, 0.5);
+			diffuse += vec4(0.5, 0.5, 0.0, 0.5);
 		}*/
 	}
 
-	return vecDiffuse;
+	return diffuse;
 }

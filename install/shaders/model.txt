@@ -4,11 +4,11 @@ Fragment: model
 
 Parameter: DiffuseTexture
 {
-	Uniform: bDiffuse
+	Uniform: u_use_diffuse
 	{
 		Value: yes
 	}
-	Uniform: iDiffuse
+	Uniform: u_diffuse_sampler
 	{
 		Texture: [value]
 	}
@@ -16,7 +16,7 @@ Parameter: DiffuseTexture
 
 Parameter: Color
 {
-	Uniform: vecColor
+	Uniform: u_color
 	{
 		Value: [value]
 	}
@@ -24,7 +24,7 @@ Parameter: Color
 
 Parameter: Diffuse
 {
-	Uniform: vecDiffuse
+	Uniform: u_diffuse
 	{
 		Value: [value]
 	}
@@ -37,9 +37,8 @@ Parameter: Blend
 
 Defaults
 {
-	bDiffuse: no
-	vecColor: 1 1 1 1
-	vecDiffuse: 1 1 1 1
-	flAlpha: 1
-	bColorSwapInAlpha: off
+	u_use_diffuse: no
+	u_color: 1 1 1 1
+	u_diffuse: 1 1 1 1
+	u_alpha: 1
 }

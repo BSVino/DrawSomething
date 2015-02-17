@@ -233,9 +233,9 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 	}
 
 	tstring vertex_shader_text;
-	vertex_shader_text += "uniform mat4x4 mProjection;\n";
-	vertex_shader_text += "uniform mat4x4 mView;\n";
-	vertex_shader_text += "uniform mat4x4 mGlobal;\n";
+	vertex_shader_text += "uniform mat4x4 u_projection;\n";
+	vertex_shader_text += "uniform mat4x4 u_view;\n";
+	vertex_shader_text += "uniform mat4x4 u_global;\n";
 
 	vertex_shader_text += tfread_file(f);
 
@@ -322,13 +322,13 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 	m_vshader = vshader;
 	m_fshader = fshader;
 
-	m_position_attribute = glGetAttribLocation((GLuint)m_program, "vecPosition");
-	m_normal_attribute = glGetAttribLocation((GLuint)m_program, "vecNormal");
-	m_tangent_attribute = glGetAttribLocation((GLuint)m_program, "vecTangent");
-	m_bitangent_attribute = glGetAttribLocation((GLuint)m_program, "vecBitangent");
+	m_position_attribute = glGetAttribLocation((GLuint)m_program, "vert_position");
+	m_normal_attribute = glGetAttribLocation((GLuint)m_program, "vert_normal");
+	m_tangent_attribute = glGetAttribLocation((GLuint)m_program, "vert_tangent");
+	m_bitangent_attribute = glGetAttribLocation((GLuint)m_program, "vert_bitangent");
 	for (size_t i = 0; i < MAX_TEXTURE_CHANNELS; i++)
-		m_texcoord_attributes[i] = glGetAttribLocation((GLuint)m_program, tsprintf("vecTexCoord%d", i).c_str());
-	m_color_attribute = glGetAttribLocation((GLuint)m_program, "vecVertexColor");
+		m_texcoord_attributes[i] = glGetAttribLocation((GLuint)m_program, tsprintf("vert_texcoord%d", i).c_str());
+	m_color_attribute = glGetAttribLocation((GLuint)m_program, "vert_color");
 
 	TAssert(m_position_attribute != ~0);
 

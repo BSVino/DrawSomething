@@ -1,14 +1,14 @@
-in vec3 vecPosition;
-in vec2 vecTexCoord0;
+in vec3 vert_position;
+in vec2 vert_texcoord0;
 
-out vec3 vecFragmentPosition;
-out vec2 vecFragmentTexCoord0;
+out vec3 frag_position;
+out vec2 frag_texcoord0;
 
 vec4 vertex_program()
 {
-	vecFragmentPosition = vecPosition;
+	frag_position = vert_position;
 
-	vecFragmentTexCoord0 = vecTexCoord0;
+	frag_texcoord0 = vert_texcoord0;
 
-	return mProjection * mView * mGlobal * vec4(vecPosition, 1);
+	return u_projection * u_view * u_global * vec4(vert_position, 1);
 }

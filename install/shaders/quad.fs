@@ -1,11 +1,9 @@
-uniform sampler2D iDiffuse;
-uniform vec4 vecColor;
+uniform sampler2D u_diffuse_sampler;
+uniform vec4 u_color;
 
-uniform float flAlpha;
-
-in vec2 vecFragmentTexCoord0;
+in vec2 frag_texcoord0;
 
 vec4 fragment_program()
 {
-	return vecColor * texture(iDiffuse, vecFragmentTexCoord0);
+	return u_color * texture(u_diffuse_sampler, frag_texcoord0);
 }
