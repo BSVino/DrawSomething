@@ -46,6 +46,7 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 	GLint samples;
 	glGetIntegerv(GL_SAMPLES, &samples);
 	g_client_data->m_shaders.Initialize(samples);
+	g_client_data->m_renderer.base.Initialize();
 
 	g_client_data->m_vb_strings.reserve(1024 * 10);
 

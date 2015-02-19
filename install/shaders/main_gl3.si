@@ -1,11 +1,13 @@
-
+#if defined(FRAGMENT_PROGRAM)
+out vec4 out_color;
+#endif
 
 void main()
 {
 #if defined(VERTEX_PROGRAM)
 	gl_Position = vertex_program();
 #elif defined(FRAGMENT_PROGRAM)
-	gl_FragColor = fragment_program();
+	out_color = fragment_program();
 #endif
 }
 

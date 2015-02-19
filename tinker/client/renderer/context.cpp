@@ -6,6 +6,8 @@
 #include "shaders.h"
 #include "window.h"
 
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 Context::Context(Renderer* renderer, bool inherit)
 {
 	m_renderer = renderer;
@@ -106,86 +108,32 @@ void Context::SetUniform(UniformIndex uniform, const mat4& value)
 
 void Context::BeginRenderTris()
 {
-	m_renderer->m_tex_coords.clear();
-	m_renderer->m_normals.clear();
-	m_renderer->m_colors.clear();
-	m_renderer->m_verts.clear();
-
-	m_has_texcoord = false;
-	m_has_normal = false;
-	m_has_color = false;
-
-	m_drawmode = GL_TRIANGLES;
+	m_renderer->BeginRenderPrimitive(GL_TRIANGLES);
 }
 
 void Context::BeginRenderTriFan()
 {
-	m_renderer->m_tex_coords.clear();
-	m_renderer->m_normals.clear();
-	m_renderer->m_colors.clear();
-	m_renderer->m_verts.clear();
-
-	m_has_texcoord = false;
-	m_has_normal = false;
-	m_has_color = false;
-
-	m_drawmode = GL_TRIANGLE_FAN;
+	m_renderer->BeginRenderPrimitive(GL_TRIANGLE_FAN);
 }
 
 void Context::BeginRenderTriStrip()
 {
-	m_renderer->m_tex_coords.clear();
-	m_renderer->m_normals.clear();
-	m_renderer->m_colors.clear();
-	m_renderer->m_verts.clear();
-
-	m_has_texcoord = false;
-	m_has_normal = false;
-	m_has_color = false;
-
-	m_drawmode = GL_TRIANGLE_STRIP;
+	m_renderer->BeginRenderPrimitive(GL_TRIANGLE_STRIP);
 }
 
 void Context::BeginRenderLines()
 {
-	m_renderer->m_tex_coords.clear();
-	m_renderer->m_normals.clear();
-	m_renderer->m_colors.clear();
-	m_renderer->m_verts.clear();
-
-	m_has_texcoord = false;
-	m_has_normal = false;
-	m_has_color = false;
-
-	m_drawmode = GL_LINES;
+	m_renderer->BeginRenderPrimitive(GL_LINES);
 }
 
 void Context::BeginRenderLineLoop()
 {
-	m_renderer->m_tex_coords.clear();
-	m_renderer->m_normals.clear();
-	m_renderer->m_colors.clear();
-	m_renderer->m_verts.clear();
-
-	m_has_texcoord = false;
-	m_has_normal = false;
-	m_has_color = false;
-
-	m_drawmode = GL_LINE_LOOP;
+	m_renderer->BeginRenderPrimitive(GL_LINE_LOOP);
 }
 
 void Context::BeginRenderLineStrip()
 {
-	m_renderer->m_tex_coords.clear();
-	m_renderer->m_normals.clear();
-	m_renderer->m_colors.clear();
-	m_renderer->m_verts.clear();
-
-	m_has_texcoord = false;
-	m_has_normal = false;
-	m_has_color = false;
-
-	m_drawmode = GL_LINE_STRIP;
+	m_renderer->BeginRenderPrimitive(GL_LINE_STRIP);
 }
 
 void Context::BeginRenderDebugLines()
@@ -195,73 +143,88 @@ void Context::BeginRenderDebugLines()
 
 void Context::BeginRenderPoints(float flSize)
 {
-	m_renderer->m_tex_coords.clear();
-	m_renderer->m_normals.clear();
-	m_renderer->m_colors.clear();
-	m_renderer->m_verts.clear();
-
-	m_has_texcoord = false;
-	m_has_normal = false;
-	m_has_color = false;
+	m_renderer->BeginRenderPrimitive(GL_POINTS);
 
 	glPointSize(flSize);
-	m_drawmode = GL_POINTS;
 }
 
 void Context::TexCoord(float s, float t, int channel)
 {
-	TAssert(channel == 0); // EndRender() needs updating if you want to use another channel.
+	TAssert(channel == 0); // Vertex() and EndRender() need updating if you want to use another channel.
 
-	m_texcoords[channel] = vec2(s, t);
+	m_texcoords = vec2(s, t);
 
-	m_has_texcoord = true;
+	TAssert(m_renderer->m_has_texcoord || !m_renderer->m_verts.size());
+	m_renderer->m_has_texcoord = true;
 }
 
 void Context::TexCoord(const vec2& v, int channel)
 {
-	TAssert(channel == 0); // EndRender() needs updating if you want to use another channel.
+	TAssert(channel == 0); // Vertex() and EndRender() need updating if you want to use another channel.
 
-	m_texcoords[channel] = v;
+	m_texcoords = v;
 
-	m_has_texcoord = true;
+	TAssert(m_renderer->m_has_texcoord || !m_renderer->m_verts.size());
+	m_renderer->m_has_texcoord = true;
 }
 
 void Context::TexCoord(const vec3& v, int channel)
 {
-	TAssert(channel == 0); // EndRender() needs updating if you want to use another channel.
+	TAssert(channel == 0); // Vertex() and EndRender() need updating if you want to use another channel.
 
-	m_texcoords[channel] = vec2(v);
+	m_texcoords = vec2(v);
 
-	m_has_texcoord = true;
+	TAssert(m_renderer->m_has_texcoord || !m_renderer->m_verts.size());
+	m_renderer->m_has_texcoord = true;
 }
 
 void Context::Normal(const vec3& v)
 {
 	m_normal = v;
-	m_has_normal = true;
+
+	TAssert(m_renderer->m_has_normal || !m_renderer->m_verts.size());
+	m_renderer->m_has_normal = true;
 }
 
 void Context::Color(const color4& c)
 {
-	m_color = c;
-	m_has_color = true;
+	m_color = vec4(c);
+
+	TAssert(m_renderer->m_has_color || !m_renderer->m_verts.size());
+	m_renderer->m_has_color = true;
 }
 
 void Context::Vertex(const vec3& v)
 {
-	if (m_has_texcoord)
+	m_renderer->m_verts.push_back(v.x);
+	m_renderer->m_verts.push_back(v.y);
+	m_renderer->m_verts.push_back(v.z);
+
+	if (m_renderer->m_has_texcoord)
 	{
-		for (size_t i = 0; i < MAX_TEXTURE_CHANNELS; i++)
-			m_renderer->m_tex_coords.push_back(m_texcoords[i]);
+		//for (size_t i = 0; i < MAX_TEXTURE_CHANNELS; i++)
+		{
+			m_renderer->m_verts.push_back(m_texcoords.x);
+			m_renderer->m_verts.push_back(m_texcoords.y);
+		}
 	}
 
-	if (m_has_normal)
-		m_renderer->m_normals.push_back(m_normal);
+	if (m_renderer->m_has_normal)
+	{
+		m_renderer->m_verts.push_back(m_normal.x);
+		m_renderer->m_verts.push_back(m_normal.y);
+		m_renderer->m_verts.push_back(m_normal.z);
+	}
 
-	if (m_has_color)
-		m_renderer->m_colors.push_back(m_color);
+	if (m_renderer->m_has_color)
+	{
+		m_renderer->m_verts.push_back(m_color.x);
+		m_renderer->m_verts.push_back(m_color.y);
+		m_renderer->m_verts.push_back(m_color.z);
+		m_renderer->m_verts.push_back(m_color.w);
+	}
 
-	m_renderer->m_verts.push_back(v);
+	m_renderer->m_num_verts++;
 }
 
 void Context::EndRender()
@@ -288,32 +251,61 @@ void Context::EndRender()
 
 	m_frame->m_projection_updated = m_frame->m_view_updated = m_frame->m_transform_updated = true;
 
-	if (m_has_texcoord)
+	glBindVertexArray(m_renderer->m_default_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_renderer->m_dynamic_mesh_vbo);
+	glBufferData(GL_ARRAY_BUFFER, m_renderer->m_verts.size() * sizeof(float), m_renderer->m_verts.data(), GL_STATIC_DRAW);
+
+	int stride = 3 * sizeof(float);
+	int position_offset = 0;
+	int texcoord_offset = stride;
+	int normal_offset = stride;
+	int color_offset = stride;
+
+	if (m_renderer->m_has_texcoord)
+	{
+		int uv_size = 2 * sizeof(float);
+		stride += uv_size;
+		normal_offset += uv_size;
+		color_offset += uv_size;
+	}
+
+	if (m_renderer->m_has_normal)
+	{
+		int normal_size = 3 * sizeof(float);
+		stride += normal_size;
+		color_offset += normal_size;
+	}
+
+	if (m_renderer->m_has_color)
+		stride += 4 * sizeof(float);
+
+	TAssert(shader->m_position_attribute != ~0);
+	glEnableVertexAttribArray((GLuint)shader->m_position_attribute);
+	glVertexAttribPointer((GLuint)shader->m_position_attribute, 3, GL_FLOAT, false, stride, BUFFER_OFFSET(position_offset));
+
+	if (m_renderer->m_has_texcoord)
 	{
 		if (shader->m_texcoord_attributes[0] != ~0)
 		{
 			glEnableVertexAttribArray((GLuint)shader->m_texcoord_attributes[0]);
-			glVertexAttribPointer((GLuint)shader->m_texcoord_attributes[0], 2, GL_FLOAT, false, 0, m_renderer->m_tex_coords.data());
+			glVertexAttribPointer((GLuint)shader->m_texcoord_attributes[0], 2, GL_FLOAT, false, stride, BUFFER_OFFSET(texcoord_offset));
 		}
 	}
 
-	if (m_has_normal && shader->m_normal_attribute != ~0)
+	if (m_renderer->m_has_normal && shader->m_normal_attribute != ~0)
 	{
 		glEnableVertexAttribArray((GLuint)shader->m_normal_attribute);
-		glVertexAttribPointer((GLuint)shader->m_normal_attribute, 3, GL_FLOAT, false, 0, m_renderer->m_normals.data());
+		glVertexAttribPointer((GLuint)shader->m_normal_attribute, 3, GL_FLOAT, false, stride, BUFFER_OFFSET(normal_offset));
 	}
 
-	if (m_has_color && shader->m_color_attribute != ~0)
+	if (m_renderer->m_has_color && shader->m_color_attribute != ~0)
 	{
 		glEnableVertexAttribArray((GLuint)shader->m_color_attribute);
-		glVertexAttribPointer((GLuint)shader->m_color_attribute, 3, GL_UNSIGNED_BYTE, true, sizeof(color4), m_renderer->m_colors.data());
+		glVertexAttribPointer((GLuint)shader->m_color_attribute, 3, GL_FLOAT, true, stride, BUFFER_OFFSET(color_offset));
 	}
 
-	TAssert(shader->m_position_attribute != ~0);
-	glEnableVertexAttribArray((GLuint)shader->m_position_attribute);
-	glVertexAttribPointer((GLuint)shader->m_position_attribute, 3, GL_FLOAT, false, 0, m_renderer->m_verts.data());
-
-	glDrawArrays(m_drawmode, 0, (GLsizei)m_renderer->m_verts.size());
+	glDrawArrays(m_renderer->m_drawmode, 0, m_renderer->m_num_verts);
 
 	glDisableVertexAttribArray((GLuint)shader->m_position_attribute);
 	for (size_t i = 0; i < MAX_TEXTURE_CHANNELS; i++)

@@ -10,13 +10,9 @@ struct Context
 	Renderer::RenderFrame* m_frame;
 
 	// For building meshes
-	vec3   m_normal;
-	vec2   m_texcoords[MAX_TEXTURE_CHANNELS];
-	color4 m_color;
-	int m_drawmode;
-	int m_has_texcoord : 1;
-	int m_has_normal : 1;
-	int m_has_color : 1;
+	vec3 m_normal;
+	vec2 m_texcoords;// [MAX_TEXTURE_CHANNELS];
+	vec4 m_color;
 
 	Context(Renderer* renderer, bool inherit = true);
 	~Context();

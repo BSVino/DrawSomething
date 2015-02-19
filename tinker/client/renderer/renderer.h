@@ -21,11 +21,16 @@ struct Renderer
 	float m_camera_near;
 	float m_camera_far;
 
+	uint32 m_default_vao;
+
 	// For building meshes
-	tvector<vec2> m_tex_coords;
-	tvector<vec3>   m_normals;
-	tvector<color4> m_colors;
-	tvector<vec3>   m_verts;
+	tvector<float> m_verts;
+	int m_drawmode;
+	int m_num_verts;
+	int m_has_texcoord : 1;
+	int m_has_normal : 1;
+	int m_has_color : 1;
+	uint32 m_dynamic_mesh_vbo;
 
 	struct RenderFrame
 	{
@@ -56,6 +61,8 @@ struct Renderer
 	{
 	}
 
+	void Initialize();
+
 	void ClearDepth();
 	void ClearColor(color4 c);
 
@@ -63,6 +70,8 @@ struct Renderer
 
 	void StartRendering(struct Context* c);
 	void FinishRendering(struct Context* c);
+
+	void BeginRenderPrimitive(int drawmode);
 
 	RenderFrame* GetCurrentFrame();
 };

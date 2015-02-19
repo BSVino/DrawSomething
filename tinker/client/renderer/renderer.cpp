@@ -7,6 +7,14 @@
 #include "context.h"
 #include "window.h"
 
+void Renderer::Initialize()
+{
+	glGenVertexArrays(1, &m_default_vao);
+	glBindVertexArray(m_default_vao);
+
+	glGenBuffers(1, &m_dynamic_mesh_vbo);
+}
+
 void Renderer::ClearDepth()
 {
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -43,6 +51,18 @@ void Renderer::StartRendering(Context* c)
 
 void Renderer::FinishRendering(Context* /*c*/)
 {
+}
+
+void Renderer::BeginRenderPrimitive(int drawmode)
+{
+	m_verts.clear();
+	m_num_verts = 0;
+
+	m_has_texcoord = false;
+	m_has_normal = false;
+	m_has_color = false;
+
+	m_drawmode = drawmode;
 }
 
 Renderer::RenderFrame* Renderer::GetCurrentFrame()
