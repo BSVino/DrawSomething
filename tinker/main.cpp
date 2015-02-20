@@ -12,6 +12,8 @@
 GameCode g_server_code;
 GameCode g_client_code;
 
+void WriteFunData(GameCode* server, GameCode* client);
+
 int main(int argc, char** args)
 {
 	g_shell.Initialize(argc, args);
@@ -55,6 +57,8 @@ int main(int argc, char** args)
 
 	if (client && !g_client_code.m_game_init(&g_client_code.m_game_data, argc, args))
 		return 1;
+
+	WriteFunData(&g_server_code, &g_client_code);
 
 	SetLowPeriodScheduler();
 
@@ -171,3 +175,21 @@ int main(int argc, char** args)
 
 	return 0;
 }
+
+void WriteFunData(GameCode* server, GameCode* client)
+{
+	FILE* fp = fopen("fundata.txt", "a");
+	fprintf(fp, "session {\n");
+	fprintf(fp, "\ttimestamp: %d\n", time(0));
+	fprintf(fp, "\tserver_memory: %d\n", server->m_game_data.m_memory_size);
+	fprintf(fp, "\tclient_memory: %d\n", client->m_game_data.m_memory_size);
+#ifdef _DEBUG
+	fprintf(fp, "\tdebug: 1\n");
+#else
+	fprintf(fp, "\tdebug: 0\n");
+#endif
+	fprintf(fp, "}\n\n");
+	fclose(fp);
+}
+
+

@@ -116,6 +116,15 @@ int main(int argc, char** args)
 		return 0;
 	}
 
+	{
+		FILE* fp = fopen((tstring(game_directory) + "/fundata.txt").c_str(), "a");
+		fprintf(fp, "playroom {\n");
+		fprintf(fp, "\ttimestamp: %d\n", time(0));
+		fprintf(fp, "\tnum_shaders: %d\n", shaders.size());
+		fprintf(fp, "}\n\n");
+		fclose(fp);
+	}
+
 	FILE* fp_header = tfopen(header, "w");
 	FILE* fp_source = tfopen(source, "w");
 
