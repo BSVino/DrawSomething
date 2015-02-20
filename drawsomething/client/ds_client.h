@@ -26,6 +26,18 @@ struct ClientData
 	double m_game_time;
 	float m_frame_time;
 
+	// Temporary!
+#define MAX_STROKE_POINTS 1000
+	vec3 m_stroke_points[MAX_STROKE_POINTS];
+#define MAX_STROKES 1000
+	struct Stroke
+	{
+		// A stroke is m_stroke_points[first] to m_stroke_points[first + size - 1]
+		int m_first;
+		int m_size;
+	} m_strokes[MAX_STROKES];
+	int m_num_strokes;
+
 	// Viewback stuff.
 	void* m_vb1;
 	void* m_vb2;
@@ -34,6 +46,7 @@ struct ClientData
 	ClientData(struct WindowData* window_data)
 		: m_renderer(&m_shaders, window_data)
 	{
+		m_num_strokes = 0;
 	}
 
 	Artist* GetLocalArtist()

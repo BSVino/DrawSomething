@@ -85,6 +85,7 @@ struct mat4
 	static mat4 ProjectFrustum(float left, float right, float bottom, float top, float near, float far);      // Just like glFrustum
 	static mat4 ProjectOrthographic(float left, float right, float bottom, float top, float near, float far); // Just like glOrtho
 	static mat4 ConstructCameraView(const vec3& position, const vec3& direction, const vec3& up);             // Like gluLookAt but a direction parameter instead of target
+	static vec3 UnProjectPoint(mat4 projection, mat4 camera, float viewport_w, float viewport_h, vec3 screen_position); // gluUnProject
 
 	// Add a translation
 	mat4 operator+=(const vec3& v);

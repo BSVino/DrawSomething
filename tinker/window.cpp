@@ -311,11 +311,19 @@ void Window::PollEvents(ControlData* input)
 		}
 	}
 
-	if (SDL_GetRelativeMouseMode() == m_data.m_cursor_visible)
+	int mouse_visible = !SDL_GetRelativeMouseMode();
+	if (mouse_visible != m_data.m_cursor_visible)
 	{
 		SDL_SetRelativeMouseMode(m_data.m_cursor_visible ? SDL_FALSE : SDL_TRUE);
 		SDL_WarpMouseInWindow(m_SDL_window, m_data.m_width / 2, m_data.m_height / 2);
+		mouse_visible = m_data.m_cursor_visible;
+
+		// Don't SDL_GetMouseState, it won't return the correct data. Assume it's centered.
+		m_data.m_mouse_x = m_data.m_width / 2;
+		m_data.m_mouse_y = m_data.m_height / 2;
 	}
+	else if (mouse_visible)
+		SDL_GetMouseState(&m_data.m_mouse_x, &m_data.m_mouse_y);
 }
 
 void Window::SwapBuffers()

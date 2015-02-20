@@ -51,6 +51,50 @@ void LocalArtist::HandleInput(ControlData* input)
 
 	if (input->m_draw.m_down)
 		m_draw_time = g_client_data->m_game_time + 1.5;
+
+	if (input->m_draw.m_pressed)
+	{
+		if (g_client_data->m_num_strokes < MAX_STROKES)
+		{
+			ClientData::Stroke* stroke = &g_client_data->m_strokes[g_client_data->m_num_strokes];
+
+			// Start a new stroke
+			int first_point = 0;
+			if (g_client_data->m_num_strokes)
+				first_point = (stroke - 1)->m_first + (stroke - 1)->m_size;
+
+			stroke->m_first = first_point;
+			stroke->m_size = 0;
+
+			g_client_data->m_num_strokes++;
+		}
+	}
+
+	if (input->m_draw.m_down)
+	{
+		ClientData::Stroke* stroke = &g_client_data->m_strokes[g_client_data->m_num_strokes - 1];
+
+		if (stroke->m_first + stroke->m_size < MAX_STROKE_POINTS)
+		{
+			// TODO: Don't write it if it's too close to the last one?
+			// TODO: Erase the line if there's only one point when the artist lets go?
+
+			float aspect_ratio = (float)g_client_data->m_window_data->m_width / (float)g_client_data->m_window_data->m_height;
+
+			mat4 projection = mat4::ProjectPerspective(GetFOV(), aspect_ratio, g_client_data->m_renderer.base.m_camera_near, g_client_data->m_renderer.base.m_camera_far);
+			mat4 camera = mat4::ConstructCameraView(m_local->m_position, AngleVector(m_local->m_looking), vec3(0, 0, 1));
+
+			vec3 unprojected_0 = mat4::UnProjectPoint(projection, camera, (float)g_client_data->m_window_data->m_width, (float)g_client_data->m_window_data->m_height,
+				vec3((float)g_client_data->m_window_data->m_mouse_x, (float)g_client_data->m_window_data->m_mouse_y, 0));
+			vec3 unprojected_1 = mat4::UnProjectPoint(projection, camera, (float)g_client_data->m_window_data->m_width, (float)g_client_data->m_window_data->m_height,
+				vec3((float)g_client_data->m_window_data->m_mouse_x, (float)g_client_data->m_window_data->m_mouse_y, 1));
+
+			vec3 projection_direction = (unprojected_1 - unprojected_0).Normalized();
+
+			g_client_data->m_stroke_points[stroke->m_first + stroke->m_size] = m_local->m_position + projection_direction * 0.5f;
+			stroke->m_size++;
+		}
+	}
 }
 
 void LocalArtist::LocalThink()
@@ -64,3 +108,7 @@ void LocalArtist::LocalThink()
 	g_client_data->m_window_data->m_cursor_visible = !!draw_mode_goal;
 }
 
+float LocalArtist::GetFOV()
+{
+	return 90 + m_draw_mode * 20;
+}

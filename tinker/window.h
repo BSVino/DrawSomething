@@ -4,9 +4,15 @@
 
 struct WindowData
 {
+	// Read only variables:
 	int m_width;
 	int m_height;
 
+	// x, y location of the mouse in [0, width]x[0, height], only valid if mouse is visible.
+	int m_mouse_x;
+	int m_mouse_y;
+
+	// Modifiable variables:
 	uint8 m_cursor_visible : 1;
 
 	WindowData()

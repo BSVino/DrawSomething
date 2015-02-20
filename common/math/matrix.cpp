@@ -405,6 +405,26 @@ mat4 mat4::ConstructCameraView(const vec3& position, const vec3& vecDirection, c
 	return m;
 }
 
+vec3 mat4::UnProjectPoint(mat4 projection, mat4 camera, float viewport_w, float viewport_h, vec3 screen_position)
+{
+	vec4 v(screen_position.x, viewport_h - screen_position.y, screen_position.z, 1.0);
+
+	v.x = (v.x /*- viewport_x*/) / viewport_w;
+	v.y = (v.y /*- viewport_y*/) / viewport_h;
+
+	/* Map to range -1 to 1 */
+	v.x = v.x * 2 - 1;
+	v.y = v.y * 2 - 1;
+	v.z = v.z * 2 - 1;
+
+	v = (projection * camera).Inverted() * v;
+
+	if (v.w == 0.0)
+		return vec3(0, 0, 0);
+
+	return vec3(v.x, v.y, v.z) / v.w;
+}
+
 mat4 mat4::operator+=(const vec3& v)
 {
 	m[3][0] += v.x;

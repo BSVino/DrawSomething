@@ -14,7 +14,7 @@ void DSRenderer::Draw()
 	base.ClearColor(color4(78, 188, 239, 255));
 	base.ClearDepth();
 
-	base.SetCamera(local->m_position, AngleVector(eangle(local->m_looking.p, local->m_looking.y, 0)), vec3(0, 0, 1), 90 + g_client_data->m_local_artist.m_draw_mode * 20, 0.01f, 1000);
+	base.SetCamera(local->m_position, AngleVector(eangle(local->m_looking.p, local->m_looking.y, 0)), vec3(0, 0, 1), g_client_data->m_local_artist.GetFOV(), 0.01f, 1000);
 
 	Context c(&base);
 	base.StartRendering(&c);
@@ -33,6 +33,21 @@ void DSRenderer::Draw()
 		c.TexCoord(vec2(0, 0));
 		c.Vertex(vec3(-10, 10, 0));
 	c.EndRender();
+
+	for (int k = 0; k < g_client_data->m_num_strokes; k++)
+	{
+		c.BeginRenderLineStrip();
+			c.Color(color4(255, 255, 255, 255));
+
+			int first_point = g_client_data->m_strokes[k].m_first;
+			int max_point = g_client_data->m_strokes[k].m_first + g_client_data->m_strokes[k].m_size;
+			for (int j = first_point; j < max_point; j++)
+			{
+				vec3 point = g_client_data->m_stroke_points[j];
+				c.Vertex(point);
+			}
+		c.EndRender();
+	}
 
 	base.FinishRendering(&c);
 }

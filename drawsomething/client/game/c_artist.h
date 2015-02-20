@@ -18,4 +18,6 @@ struct LocalArtist
 	
 	void HandleInput(struct ControlData* input);
 	void LocalThink(); // Think that only the local player does.
+
+	float GetFOV();
 };
