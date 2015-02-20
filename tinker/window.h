@@ -1,9 +1,18 @@
 #pragma once
 
+#include <common.h>
+
 struct WindowData
 {
 	int m_width;
 	int m_height;
+
+	uint8 m_cursor_visible : 1;
+
+	WindowData()
+	{
+		m_cursor_visible = false;
+	}
 };
 
 struct Window

@@ -43,7 +43,7 @@ void Window::Open(const char* title, int width, int height)
 
 	SDL_GL_SetSwapInterval(1);
 
-	SDL_SetRelativeMouseMode(SDL_TRUE);
+	SDL_SetRelativeMouseMode(m_data.m_cursor_visible?SDL_TRUE:SDL_FALSE);
 }
 
 bool Window::IsOpen()
@@ -273,6 +273,11 @@ void Window::PollEvents(ControlData* input)
 			}
 			break;
 
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+			UpdateAction(&input->m_draw, e.button.state);
+			break;
+
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
 		{
@@ -304,6 +309,12 @@ void Window::PollEvents(ControlData* input)
 		default:
 			break;
 		}
+	}
+
+	if (SDL_GetRelativeMouseMode() == m_data.m_cursor_visible)
+	{
+		SDL_SetRelativeMouseMode(m_data.m_cursor_visible ? SDL_FALSE : SDL_TRUE);
+		SDL_WarpMouseInWindow(m_SDL_window, m_data.m_width / 2, m_data.m_height / 2);
 	}
 }
 

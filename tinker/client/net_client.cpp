@@ -143,4 +143,6 @@ void NetClient::AddEntityFromServer(replicated_entity_instance_t entity_instance
 			m_shared.m_replicated_fields_size += 1;
 		}
 	}
+
+	AddEntityFromServerCallback(entity_instance_index, entity_table_index, entity_index);
 }

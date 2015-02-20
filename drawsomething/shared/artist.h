@@ -16,7 +16,6 @@ struct Artist
 	}
 
 #ifdef CLIENT_LIBRARY
-	void HandleInput(struct ControlData* input);
 #endif
 };
 

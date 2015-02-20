@@ -70,6 +70,14 @@ net_peer_t NetClient::GetPeerIndex(replicated_entity_instance_t /*entity_instanc
 
 	return TInvalid(net_peer_t);
 }
+
+void NetClient::AddEntityFromServerCallback(replicated_entity_instance_t /*entity_instance_index*/, replicated_entity_t entity_table_index, uint16 entity_index)
+{
+	g_client_data->m_artists[entity_index].m_active = 1;
+
+	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index && entity_index == g_client_data->m_client.m_peer_index)
+		g_client_data->m_local_artist.m_local = &g_client_data->m_artists[entity_index];
+}
 #else
 void NetHost::ClientConnectedCallback(net_peer_t peer_index)
 {

@@ -7,6 +7,7 @@
 
 #include "gamecode.h"
 #include "input.h"
+#include "window.h"
 
 #include "ds_client.h"
 #include "net_ds.h"
@@ -41,7 +42,11 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 	if (game_data->m_memory_size < sizeof(ClientData))
 		return 0;
 
+	game_data->m_window_data->m_cursor_visible = false;
+
 	g_client_data = new(game_data->m_memory) ClientData(game_data->m_window_data);
+
+	g_client_data->m_window_data = game_data->m_window_data;
 
 	GLint samples;
 	glGetIntegerv(GL_SAMPLES, &samples);
@@ -84,13 +89,15 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 
 	if (local)
 	{
-		local->HandleInput(game_data->m_input);
+		g_client_data->m_local_artist.HandleInput(game_data->m_input);
 
 		vb_data_send_float_s(vb_str("pitch"), local->m_looking.p);
 	}
 
 	// This receives updates from the server, but it also sends commands, so we do it after we handle input.
 	g_client_data->m_client.Service();
+
+	g_client_data->m_local_artist.LocalThink();
 
 	g_client_data->m_renderer.Draw();
 

@@ -7,7 +7,7 @@
 #include "net_ds.h"
 
 #include "renderer/ds_renderer.h"
-#include "artist.h"
+#include "game/c_artist.h"
 
 struct ClientData
 {
@@ -16,9 +16,12 @@ struct ClientData
 
 	Artist m_artists[MAX_ARTISTS];
 	Artist m_local_artist_replicated;
+	LocalArtist m_local_artist;
 
 	NetClient m_client;
 	DSNetShared m_net_shared;
+
+	struct WindowData* m_window_data;
 
 	double m_game_time;
 	float m_frame_time;

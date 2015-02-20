@@ -26,11 +26,13 @@ struct ControlData
 	{
 		struct
 		{
+			ControlAction m_draw;
+
 			ControlAction m_forward;
 			ControlAction m_back;
 			ControlAction m_left;
 			ControlAction m_right;
 		};
-		ControlAction m_actions[4];
+		ControlAction m_actions[5];
 	};
 };

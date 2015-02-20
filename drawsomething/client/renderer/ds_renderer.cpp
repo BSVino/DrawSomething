@@ -14,7 +14,7 @@ void DSRenderer::Draw()
 	base.ClearColor(color4(78, 188, 239, 255));
 	base.ClearDepth();
 
-	base.SetCamera(local->m_position, AngleVector(eangle(local->m_looking.p, local->m_looking.y, 0)), vec3(0, 0, 1), 90, 0.01f, 1000);
+	base.SetCamera(local->m_position, AngleVector(eangle(local->m_looking.p, local->m_looking.y, 0)), vec3(0, 0, 1), 90 + g_client_data->m_local_artist.m_draw_mode * 20, 0.01f, 1000);
 
 	Context c(&base);
 	base.StartRendering(&c);

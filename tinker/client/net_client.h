@@ -22,4 +22,5 @@ struct NetClient
 	net_peer_t GetPeerIndex(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index);
 	void* GetEntityReplicatedMemory(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index);
 	void* GetEntityMemory(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index);
+	void AddEntityFromServerCallback(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index);
 };
