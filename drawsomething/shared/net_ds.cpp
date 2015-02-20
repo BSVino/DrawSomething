@@ -14,7 +14,7 @@
 void net_register_replications()
 {
 #ifdef CLIENT_LIBRARY
-	NetShared* net_interface = &g_client_data->m_client.m_shared;
+	NetShared* net_interface = &g_client_data->m_client_host.m_shared;
 	DSNetShared* ds_net = &g_client_data->m_net_shared;
 #else
 	NetShared* net_interface = &g_server_data->m_host.m_shared;
@@ -50,7 +50,7 @@ void* NetClient::GetEntityReplicatedMemory(replicated_entity_instance_t /*entity
 {
 	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index)
 	{
-		if (entity_index == g_client_data->m_client.m_peer_index)
+		if (entity_index == g_client_data->m_client_host.m_peer_index)
 			return &g_client_data->m_local_artist_replicated;
 		else
 			return NULL;
@@ -75,7 +75,7 @@ void NetClient::AddEntityFromServerCallback(replicated_entity_instance_t /*entit
 {
 	g_client_data->m_artists[entity_index].m_active = 1;
 
-	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index && entity_index == g_client_data->m_client.m_peer_index)
+	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index && entity_index == g_client_data->m_client_host.m_peer_index)
 		g_client_data->m_local_artist.m_local = &g_client_data->m_artists[entity_index];
 }
 #else

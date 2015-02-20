@@ -18,7 +18,7 @@ struct ClientData
 	Artist m_local_artist_replicated;
 	LocalArtist m_local_artist;
 
-	NetClient m_client;
+	NetClient m_client_host;
 	DSNetShared m_net_shared;
 
 	struct WindowData* m_window_data;
@@ -51,7 +51,7 @@ struct ClientData
 
 	Artist* GetLocalArtist()
 	{
-		net_peer_t local = m_client.m_peer_index;
+		net_peer_t local = m_client_host.m_peer_index;
 		if (local == TInvalid(net_peer_t))
 			return NULL;
 
