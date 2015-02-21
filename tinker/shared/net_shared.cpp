@@ -196,3 +196,4 @@ void NetShared::Packet_ReadValueChanges(uint8* packet, uint16 packet_size)
 
 	TAssert(current == packet_size);
 }
+

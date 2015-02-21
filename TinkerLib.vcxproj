@@ -72,7 +72,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
@@ -86,7 +86,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
@@ -102,7 +102,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -121,7 +121,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
       <TreatWarningAsError>true</TreatWarningAsError>

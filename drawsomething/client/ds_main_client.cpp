@@ -67,8 +67,8 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 
 	vb_static_retrieve(&g_client_data->m_vb1, &g_client_data->m_vb2);
 
-	g_client_data->m_client_host.Initialize();
-	g_client_data->m_client_host.Connect("localhost");
+	g_client_data->m_host.Initialize();
+	g_client_data->m_host.Connect("localhost");
 	net_register_replications();
 
 	return 1;
@@ -95,7 +95,7 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 	}
 
 	// This receives updates from the server, but it also sends commands, so we do it after we handle input.
-	g_client_data->m_client_host.Service();
+	g_client_data->m_host.Service();
 
 	g_client_data->m_local_artist.LocalThink();
 

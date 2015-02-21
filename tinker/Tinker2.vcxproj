@@ -72,7 +72,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\ext-deps\SDL2-2.0.2\include;..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
@@ -88,7 +88,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\ext-deps\SDL2-2.0.2\include;..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
@@ -107,7 +107,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\ext-deps\SDL2-2.0.2\include;..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -128,7 +128,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\ext-deps\SDL2-2.0.2\include;..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);_HAS_EXCEPTIONS=0</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
       <TreatWarningAsError>true</TreatWarningAsError>

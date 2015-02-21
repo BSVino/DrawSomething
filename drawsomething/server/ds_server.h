@@ -12,6 +12,7 @@ struct ServerData
 
 	NetHost m_host;
 	DSNetShared m_net_shared;
+	ENetMemory m_enet_memory;
 
 	double m_game_time;
 	float m_frame_time;

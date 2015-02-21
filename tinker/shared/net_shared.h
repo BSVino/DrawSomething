@@ -82,6 +82,11 @@ struct NetShared
 	void Packet_ReadValueChanges(uint8* packet, uint16 packet_size);
 };
 
+// The game must define these. They can be simple pass-throughs.
+void tinker_enet_free(void*);
+void* tinker_enet_malloc(size_t);
+void tinker_enet_no_memory();
+
 /*
 Player welcome message packet -- Sent to the connecting client when it first connects. Format:
 	Byte 0: 'W'
