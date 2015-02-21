@@ -81,7 +81,6 @@ void LocalArtist::HandleInput(ControlData* input)
 
 		if (stroke->m_first + stroke->m_size < MAX_STROKE_POINTS)
 		{
-			// TODO: Don't write it if it's too close to the last one?
 			// TODO: Erase the line if there's only one point when the artist lets go?
 
 			float aspect_ratio = (float)g_client_data->m_window_data->m_width / (float)g_client_data->m_window_data->m_height;
@@ -96,8 +95,22 @@ void LocalArtist::HandleInput(ControlData* input)
 
 			vec3 projection_direction = (unprojected_1 - unprojected_0).Normalized();
 
-			g_client_data->m_stroke_points[stroke->m_first + stroke->m_size] = m_local->m_position + projection_direction * 0.5f;
-			stroke->m_size++;
+			vec3 new_point = m_local->m_position + projection_direction * 0.5f;
+
+			bool skip = false;
+
+			if (stroke->m_size >= 1)
+			{
+				vec3 previous_point = g_client_data->m_stroke_points[stroke->m_first + stroke->m_size - 1];
+				if ((new_point - previous_point).LengthSqr() < 0.000001f)
+					skip = true;
+			}
+
+			if (!skip)
+			{
+				g_client_data->m_stroke_points[stroke->m_first + stroke->m_size] = m_local->m_position + projection_direction * 0.5f;
+				stroke->m_size++;
+			}
 		}
 	}
 }
