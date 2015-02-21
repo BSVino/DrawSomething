@@ -83,17 +83,21 @@ void LocalArtist::HandleInput(ControlData* input)
 		{
 			float aspect_ratio = (float)g_client_data->m_window_data->m_width / (float)g_client_data->m_window_data->m_height;
 
-			mat4 projection = mat4::ProjectPerspective(GetFOV(), aspect_ratio, g_client_data->m_renderer.base.m_camera_near, g_client_data->m_renderer.base.m_camera_far);
-			mat4 camera = mat4::ConstructCameraView(m_local->m_position, AngleVector(m_local->m_looking), vec3(0, 0, 1));
+			vec3 view_direction = AngleVector(m_local->m_looking);
 
-			vec3 unprojected_0 = mat4::UnProjectPoint(projection, camera, (float)g_client_data->m_window_data->m_width, (float)g_client_data->m_window_data->m_height,
-				vec3((float)g_client_data->m_window_data->m_mouse_x, (float)g_client_data->m_window_data->m_mouse_y, 0));
-			vec3 unprojected_1 = mat4::UnProjectPoint(projection, camera, (float)g_client_data->m_window_data->m_width, (float)g_client_data->m_window_data->m_height,
+			mat4 projection = mat4::ProjectPerspective(GetFOV(), aspect_ratio, g_client_data->m_renderer.base.m_camera_near, g_client_data->m_renderer.base.m_camera_far);
+			mat4 camera = mat4::ConstructCameraView(m_local->m_position, view_direction, vec3(0, 0, 1));
+
+			vec3 unprojected = mat4::UnProjectPoint(projection, camera, (float)g_client_data->m_window_data->m_width, (float)g_client_data->m_window_data->m_height,
 				vec3((float)g_client_data->m_window_data->m_mouse_x, (float)g_client_data->m_window_data->m_mouse_y, 1));
 
-			vec3 projection_direction = (unprojected_1 - unprojected_0).Normalized();
+			vec3 projection_direction = unprojected - m_local->m_position;
 
-			vec3 new_point = m_local->m_position + projection_direction * 0.5f;
+			vec3 projected_onto_view = view_direction.Dot(projection_direction) * view_direction;
+
+			float projection_ratio = 0.5f / projected_onto_view.Length();
+
+			vec3 new_point = m_local->m_position + projection_direction * projection_ratio;
 
 			bool skip = false;
 
@@ -106,7 +110,7 @@ void LocalArtist::HandleInput(ControlData* input)
 
 			if (!skip)
 			{
-				g_client_data->m_stroke_points[stroke->m_first + stroke->m_size] = m_local->m_position + projection_direction * 0.5f;
+				g_client_data->m_stroke_points[stroke->m_first + stroke->m_size] = new_point;
 				stroke->m_size++;
 			}
 		}
