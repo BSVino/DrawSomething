@@ -12,7 +12,12 @@ void LocalArtist::HandleInput(ControlData* input)
 	if (!m_local)
 		return;
 
-	if (!m_draw_mode)
+	if (m_draw_mode)
+	{
+		if (input->m_mouse_dy || input->m_mouse_dx)
+			m_draw_time = g_client_data->m_game_time + 1.5;
+	}
+	else
 	{
 		m_local->m_looking.p -= input->m_mouse_dy * g_client_data->m_frame_time * 30;
 		m_local->m_looking.y -= input->m_mouse_dx * g_client_data->m_frame_time * 30;
