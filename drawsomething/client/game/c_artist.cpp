@@ -81,8 +81,6 @@ void LocalArtist::HandleInput(ControlData* input)
 
 		if (stroke->m_first + stroke->m_size < MAX_STROKE_POINTS)
 		{
-			// TODO: Erase the line if there's only one point when the artist lets go?
-
 			float aspect_ratio = (float)g_client_data->m_window_data->m_width / (float)g_client_data->m_window_data->m_height;
 
 			mat4 projection = mat4::ProjectPerspective(GetFOV(), aspect_ratio, g_client_data->m_renderer.base.m_camera_near, g_client_data->m_renderer.base.m_camera_far);
@@ -112,6 +110,15 @@ void LocalArtist::HandleInput(ControlData* input)
 				stroke->m_size++;
 			}
 		}
+	}
+
+	if (input->m_draw.m_released)
+	{
+		ClientData::Stroke* stroke = &g_client_data->m_strokes[g_client_data->m_num_strokes - 1];
+
+		// Erase the line if there's only one point when the artist lets go
+		if (stroke->m_size <= 1)
+			g_client_data->m_num_strokes--;
 	}
 }
 
