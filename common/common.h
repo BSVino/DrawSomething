@@ -93,10 +93,20 @@ PRAGMA_WARNING_POP \
 #define TAssert(x) do { \
 	PRAGMA_WARNING_PUSH \
 	PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
+	if (!(x)) /* Still use the value so that the compiler doesn't complain about unused values. */ \
+	PRAGMA_WARNING_POP \
+	{} \
+	PRAGMA_WARNING_PUSH \
+	PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
 } while (0) \
 PRAGMA_WARNING_POP \
 
 #define TAssertNoMsg(x) do { \
+	PRAGMA_WARNING_PUSH \
+	PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
+	if (!(x)) /* Still use the value so that the compiler doesn't complain about unused values. */ \
+	PRAGMA_WARNING_POP \
+	{} \
 	PRAGMA_WARNING_PUSH \
 	PRAGMA_WARNING_DISABLE(4127) /* conditional expression is constant */ \
 } while (0) \

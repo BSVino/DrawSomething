@@ -28,29 +28,29 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 
 size_t GetNumberOfProcessors()
 {
-	SYSTEM_INFO SystemInfo;
-	GetSystemInfo(&SystemInfo);
-	return SystemInfo.dwNumberOfProcessors;
+	SYSTEM_INFO system_info;
+	GetSystemInfo(&system_info);
+	return system_info.dwNumberOfProcessors;
 }
 
-void SleepMS(size_t iMS)
+void SleepMS(size_t milliseconds)
 {
-	Sleep((DWORD)iMS);
+	Sleep((DWORD)milliseconds);
 }
 
-void OpenBrowser(const tstring& sURL)
+void OpenBrowser(const tstring& url)
 {
-	ShellExecuteA(NULL, "open", sURL.c_str(), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecuteA(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
-void OpenExplorer(const tstring& sDirectory)
+void OpenExplorer(const tstring& directory)
 {
-	ShellExecuteA(NULL, "open", sDirectory.c_str(), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecuteA(NULL, "open", directory.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
-void Alert(const tstring& sMessage)
+void Alert(const tstring& message)
 {
-	MessageBoxA(NULL, sMessage.c_str(), "Alert", MB_ICONWARNING|MB_OK);
+	MessageBoxA(NULL, message.c_str(), "Alert", MB_ICONWARNING|MB_OK);
 }
 
 static int g_iMinidumpsWritten = 0;
@@ -60,41 +60,42 @@ void CreateMinidump(void* /*pInfo*/)
 {
 }
 #else
-void CreateMinidump(void* pInfo)
+void CreateMinidump(void* /*pInfo*/)
 {
-	time_t currTime = ::time( NULL );
-	struct tm * pTime = ::localtime( &currTime );
+#if 0
+	time_t current_time = ::time(NULL);
+	struct tm * time = ::localtime(&current_time);
 
-	wchar_t szModule[MAX_PATH];
-	::GetModuleFileName( NULL, szModule, sizeof(szModule) / sizeof(tchar) );
-	wchar_t *pModule = wcsrchr( szModule, '.' );
+	char module_name[MAX_PATH];
+	::GetModuleFileNameA(NULL, module_name, sizeof(module_name) / sizeof(tchar));
+	char *module = strchr(module_name, '.');
 
-	if ( pModule )
-		*pModule = 0;
+	if (module)
+		*module = 0;
 
-	pModule = wcsrchr( szModule, '\\' );
-	if ( pModule )
-		pModule++;
+	module = strchr(module_name, '\\');
+	if (module)
+		module++;
 	else
-		pModule = L"unknown";
+		module = "unknown";
 
-	wchar_t szFileName[MAX_PATH];
-	_snwprintf( szFileName, sizeof(szFileName) / sizeof(tchar),
-			L"%s_%d.%.2d.%2d.%.2d.%.2d.%.2d_%d.mdmp",
-			pModule,
-			pTime->tm_year + 1900,
-			pTime->tm_mon + 1,
-			pTime->tm_mday,
-			pTime->tm_hour,
-			pTime->tm_min,
-			pTime->tm_sec,
+	char file_name[MAX_PATH];
+	_snprintf(file_name, sizeof(file_name) / sizeof(tchar),
+			"%s_%d.%.2d.%2d.%.2d.%.2d.%.2d_%d.mdmp",
+			module,
+			time->tm_year + 1900,
+			time->tm_mon + 1,
+			time->tm_mday,
+			time->tm_hour,
+			time->tm_min,
+			time->tm_sec,
 			g_iMinidumpsWritten++
 			);
 
-	HANDLE hFile = CreateFile((std::wstring(L"dumps/") + szFileName).c_str(), GENERIC_READ | GENERIC_WRITE,
+	HANDLE file_handle = CreateFile((std::string("dumps/") + file_name).c_str(), GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
 
-	if( ( hFile != NULL ) && ( hFile != INVALID_HANDLE_VALUE ) )
+	if ((file_handle != NULL) && (file_handle != INVALID_HANDLE_VALUE))
 	{
 		MINIDUMP_EXCEPTION_INFORMATION mdei;
 
@@ -110,15 +111,16 @@ void CreateMinidump(void* pInfo)
 		MINIDUMP_TYPE mdt       = (MINIDUMP_TYPE)(MiniDumpWithIndirectlyReferencedMemory | MiniDumpScanMemory);
 
 		BOOL rv = MiniDumpWriteDump( GetCurrentProcess(), GetCurrentProcessId(),
-			hFile, mdt, (pInfo != 0) ? &mdei : 0, 0, &mci );
+			file_handle, mdt, (pInfo != 0) ? &mdei : 0, 0, &mci);
 
 		if( rv )
 		{
 			// Success... message to user?
 		}
 
-		CloseHandle( hFile );
+		CloseHandle(file_handle);
 	}
+#endif
 }
 #endif
 
@@ -127,12 +129,12 @@ tstring GetClipboard()
 	if (!OpenClipboard(NULL))
 		return "";
 
-	HANDLE hData = GetClipboardData(CF_TEXT);
-	char* szBuffer = (char*)GlobalLock(hData);
-	GlobalUnlock(hData);
+	HANDLE data_handle = GetClipboardData(CF_TEXT);
+	char* buffer = (char*)GlobalLock(data_handle);
+	GlobalUnlock(data_handle);
 	CloseClipboard();
 
-	tstring sClipboard(szBuffer);
+	tstring sClipboard(buffer);
 
 	return sClipboard;
 }
@@ -144,15 +146,15 @@ void SetClipboard(const tstring& sBuf)
 
 	EmptyClipboard();
 
-	HGLOBAL hClipboard;
-	hClipboard = GlobalAlloc(GMEM_MOVEABLE, sBuf.length()+1);
+	HGLOBAL clipboard;
+	clipboard = GlobalAlloc(GMEM_MOVEABLE, sBuf.length() + 1);
 
-	char* pszBuffer = (char*)GlobalLock(hClipboard);
-	strcpy(pszBuffer, LPCSTR(sBuf.c_str()));
+	char* buffer = (char*)GlobalLock(clipboard);
+	strcpy(buffer, LPCSTR(sBuf.c_str()));
 
-	GlobalUnlock(hClipboard);
+	GlobalUnlock(clipboard);
 
-	SetClipboardData(CF_TEXT, hClipboard);
+	SetClipboardData(CF_TEXT, clipboard);
 
 	CloseClipboard();
 }
@@ -162,15 +164,15 @@ tvector<tstring> ListDirectory(const char* directory, bool include_directories)
 	if (tstrncmp(directory, "$ASSETS/", strlen(directory), 8) == 0)
 		directory += 8;
 
-	tvector<tstring> asResult;
+	tvector<tstring> result;
 
-	char szPath[MAX_PATH];
-	sprintf(szPath, "%s\\*", directory);
+	char path[MAX_PATH];
+	sprintf(path, "%s\\*", directory);
 
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = FindFirstFileA(szPath, &fd);
+	HANDLE find = FindFirstFileA(path, &fd);
 
-	if (hFind != INVALID_HANDLE_VALUE)
+	if (find != INVALID_HANDLE_VALUE)
 	{
 		do
 		{
@@ -181,19 +183,19 @@ tvector<tstring> ListDirectory(const char* directory, bool include_directories)
 			if (strcmp(fd.cFileName, ".") == 0 || strcmp(fd.cFileName, "..") == 0)
 				continue;
 
-			asResult.push_back(fd.cFileName);
-		} while(FindNextFile(hFind, &fd));
+			result.push_back(fd.cFileName);
+		} while (FindNextFile(find, &fd));
 
-		FindClose(hFind);
+		FindClose(find);
 	}
 
-	return asResult;
+	return result;
 }
 
-bool IsFile(const tstring& sPath)
+bool IsFile(const tstring& path)
 {
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = FindFirstFileA(sPath.c_str(), &fd);
+	HANDLE hFind = FindFirstFileA(path.c_str(), &fd);
 	FindClose(hFind);
 
 	if (hFind == INVALID_HANDLE_VALUE)
@@ -205,18 +207,18 @@ bool IsFile(const tstring& sPath)
 	return true;
 }
 
-bool IsDirectory(const tstring& sPath)
+bool IsDirectory(const tstring& path)
 {
-	tstring sPathNoSep = sPath;
+	tstring path_no_separator = path;
 
-	while (sPathNoSep.substr(sPathNoSep.length() - 1) == T_DIR_SEP)
-		sPathNoSep = sPathNoSep.substr(0, sPathNoSep.length()-1);
+	while (path_no_separator.substr(path_no_separator.length() - 1) == T_DIR_SEP)
+		path_no_separator = path_no_separator.substr(0, path_no_separator.length() - 1);
 
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = FindFirstFileA(sPathNoSep.c_str(), &fd);
-	FindClose(hFind);
+	HANDLE find = FindFirstFileA(path_no_separator.c_str(), &fd);
+	FindClose(find);
 
-	if (hFind == INVALID_HANDLE_VALUE)
+	if (find == INVALID_HANDLE_VALUE)
 		return false;
 
 	if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -225,56 +227,56 @@ bool IsDirectory(const tstring& sPath)
 	return false;
 }
 
-void CreateDirectoryNonRecursive(const tstring& sPath)
+void CreateDirectoryNonRecursive(const tstring& path)
 {
-	CreateDirectory(sPath.c_str(), NULL);
+	CreateDirectory(path.c_str(), NULL);
 }
 
-bool CopyFileTo(const tstring& sFrom, const tstring& sTo, bool bOverride)
+bool CopyFileTo(const tstring& from, const tstring& to, bool override)
 {
-	if (IsFile(sTo) && bOverride)
-		::DeleteFile(sTo.c_str());
+	if (IsFile(to) && override)
+		::DeleteFile(to.c_str());
 
-	return !!CopyFile(sFrom.c_str(), sTo.c_str(), true);
+	return !!CopyFile(from.c_str(), to.c_str(), true);
 }
 
-tstring FindAbsolutePath(const tstring& sPath)
+tstring FindAbsolutePath(const tstring& path)
 {
-	char szPath[MAX_PATH];
-	std::string swPath;
+	char copy_path[MAX_PATH];
+	std::string path_s;
 
-	if (!sPath.length())
-		swPath = ".";
+	if (!path.length())
+		path_s = ".";
 	else
-		swPath = sPath;
+		path_s = path;
 
-	GetFullPathName(swPath.c_str(), MAX_PATH, szPath, nullptr);
+	GetFullPathName(path_s.c_str(), MAX_PATH, copy_path, nullptr);
 
-	return szPath;
+	return copy_path;
 }
 
-time_t GetFileModificationTime(const char* pszFile)
+time_t GetFileModificationTime(const char* file)
 {
 	struct stat s;
-	if (stat(pszFile, &s) != 0)
+	if (stat(file, &s) != 0)
 		return 0;
 
 	return s.st_mtime;
 }
 
-void DebugPrint(const char* pszText)
+void DebugPrint(const char* text)
 {
-	OutputDebugStringA(pszText);
+	OutputDebugStringA(text);
 }
 
-void Exec(const tstring& sLine)
+void Exec(const tstring& line)
 {
-	system(sLine.c_str());
+	system(line.c_str());
 }
 
-int GetVKForChar(int iChar)
+int GetVKForChar(int c)
 {
-	switch(iChar)
+	switch (c)
 	{
 	case ';':
 		return VK_OEM_1;
@@ -310,12 +312,12 @@ int GetVKForChar(int iChar)
 		return VK_OEM_PERIOD;
 	}
 
-	return iChar;
+	return c;
 }
 
-int GetCharForVK(int iChar)
+int GetCharForVK(int c)
 {
-	switch(iChar)
+	switch (c)
 	{
 	case VK_OEM_1:
 		return ';';
@@ -351,32 +353,36 @@ int GetCharForVK(int iChar)
 		return '.';
 	}
 
-	return iChar;
+	return c;
 }
 
 static HKL g_iEnglish = LoadKeyboardLayout("00000409", 0);
 
 // If we are using a non-qwerty layout, find the qwerty key that matches this letter's position on the keyboard.
-int TranslateKeyToQwerty(int iKey)
+int TranslateKeyToQwerty(int key)
 {
+	TUnimplemented(); // Move g_iEnglish into tinker memory
+
 	HKL iCurrent = GetKeyboardLayout(0);
 
 	if (iCurrent == g_iEnglish)
-		return iKey;
+		return key;
 
-	UINT i = MapVirtualKeyEx(GetVKForChar(iKey), MAPVK_VK_TO_VSC, iCurrent);
+	UINT i = MapVirtualKeyEx(GetVKForChar(key), MAPVK_VK_TO_VSC, iCurrent);
 	return (int)GetCharForVK(MapVirtualKeyEx(i, MAPVK_VSC_TO_VK, g_iEnglish));
 }
 
 // If we are using a non-qwerty layout, find the localized key that matches this letter's position in qwerty.
-int TranslateKeyFromQwerty(int iKey)
+int TranslateKeyFromQwerty(int key)
 {
+	TUnimplemented(); // Move g_iEnglish into tinker memory
+
 	HKL iCurrent = GetKeyboardLayout(0);
 
 	if (iCurrent == g_iEnglish)
-		return iKey;
+		return key;
 
-	UINT i = MapVirtualKeyEx(GetVKForChar(iKey), MAPVK_VK_TO_VSC, g_iEnglish);
+	UINT i = MapVirtualKeyEx(GetVKForChar(key), MAPVK_VK_TO_VSC, g_iEnglish);
 	return (int)GetCharForVK(MapVirtualKeyEx(i, MAPVK_VSC_TO_VK, iCurrent));
 }
 
