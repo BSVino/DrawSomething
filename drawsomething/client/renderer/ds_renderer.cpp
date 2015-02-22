@@ -36,11 +36,11 @@ void DSRenderer::Draw()
 		c.Vertex(vec3(-10, 10, 0));
 	c.EndRender();
 
+	c.UseShader(SHADER_DEBUGLINE);
+
 	for (int k = 0; k < g_client_data->m_num_strokes; k++)
 	{
 		c.BeginRenderLineStrip();
-			c.Color(color4(255, 255, 255, 255));
-
 			int first_point = g_client_data->m_strokes[k].m_first;
 			int max_point = g_client_data->m_strokes[k].m_first + g_client_data->m_strokes[k].m_size;
 			for (int j = first_point; j < max_point; j++)
