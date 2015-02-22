@@ -1,4 +1,3 @@
-uniform bool bDiffuse;
 uniform sampler2D u_diffuse_sampler;
 uniform vec4 u_color;
 uniform vec4 u_diffuse;
@@ -15,10 +14,7 @@ vec4 fragment_program()
 {
 	vec4 output_color = vec4(frag_color, 1.0);//u_color * u_diffuse;
 
-//	if (bDiffuse)
-//		output_color *= texture(u_diffuse_sampler, frag_texcoord0);
-//	else
-		output_color *= vec4(0.8, 0.8, 0.8, 1.0);
+//	output_color *= texture(u_diffuse_sampler, frag_texcoord0);
 
 //	output_color.a *= u_alpha;
 
@@ -31,5 +27,5 @@ vec4 fragment_program()
 //	if (output_color.a < 0.01)
 //		discard;
 
-	return output_color;
+	return vec4(AddFog(output_color.xyz, frag_position, u_camera), 1.0);
 }

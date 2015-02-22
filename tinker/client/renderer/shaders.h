@@ -35,13 +35,6 @@ struct Shader
 	size_t m_fshader;
 	size_t m_program;
 
-	size_t m_position_attribute;
-	size_t m_normal_attribute;
-	size_t m_tangent_attribute;
-	size_t m_bitangent_attribute;
-	size_t m_texcoord_attributes[MAX_TEXTURE_CHANNELS];
-	size_t m_color_attribute;
-
 	UniformIndex m_uniforms[MAX_UNIFORMS];
 
 	Shader();
@@ -57,6 +50,13 @@ struct ShaderLibrary
 	tstring* m_header;
 	tstring* m_functions;
 	tstring* m_main;
+
+	size_t m_position_attribute;
+	size_t m_normal_attribute;
+	size_t m_tangent_attribute;
+	size_t m_bitangent_attribute;
+	size_t m_texcoord_attributes[MAX_TEXTURE_CHANNELS];
+	size_t m_color_attribute;
 
 	int m_samples;
 

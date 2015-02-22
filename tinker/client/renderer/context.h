@@ -25,6 +25,7 @@ struct Context
 
 	void UseShader(char* shader_name);
 	void UseShader(ShaderIndex shader); // Can save on the program name lookup
+	void SetUniform(UniformIndex uniform, const vec3& value);
 	void SetUniform(UniformIndex uniform, const mat4& value);
 
 	// Immediate mode emulation

@@ -98,13 +98,13 @@ int main(int argc, char** args)
 
 		fclose(fp);
 
-		source_text += tsprintf("\t{ \"%s\", \"shaders/%s.vs\", \"shaders/%s.fs\", \"u_projection\", \"u_view\", \"u_global\", },\n", data.FindChildValueString(TInvalid(KVEntryIndex), "Name"), data.FindChildValueString(TInvalid(KVEntryIndex), "Vertex"), data.FindChildValueString(TInvalid(KVEntryIndex), "Fragment"));
+		source_text += tsprintf("\t{ \"%s\", \"shaders/%s.vs\", \"shaders/%s.fs\", \"u_projection\", \"u_view\", \"u_global\", \"u_camera\", },\n", data.FindChildValueString(TInvalid(KVEntryIndex), "Name"), data.FindChildValueString(TInvalid(KVEntryIndex), "Vertex"), data.FindChildValueString(TInvalid(KVEntryIndex), "Fragment"));
 		header_text += tsprintf("\tSHADER_%s = %d,\n", tstring(data.FindChildValueString(TInvalid(KVEntryIndex), "Name")).toupper().c_str(), i);
 	}
 
 	header_text += tsprintf("\tMAX_SHADERS = %d,\n} ShaderIndex;\n\n", shaders.size());
 
-	header_text += tsprintf("typedef enum {\n\tUNIFORM_INVALID = -1,\n\t// Common uniforms\n\tUNIFORM_PROJECTION = 0,\n\tUNIFORM_VIEW = 1,\n\tUNIFORM_GLOBAL = 2,\n\tMAX_UNIFORMS = 3,\n} UniformIndex;\n\n");
+	header_text += tsprintf("typedef enum {\n\tUNIFORM_INVALID = -1,\n\t// Common uniforms\n\tUNIFORM_PROJECTION = 0,\n\tUNIFORM_VIEW = 1,\n\tUNIFORM_GLOBAL = 2,\n\tUNIFORM_CAMERA = 3,\n\tMAX_UNIFORMS = 4,\n} UniformIndex;\n\n");
 
 	source_text += tsprintf("};\n\n");
 

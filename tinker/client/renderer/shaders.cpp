@@ -108,6 +108,10 @@ void ShaderLibrary::CompileShaders()
 	else
 		TMsg(tstring("Warning: Couldn't find shader main file: ") + sMain + "\n");
 
+	*m_functions = "#line 1\n" + *m_functions;
+	*m_header = "#line 1\n" + *m_header;
+	*m_main = "#line 1\n" + *m_main;
+
 	fclose(f);
 
 	TAssert(m_samples != -1);
@@ -237,7 +241,7 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 	vertex_shader_text += "uniform mat4x4 u_view;\n";
 	vertex_shader_text += "uniform mat4x4 u_global;\n";
 
-	vertex_shader_text += tfread_file(f);
+	vertex_shader_text += "#line 1\n" + tfread_file(f);
 
 	fclose(f);
 
@@ -250,7 +254,9 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 		return false;
 	}
 
-	tstring fragment_shader_text = tfread_file(f);
+	tstring fragment_shader_text;
+	fragment_shader_text += "uniform vec3 u_camera;\n";
+	fragment_shader_text += "#line 1\n" + tfread_file(f);
 
 	fclose(f);
 
@@ -292,7 +298,13 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 
 	size_t program = glCreateProgram();
 
-	glBindAttribLocation((GLuint)program, 0, "vecPosition");		// Force position at location 0. ATI cards won't work without this.
+	glBindAttribLocation((GLuint)program, (GLuint)(library->m_position_attribute = 0), "vert_position");
+	glBindAttribLocation((GLuint)program, (GLuint)(library->m_normal_attribute = 1), "vert_normal");
+	glBindAttribLocation((GLuint)program, (GLuint)(library->m_tangent_attribute = 2), "vert_tangent");
+	glBindAttribLocation((GLuint)program, (GLuint)(library->m_bitangent_attribute = 3), "vert_bitangent");
+	glBindAttribLocation((GLuint)program, (GLuint)(library->m_texcoord_attributes[0] = 4), "vert_texcoord0");
+	glBindAttribLocation((GLuint)program, (GLuint)(library->m_texcoord_attributes[1] = 5), "vert_texcoord1");
+	glBindAttribLocation((GLuint)program, (GLuint)(library->m_color_attribute = 6), "vert_color");
 
 	glAttachShader((GLuint)program, (GLuint)vshader);
 	glAttachShader((GLuint)program, (GLuint)fshader);
@@ -321,16 +333,6 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 	m_program = program;
 	m_vshader = vshader;
 	m_fshader = fshader;
-
-	m_position_attribute = glGetAttribLocation((GLuint)m_program, "vert_position");
-	m_normal_attribute = glGetAttribLocation((GLuint)m_program, "vert_normal");
-	m_tangent_attribute = glGetAttribLocation((GLuint)m_program, "vert_tangent");
-	m_bitangent_attribute = glGetAttribLocation((GLuint)m_program, "vert_bitangent");
-	for (size_t i = 0; i < MAX_TEXTURE_CHANNELS; i++)
-		m_texcoord_attributes[i] = glGetAttribLocation((GLuint)m_program, tsprintf("vert_texcoord%d", i).c_str());
-	m_color_attribute = glGetAttribLocation((GLuint)m_program, "vert_color");
-
-	TAssert(m_position_attribute != ~0);
 
 	int num_uniforms;
 	glGetProgramiv((GLuint)m_program, GL_ACTIVE_UNIFORMS, &num_uniforms);

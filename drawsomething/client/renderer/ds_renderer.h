@@ -12,5 +12,7 @@ struct DSRenderer
 	}
 
 	void Draw();
+
+	void RenderSkybox();
 };
 

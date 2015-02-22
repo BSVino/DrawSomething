@@ -9,6 +9,8 @@
 
 struct ShaderLibrary;
 
+#define MAX_RENDERFRAMES 8
+
 struct Renderer
 {
 	mat4 m_modelview;
@@ -22,6 +24,12 @@ struct Renderer
 	float m_camera_far;
 
 	uint32 m_default_vao;
+
+#ifdef USE_SKYBOX
+	uint32 m_skybox_verts_vbo;
+	uint32 m_skybox_indxs_vbo;
+	uint32 m_skybox_vao;
+#endif
 
 	// For building meshes
 	tvector<float> m_verts;
@@ -51,7 +59,8 @@ struct Renderer
 			m_transform_updated = false;
 		}
 	};
-	tvector <RenderFrame> m_renderframes;
+	RenderFrame m_renderframes[MAX_RENDERFRAMES];
+	uint32 m_num_renderframes;
 
 	ShaderLibrary*     m_shaders;
 	struct WindowData* m_window_data;
@@ -59,6 +68,7 @@ struct Renderer
 	Renderer(ShaderLibrary* shaders, struct WindowData* window_data)
 		: m_shaders(shaders), m_window_data(window_data)
 	{
+		m_num_renderframes = 0;
 	}
 
 	void Initialize();
@@ -71,8 +81,15 @@ struct Renderer
 	void StartRendering(struct Context* c);
 	void FinishRendering(struct Context* c);
 
+	void RenderSkybox();
+
 	void BeginRenderPrimitive(int drawmode);
 
 	RenderFrame* GetCurrentFrame();
+	RenderFrame* PushRenderFrame();
+	RenderFrame* PopRenderFrame();
+
+	uint32 LoadVertexDataIntoGL(size_t size_bytes, const float* verts);
+	uint32 LoadIndexDataIntoGL(size_t size_bytes, const unsigned int* indxs);
 };
 

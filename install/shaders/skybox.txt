@@ -1,0 +1,7 @@
+Name: skybox
+Vertex: pass
+Fragment: skybox
+
+Defaults
+{
+}

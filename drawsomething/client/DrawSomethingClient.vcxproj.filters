@@ -66,5 +66,8 @@
     <ClCompile Include="..\..\tinker\shared\net_shared.cpp">
       <Filter>Archivos de código fuente\net</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\tinker\client\renderer\skybox.cpp">
+      <Filter>Archivos de código fuente\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

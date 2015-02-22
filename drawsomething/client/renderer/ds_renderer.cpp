@@ -1,8 +1,11 @@
 #include "ds_renderer.h"
 
 #include "client/renderer/context.h"
+#include "client/renderer/skybox.h"
 
 #include "../ds_client.h"
+
+#include <GL3/gl3w.h>
 
 void DSRenderer::Draw()
 {
@@ -11,7 +14,6 @@ void DSRenderer::Draw()
 	if (!local)
 		return;
 
-	base.ClearColor(color4(78, 188, 239, 255));
 	base.ClearDepth();
 
 	base.SetCamera(local->m_position, AngleVector(eangle(local->m_looking.p, local->m_looking.y, 0)), vec3(0, 0, 1), g_client_data->m_local_artist.GetFOV(), 0.01f, 1000);
@@ -19,18 +21,18 @@ void DSRenderer::Draw()
 	Context c(&base);
 	base.StartRendering(&c);
 
+	RenderSkybox();
+
 	c.UseShader(SHADER_MODEL);
+
+	c.SetUniform(UNIFORM_CAMERA, local->m_position);
 
 	c.BeginRenderTriFan();
 		c.Color(color4(57, 138, 175, 255));
 
-		c.TexCoord(vec2(0, 1));
 		c.Vertex(vec3(-10, -10, 0));
-		c.TexCoord(vec2(1, 1));
 		c.Vertex(vec3(10, -10, 0));
-		c.TexCoord(vec2(1, 0));
 		c.Vertex(vec3(10, 10, 0));
-		c.TexCoord(vec2(0, 0));
 		c.Vertex(vec3(-10, 10, 0));
 	c.EndRender();
 
@@ -51,3 +53,20 @@ void DSRenderer::Draw()
 
 	base.FinishRendering(&c);
 }
+
+void DSRenderer::RenderSkybox()
+{
+	Context c(&base, false);
+
+	glDisable(GL_CULL_FACE);
+	glBindVertexArray(base.m_skybox_vao);
+
+	c.UseShader(SHADER_SKYBOX);
+
+	c.SetUniform(UNIFORM_PROJECTION, base.m_projection);
+	c.SetUniform(UNIFORM_VIEW, mat4::ConstructCameraView(vec3(0, 0, 0), base.m_camera_direction, base.m_camera_up));
+	c.SetUniform(UNIFORM_GLOBAL, mat4::s_identity);
+
+	glDrawElements(GL_TRIANGLES, asset_skybox_num_verts, GL_UNSIGNED_INT, nullptr);
+}
+

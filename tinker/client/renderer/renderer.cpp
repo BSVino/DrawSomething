@@ -7,8 +7,34 @@
 #include "context.h"
 #include "window.h"
 
+#ifdef USE_SKYBOX
+#include "skybox.h"
+#endif
+
+#define TError(x) TUnimplemented()
+
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 void Renderer::Initialize()
 {
+#ifdef USE_SKYBOX
+	m_skybox_verts_vbo = LoadVertexDataIntoGL(asset_skybox_verts_size_bytes, &asset_skybox_verts[0]);
+	m_skybox_indxs_vbo = LoadIndexDataIntoGL(asset_skybox_indxs_size_bytes, &asset_skybox_indxs[0]);
+
+	glGenVertexArrays(1, &m_skybox_vao);
+	glBindVertexArray(m_skybox_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, (GLuint)m_skybox_verts_vbo);
+	glEnableVertexAttribArray((GLuint)m_shaders->m_position_attribute);
+	glEnableVertexAttribArray((GLuint)m_shaders->m_texcoord_attributes[0]);
+	glVertexAttribPointer((GLuint)m_shaders->m_position_attribute, 3, GL_FLOAT, false, asset_skybox_vert_stride_bytes, 0);
+	glVertexAttribPointer((GLuint)m_shaders->m_texcoord_attributes[0], 2, GL_FLOAT, false, asset_skybox_vert_stride_bytes, BUFFER_OFFSET(asset_skybox_uv_offset_bytes));
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_skybox_indxs_vbo);
+
+	glBindVertexArray(0);
+#endif
+
 	glGenVertexArrays(1, &m_default_vao);
 	glBindVertexArray(m_default_vao);
 
@@ -67,7 +93,65 @@ void Renderer::BeginRenderPrimitive(int drawmode)
 
 Renderer::RenderFrame* Renderer::GetCurrentFrame()
 {
-	TAssert(m_renderframes.size());
+	TAssert(m_num_renderframes);
+	return &m_renderframes[m_num_renderframes - 1];
+}
 
-	return &m_renderframes.back();
+Renderer::RenderFrame* Renderer::PushRenderFrame()
+{
+	TAssert(m_num_renderframes < MAX_RENDERFRAMES);
+	m_num_renderframes++;
+	return new (&m_renderframes[m_num_renderframes - 1]) Renderer::RenderFrame();
+}
+
+Renderer::RenderFrame* Renderer::PopRenderFrame()
+{
+	TAssert(m_num_renderframes > 0);
+	m_num_renderframes--;
+	return &m_renderframes[m_num_renderframes - 1];
+}
+
+uint32 Renderer::LoadVertexDataIntoGL(size_t size_bytes, const float* verts)
+{
+	// If it's only floats doubles and the occasional int then it should always be a multiple of four bytes.
+	TAssert(size_bytes % 4 == 0);
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	glBufferData(GL_ARRAY_BUFFER, size_bytes, verts, GL_STATIC_DRAW);
+
+	int size = 0;
+	glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+	if (size_bytes != size)
+	{
+		glDeleteBuffers(1, &vbo);
+		TAssert(false);
+		TError("CRenderer::LoadVertexDataIntoGL(): Data size is mismatch with input array\n");
+		return 0;
+	}
+
+	return vbo;
+}
+
+uint32 Renderer::LoadIndexDataIntoGL(size_t size_bytes, const unsigned int* indxs)
+{
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size_bytes, indxs, GL_STATIC_DRAW);
+
+	int size = 0;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+	if (size_bytes != size)
+	{
+		glDeleteBuffers(1, &vbo);
+		TAssert(false);
+		TError("CRenderer::LoadVertexDataIntoGL(): Data size is mismatch with input array\n");
+		return 0;
+	}
+
+	return vbo;
 }

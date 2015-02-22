@@ -54,6 +54,7 @@ mat4::mat4(const vec3& forward, const vec3& left, const vec3& up, const vec3& po
 
 mat4::mat4(const quaternion& q)
 {
+	Identity();
 	SetRotation(q);
 }
 
@@ -385,20 +386,20 @@ mat4 mat4::ProjectOrthographic(float left, float right, float bottom, float top,
 	return m;
 }
 
-mat4 mat4::ConstructCameraView(const vec3& position, const vec3& vecDirection, const vec3& up)
+mat4 mat4::ConstructCameraView(const vec3& position, const vec3& direction, const vec3& up)
 {
 	mat4 m;
 
 	m.Identity();
 
-	TCheck(fabs(vecDirection.LengthSqr() - 1) < 0.0001f);
+	TCheck(fabs(direction.LengthSqr() - 1) < 0.0001f);
 
-	vec3 cam_side = vecDirection.Cross(up).Normalized();
-	vec3 cam_up = cam_side.Cross(vecDirection);
+	vec3 cam_side = direction.Cross(up).Normalized();
+	vec3 cam_up = cam_side.Cross(direction);
 
-	m.SetForwardVector(vec3(cam_side.x, cam_up.x, -vecDirection.x));
-	m.SetLeftVector(vec3(cam_side.y, cam_up.y, -vecDirection.y));
-	m.SetUpVector(vec3(cam_side.z, cam_up.z, -vecDirection.z));
+	m.SetForwardVector(vec3(cam_side.x, cam_up.x, -direction.x));
+	m.SetLeftVector(vec3(cam_side.y, cam_up.y, -direction.y));
+	m.SetUpVector(vec3(cam_side.z, cam_up.z, -direction.z));
 
 	m.AddTranslation(-position);
 
@@ -510,7 +511,7 @@ bool mat4::Equals(const mat4& t, float flEp) const
 
 mat4 mat4::AddTranslation(const vec3& v)
 {
-	mat4 r;
+	mat4 r = s_identity;
 	r.SetTranslation(v);
 	(*this) *= r;
 
@@ -519,7 +520,7 @@ mat4 mat4::AddTranslation(const vec3& v)
 
 mat4 mat4::AddAngles(const eangle& a)
 {
-	mat4 r;
+	mat4 r = s_identity;
 	r.SetAngles(a);
 	(*this) *= r;
 
@@ -528,7 +529,7 @@ mat4 mat4::AddAngles(const eangle& a)
 
 mat4 mat4::AddScale(const vec3& scale)
 {
-	mat4 r;
+	mat4 r = s_identity;
 	r.SetScale(scale);
 	(*this) *= r;
 
@@ -537,7 +538,7 @@ mat4 mat4::AddScale(const vec3& scale)
 
 mat4 mat4::AddReflection(const vec3& v)
 {
-	mat4 r;
+	mat4 r = s_identity;
 	r.SetReflection(v);
 	(*this) *= r;
 
@@ -706,6 +707,8 @@ void mat4::InvertRT()
 
 	mat4 t;
 
+	t.Identity();
+
 	for (int h = 0; h < 3; h++)
 		for (int v = 0; v < 3; v++)
 			t.m[h][v] = m[v][h];
@@ -724,6 +727,8 @@ mat4 mat4::InvertedRT() const
 	TCheck(fabs(GetUpVector().LengthSqr() - 1) < 0.00001f);
 
 	mat4 r;
+
+	r.Identity();
 
 	for (int h = 0; h < 3; h++)
 		for (int v = 0; v < 3; v++)
@@ -788,3 +793,5 @@ float mat4::Trace() const
 {
 	return m[0][0] + m[1][1] + m[2][2];
 }
+
+mat4 mat4::s_identity = mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);

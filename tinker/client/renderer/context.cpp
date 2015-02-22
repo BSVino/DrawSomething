@@ -12,11 +12,11 @@ Context::Context(Renderer* renderer, bool inherit)
 {
 	m_renderer = renderer;
 
-	m_frame = &m_renderer->m_renderframes.push_back();
+	m_frame = m_renderer->PushRenderFrame();
 
-	if (inherit && m_renderer->m_renderframes.size() > 1)
+	if (inherit && m_renderer->m_num_renderframes > 1)
 	{
-		Renderer::RenderFrame* prev_frame = &m_renderer->m_renderframes[m_renderer->m_renderframes.size() - 2];
+		Renderer::RenderFrame* prev_frame = &m_renderer->m_renderframes[m_renderer->m_num_renderframes - 2];
 
 		m_frame->m_projection = prev_frame->m_projection;
 		m_frame->m_view = prev_frame->m_view;
@@ -24,15 +24,23 @@ Context::Context(Renderer* renderer, bool inherit)
 
 		m_frame->m_shader = prev_frame->m_shader;
 	}
+	else
+	{
+		m_frame->m_projection = mat4::s_identity;
+		m_frame->m_view = mat4::s_identity;
+		m_frame->m_transformations = mat4::s_identity;
+
+		m_frame->m_shader = TInvalid(ShaderIndex);
+	}
 }
 
 Context::~Context()
 {
-	TAssert(m_renderer->m_renderframes.size());
+	TAssert(m_renderer->m_num_renderframes);
 
-	m_renderer->m_renderframes.pop_back();
+	m_frame = m_renderer->PopRenderFrame();
 
-	if (m_renderer->m_renderframes.size())
+	if (m_renderer->m_num_renderframes)
 	{
 		if (m_frame->m_shader != TInvalid(ShaderIndex))
 		{
@@ -101,8 +109,19 @@ void Context::UseShader(ShaderIndex shader)
 	m_frame->m_view_updated = false;
 }
 
+#define UNREASONABLE 999999
+
+void Context::SetUniform(UniformIndex uniform, const vec3& value)
+{
+	TCheck(value.x < UNREASONABLE && value.x > -UNREASONABLE);
+	TCheck(value.y < UNREASONABLE && value.y > -UNREASONABLE);
+	TCheck(value.z < UNREASONABLE && value.z > -UNREASONABLE);
+	glUniform3fv(m_renderer->m_shaders->m_shaders[m_frame->m_shader].m_uniforms[uniform], 1, &value.x);
+}
+
 void Context::SetUniform(UniformIndex uniform, const mat4& value)
 {
+	TCheck(value.m[0][0] < UNREASONABLE && value.m[0][0] > -UNREASONABLE);
 	glUniformMatrix4fv(m_renderer->m_shaders->m_shaders[m_frame->m_shader].m_uniforms[uniform], 1, false, value);
 }
 
@@ -238,8 +257,6 @@ void Context::EndRender()
 			return;
 	}
 
-	Shader* shader = &m_renderer->m_shaders->m_shaders[m_frame->m_shader];
-
 	if (!m_frame->m_projection_updated)
 		SetUniform(UNIFORM_PROJECTION, m_frame->m_projection);
 
@@ -280,42 +297,42 @@ void Context::EndRender()
 	if (m_renderer->m_has_color)
 		stride += 4 * sizeof(float);
 
-	TAssert(shader->m_position_attribute != ~0);
-	glEnableVertexAttribArray((GLuint)shader->m_position_attribute);
-	glVertexAttribPointer((GLuint)shader->m_position_attribute, 3, GL_FLOAT, false, stride, BUFFER_OFFSET(position_offset));
+	TAssert(m_renderer->m_shaders->m_position_attribute != ~0);
+	glEnableVertexAttribArray((GLuint)m_renderer->m_shaders->m_position_attribute);
+	glVertexAttribPointer((GLuint)m_renderer->m_shaders->m_position_attribute, 3, GL_FLOAT, false, stride, BUFFER_OFFSET(position_offset));
 
 	if (m_renderer->m_has_texcoord)
 	{
-		if (shader->m_texcoord_attributes[0] != ~0)
+		if (m_renderer->m_shaders->m_texcoord_attributes[0] != ~0)
 		{
-			glEnableVertexAttribArray((GLuint)shader->m_texcoord_attributes[0]);
-			glVertexAttribPointer((GLuint)shader->m_texcoord_attributes[0], 2, GL_FLOAT, false, stride, BUFFER_OFFSET(texcoord_offset));
+			glEnableVertexAttribArray((GLuint)m_renderer->m_shaders->m_texcoord_attributes[0]);
+			glVertexAttribPointer((GLuint)m_renderer->m_shaders->m_texcoord_attributes[0], 2, GL_FLOAT, false, stride, BUFFER_OFFSET(texcoord_offset));
 		}
 	}
 
-	if (m_renderer->m_has_normal && shader->m_normal_attribute != ~0)
+	if (m_renderer->m_has_normal && m_renderer->m_shaders->m_normal_attribute != ~0)
 	{
-		glEnableVertexAttribArray((GLuint)shader->m_normal_attribute);
-		glVertexAttribPointer((GLuint)shader->m_normal_attribute, 3, GL_FLOAT, false, stride, BUFFER_OFFSET(normal_offset));
+		glEnableVertexAttribArray((GLuint)m_renderer->m_shaders->m_normal_attribute);
+		glVertexAttribPointer((GLuint)m_renderer->m_shaders->m_normal_attribute, 3, GL_FLOAT, false, stride, BUFFER_OFFSET(normal_offset));
 	}
 
-	if (m_renderer->m_has_color && shader->m_color_attribute != ~0)
+	if (m_renderer->m_has_color && m_renderer->m_shaders->m_color_attribute != ~0)
 	{
-		glEnableVertexAttribArray((GLuint)shader->m_color_attribute);
-		glVertexAttribPointer((GLuint)shader->m_color_attribute, 3, GL_FLOAT, true, stride, BUFFER_OFFSET(color_offset));
+		glEnableVertexAttribArray((GLuint)m_renderer->m_shaders->m_color_attribute);
+		glVertexAttribPointer((GLuint)m_renderer->m_shaders->m_color_attribute, 3, GL_FLOAT, true, stride, BUFFER_OFFSET(color_offset));
 	}
 
 	glDrawArrays(m_renderer->m_drawmode, 0, m_renderer->m_num_verts);
 
-	glDisableVertexAttribArray((GLuint)shader->m_position_attribute);
+	glDisableVertexAttribArray((GLuint)m_renderer->m_shaders->m_position_attribute);
 	for (size_t i = 0; i < MAX_TEXTURE_CHANNELS; i++)
 	{
-		if (shader->m_texcoord_attributes[i] != ~0)
-			glDisableVertexAttribArray((GLuint)shader->m_texcoord_attributes[i]);
+		if (m_renderer->m_shaders->m_texcoord_attributes[i] != ~0)
+			glDisableVertexAttribArray((GLuint)m_renderer->m_shaders->m_texcoord_attributes[i]);
 	}
-	if (shader->m_normal_attribute != ~0)
-		glDisableVertexAttribArray((GLuint)shader->m_normal_attribute);
-	if (shader->m_color_attribute != ~0)
-		glDisableVertexAttribArray((GLuint)shader->m_color_attribute);
+	if (m_renderer->m_shaders->m_normal_attribute != ~0)
+		glDisableVertexAttribArray((GLuint)m_renderer->m_shaders->m_normal_attribute);
+	if (m_renderer->m_shaders->m_color_attribute != ~0)
+		glDisableVertexAttribArray((GLuint)m_renderer->m_shaders->m_color_attribute);
 }
 
