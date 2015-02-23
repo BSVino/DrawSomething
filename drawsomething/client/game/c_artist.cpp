@@ -132,7 +132,7 @@ void LocalArtist::LocalThink()
 		return;
 
 	float draw_mode_goal = g_client_data->m_game_time < m_draw_time;
-	m_draw_mode = Approach(draw_mode_goal, m_draw_mode, g_client_data->m_frame_time * 10.0f);
+	m_draw_mode = Approach(draw_mode_goal, m_draw_mode, g_client_data->m_frame_time * vb_const_float(vb_str("draw_mode_lerp"), 10));
 
 	g_client_data->m_window_data->m_cursor_visible = !!draw_mode_goal;
 }

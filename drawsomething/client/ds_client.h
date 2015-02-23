@@ -9,6 +9,10 @@
 #include "renderer/ds_renderer.h"
 #include "game/c_artist.h"
 
+#define VIEWBACK_MAIN_SPACE 512
+#define VIEWBACK_AF_SPACE 256
+#define VIEWBACK_ITEM_SPACE 128
+
 struct ClientData
 {
 	ShaderLibrary m_shaders;
@@ -43,11 +47,20 @@ struct ClientData
 	void* m_vb1;
 	void* m_vb2;
 	StringTable m_vb_strings;
+	uint8 m_viewback_main[2][VIEWBACK_MAIN_SPACE];
+	uint8 m_viewback_autofree[2][VIEWBACK_AF_SPACE];
+	uint8 m_viewback_items[VIEWBACK_ITEM_SPACE];
+	uint32 m_vb_items;
+	uint8 m_vb_main1 : 1;
+	uint8 m_vb_main2 : 1;
+	uint8 m_vb_af1 : 1;
+	uint8 m_vb_af2 : 1;
 
 	ClientData(struct WindowData* window_data)
 		: m_renderer(&m_shaders, window_data)
 	{
 		m_num_strokes = 0;
+		m_vb_items = m_vb_main1 = m_vb_main2 = m_vb_af1 = m_vb_af2 = 0;
 	}
 
 	Artist* GetLocalArtist()

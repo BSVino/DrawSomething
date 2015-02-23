@@ -28,6 +28,9 @@ extern "C" TDLLEXPORT void LibraryLoaded()
 	InitializeNetworking();
 }
 
+void* tinker_vb_alloc(size_t memory_size, vb_alloc_type_t type);
+void tinker_vb_free(void* memory, vb_alloc_type_t type);
+
 extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** args)
 {
 	g_shell.Initialize(argc, args);
@@ -57,6 +60,9 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 
 	vb2_config_t config;
 	vb_config_initialize(&config);
+
+	config.alloc_callback = tinker_vb_alloc;
+	config.free_callback = tinker_vb_free;
 
 	if (!vb_config_install(&config, 0, 0))
 		return 0;
@@ -104,4 +110,88 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 	vb_static_retrieve(&g_client_data->m_vb1, &g_client_data->m_vb2);
 
 	return 1;
+}
+
+void* tinker_vb_alloc(size_t memory_size, vb_alloc_type_t type)
+{
+	switch (type)
+	{
+	case VB_AT_MAIN:
+		TAssert(memory_size <= VIEWBACK_MAIN_SPACE);
+		if (!g_client_data->m_vb_main1)
+		{
+			g_client_data->m_vb_main1 = 1;
+			return &g_client_data->m_viewback_main[0];
+		}
+		else if (!g_client_data->m_vb_main2)
+		{
+			g_client_data->m_vb_main2 = 1;
+			return &g_client_data->m_viewback_main[1];
+		}
+
+		TAssert(false);
+		return 0;
+
+	case VB_AT_AUTOFREE:
+		TAssert(memory_size <= VIEWBACK_AF_SPACE);
+		if (!g_client_data->m_vb_af1)
+		{
+			g_client_data->m_vb_af1 = 1;
+			return &g_client_data->m_viewback_autofree[0];
+		}
+		else if (!g_client_data->m_vb_af2)
+		{
+			g_client_data->m_vb_af2 = 1;
+			return &g_client_data->m_viewback_autofree[1];
+		}
+
+		TAssert(false);
+		return 0;
+
+	case VB_AT_AF_ITEM:
+	{
+		TAssert(g_client_data->m_vb_items + memory_size <= VIEWBACK_ITEM_SPACE);
+		uint8* memory = &g_client_data->m_viewback_items[g_client_data->m_vb_items];
+		g_client_data->m_vb_items += (uint32)memory_size;
+		return memory;
+	}
+
+	default:
+		TAssert(false);
+		return 0;
+	}
+}
+
+void tinker_vb_free(void* memory, vb_alloc_type_t type)
+{
+	switch (type)
+	{
+	case VB_AT_MAIN:
+		if (memory == &g_client_data->m_viewback_main[0])
+			g_client_data->m_vb_main1 = 0;
+		else if (memory == &g_client_data->m_viewback_main[1])
+			g_client_data->m_vb_main2 = 0;
+		else
+			TAssert(false);
+		return;
+
+	case VB_AT_AUTOFREE:
+		if (memory == &g_client_data->m_viewback_autofree[0])
+			g_client_data->m_vb_af1 = 0;
+		else if (memory == &g_client_data->m_viewback_autofree[1])
+			g_client_data->m_vb_af2 = 0;
+		else
+			TAssert(false);
+
+		g_client_data->m_vb_items = 0;
+		return;
+
+	case VB_AT_AF_ITEM:
+		// No op, item frees come before autofree free.
+		return;
+
+	default:
+		TAssert(false);
+		return;
+	}
 }
