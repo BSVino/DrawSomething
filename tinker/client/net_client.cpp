@@ -4,7 +4,7 @@
 
 #include <enet/enet.h>
 
-void NetClient::Initialize()
+void NetClient::LibraryLoad()
 {
 	ENetCallbacks enc;
 	enc.free = tinker_enet_free;
@@ -12,6 +12,11 @@ void NetClient::Initialize()
 	enc.no_memory = tinker_enet_no_memory;
 
 	enet_initialize_with_callbacks(ENET_VERSION, &enc);
+}
+
+void NetClient::Initialize()
+{
+	LibraryLoad();
 
 	m_shared.Initialize();
 

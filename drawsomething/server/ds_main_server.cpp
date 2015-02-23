@@ -15,6 +15,7 @@ extern "C" TDLLEXPORT size_t GetMemorySize()
 
 extern "C" TDLLEXPORT void LibraryLoaded()
 {
+	NetHost::LibraryLoad();
 }
 
 extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** args)

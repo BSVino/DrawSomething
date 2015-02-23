@@ -10,6 +10,7 @@ struct NetHost
 
 	NetShared m_shared;
 
+	static void LibraryLoad();
 	void Initialize();
 	void Create(net_peer_t max_players);
 	void Service();

@@ -11,6 +11,7 @@ struct NetClient
 
 	net_peer_t m_peer_index;
 
+	static void LibraryLoad();
 	void Initialize();
 	void Connect(const char* connect);
 	void Service();

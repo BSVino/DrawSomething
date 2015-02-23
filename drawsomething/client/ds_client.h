@@ -9,7 +9,7 @@
 #include "renderer/ds_renderer.h"
 #include "game/c_artist.h"
 
-#define VIEWBACK_MAIN_SPACE 512
+#define VIEWBACK_MAIN_SPACE 1024
 #define VIEWBACK_AF_SPACE 256
 #define VIEWBACK_ITEM_SPACE 128
 

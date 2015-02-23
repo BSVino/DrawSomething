@@ -15,22 +15,64 @@ void LocalArtist::HandleInput(ControlData* input)
 	if (m_draw_mode)
 	{
 		if (input->m_mouse_dy || input->m_mouse_dx)
-			m_draw_time = g_client_data->m_game_time + 1.5;
+			BumpDrawTime();
+
+		float window_border_acceleration = vb_const_float(vb_str("dm_border_acceleration"), 20);
+		float window_border_velocity = vb_const_float(vb_str("dm_border_velocity"), 20);
+
+		if (!input->m_draw.m_down)
+		{
+			float window_border = vb_const_float(vb_str("dm_border"), 60);
+			float window_border_max_velocity = vb_const_float(vb_str("dm_border_max_velocity"), 4);
+			if (g_client_data->m_window_data->m_mouse_x < window_border)
+			{
+				m_draw_mode_velocity.x = Approach(-window_border_max_velocity, m_draw_mode_velocity.x, g_client_data->m_frame_time * window_border_acceleration);
+				BumpDrawTime();
+			}
+			else if (g_client_data->m_window_data->m_mouse_x > g_client_data->m_window_data->m_width - window_border)
+			{
+				m_draw_mode_velocity.x = Approach(window_border_max_velocity, m_draw_mode_velocity.x, g_client_data->m_frame_time * window_border_acceleration);
+				BumpDrawTime();
+			}
+			else
+				m_draw_mode_velocity.x = Approach(0, m_draw_mode_velocity.x, g_client_data->m_frame_time * window_border_acceleration);
+
+			if (g_client_data->m_window_data->m_mouse_y < window_border)
+			{
+				m_draw_mode_velocity.y = Approach(-window_border_max_velocity, m_draw_mode_velocity.y, g_client_data->m_frame_time * window_border_acceleration);
+				BumpDrawTime();
+			}
+			else if (g_client_data->m_window_data->m_mouse_y > g_client_data->m_window_data->m_height - window_border)
+			{
+				m_draw_mode_velocity.y = Approach(window_border_max_velocity, m_draw_mode_velocity.y, g_client_data->m_frame_time * window_border_acceleration);
+				BumpDrawTime();
+			}
+			else
+				m_draw_mode_velocity.y = Approach(0, m_draw_mode_velocity.y, g_client_data->m_frame_time * window_border_acceleration);
+		}
+		else
+		{
+			m_draw_mode_velocity.x = Approach(0, m_draw_mode_velocity.x, g_client_data->m_frame_time * window_border_acceleration);
+			m_draw_mode_velocity.y = Approach(0, m_draw_mode_velocity.y, g_client_data->m_frame_time * window_border_acceleration);
+		}
+
+		m_local->m_looking.y -= m_draw_mode_velocity.x * g_client_data->m_frame_time * window_border_velocity;
+		m_local->m_looking.p -= m_draw_mode_velocity.y * g_client_data->m_frame_time * window_border_velocity;
 	}
 	else
 	{
 		m_local->m_looking.p -= input->m_mouse_dy * g_client_data->m_frame_time * 30;
 		m_local->m_looking.y -= input->m_mouse_dx * g_client_data->m_frame_time * 30;
-
-		if (m_local->m_looking.p > 89.9f)
-			m_local->m_looking.p = 89.9f;
-		if (m_local->m_looking.p < -89.9f)
-			m_local->m_looking.p = -89.9f;
-
-		m_local->m_looking.y = fmod(m_local->m_looking.y, 360.0f);
 	}
 
-	vec3 velocity(0,0,0);
+	if (m_local->m_looking.p > 89.9f)
+		m_local->m_looking.p = 89.9f;
+	if (m_local->m_looking.p < -89.9f)
+		m_local->m_looking.p = -89.9f;
+
+	m_local->m_looking.y = fmod(m_local->m_looking.y, 360.0f);
+
+	vec3 velocity(0, 0, 0);
 
 	if (input->m_forward.m_down && input->m_back.m_down)
 		velocity.x = 0;
@@ -55,7 +97,7 @@ void LocalArtist::HandleInput(ControlData* input)
 		m_draw_time = -9999;
 
 	if (input->m_draw.m_down)
-		m_draw_time = g_client_data->m_game_time + 1.5;
+		BumpDrawTime();
 
 	if (input->m_draw.m_pressed)
 	{
@@ -72,6 +114,8 @@ void LocalArtist::HandleInput(ControlData* input)
 			stroke->m_size = 0;
 
 			g_client_data->m_num_strokes++;
+
+			m_draw_mode_velocity = vec2(0,0);
 		}
 	}
 
@@ -126,13 +170,18 @@ void LocalArtist::HandleInput(ControlData* input)
 	}
 }
 
+void LocalArtist::BumpDrawTime()
+{
+	m_draw_time = g_client_data->m_game_time + 1.5;
+}
+
 void LocalArtist::LocalThink()
 {
 	if (!m_local)
 		return;
 
 	float draw_mode_goal = g_client_data->m_game_time < m_draw_time;
-	m_draw_mode = Approach(draw_mode_goal, m_draw_mode, g_client_data->m_frame_time * vb_const_float(vb_str("draw_mode_lerp"), 10));
+	m_draw_mode = Approach(draw_mode_goal, m_draw_mode, g_client_data->m_frame_time * vb_const_float(vb_str("dm_lerp"), 10));
 
 	g_client_data->m_window_data->m_cursor_visible = !!draw_mode_goal;
 }

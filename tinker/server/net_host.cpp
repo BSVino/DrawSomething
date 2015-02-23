@@ -3,7 +3,7 @@
 #include <math.h>
 #include <enet/enet.h>
 
-void NetHost::Initialize()
+void NetHost::LibraryLoad()
 {
 	ENetCallbacks enc;
 	enc.free = tinker_enet_free;
@@ -11,6 +11,11 @@ void NetHost::Initialize()
 	enc.no_memory = tinker_enet_no_memory;
 
 	enet_initialize_with_callbacks(ENET_VERSION, &enc);
+}
+
+void NetHost::Initialize()
+{
+	LibraryLoad();
 
 	m_shared.Initialize();
 }

@@ -26,6 +26,8 @@ extern "C" TDLLEXPORT void LibraryLoaded()
 #endif
 
 	InitializeNetworking();
+
+	NetClient::LibraryLoad();
 }
 
 void* tinker_vb_alloc(size_t memory_size, vb_alloc_type_t type);
