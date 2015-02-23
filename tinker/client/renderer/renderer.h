@@ -10,6 +10,7 @@
 struct ShaderLibrary;
 
 #define MAX_RENDERFRAMES 8
+#define MAX_DYNAMIC_MESH_FLOATS 4096
 
 struct Renderer
 {
@@ -32,12 +33,13 @@ struct Renderer
 #endif
 
 	// For building meshes
-	tvector<float> m_verts;
+	float m_verts[MAX_DYNAMIC_MESH_FLOATS];
 	int m_drawmode;
 	int m_num_verts;
 	int m_has_texcoord : 1;
 	int m_has_normal : 1;
 	int m_has_color : 1;
+	uint32 m_dynamic_mesh_floats;
 	uint32 m_dynamic_mesh_vbo;
 
 	struct RenderFrame
@@ -69,6 +71,7 @@ struct Renderer
 		: m_shaders(shaders), m_window_data(window_data)
 	{
 		m_num_renderframes = 0;
+		m_dynamic_mesh_floats = 0;
 	}
 
 	void Initialize();
@@ -88,6 +91,9 @@ struct Renderer
 	RenderFrame* GetCurrentFrame();
 	RenderFrame* PushRenderFrame();
 	RenderFrame* PopRenderFrame();
+
+	void PushDynamicMeshFloat(float x);
+	void ClearDynamicMesh();
 
 	uint32 LoadVertexDataIntoGL(size_t size_bytes, const float* verts);
 	uint32 LoadIndexDataIntoGL(size_t size_bytes, const unsigned int* indxs);

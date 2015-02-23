@@ -81,7 +81,7 @@ void Renderer::FinishRendering(Context* /*c*/)
 
 void Renderer::BeginRenderPrimitive(int drawmode)
 {
-	m_verts.clear();
+	m_dynamic_mesh_floats = 0;
 	m_num_verts = 0;
 
 	m_has_texcoord = false;
@@ -109,6 +109,18 @@ Renderer::RenderFrame* Renderer::PopRenderFrame()
 	TAssert(m_num_renderframes > 0);
 	m_num_renderframes--;
 	return &m_renderframes[m_num_renderframes - 1];
+}
+
+void Renderer::PushDynamicMeshFloat(float x)
+{
+	TAssert(m_dynamic_mesh_floats < MAX_DYNAMIC_MESH_FLOATS);
+	m_verts[m_dynamic_mesh_floats] = x;
+	m_dynamic_mesh_floats++;
+}
+
+void Renderer::ClearDynamicMesh()
+{
+	m_dynamic_mesh_floats = 0;
 }
 
 uint32 Renderer::LoadVertexDataIntoGL(size_t size_bytes, const float* verts)

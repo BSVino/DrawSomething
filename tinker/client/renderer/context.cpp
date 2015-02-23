@@ -173,7 +173,7 @@ void Context::TexCoord(float s, float t, int channel)
 
 	m_texcoords = vec2(s, t);
 
-	TAssert(m_renderer->m_has_texcoord || !m_renderer->m_verts.size());
+	TAssert(m_renderer->m_has_texcoord || !m_renderer->m_dynamic_mesh_floats);
 	m_renderer->m_has_texcoord = true;
 }
 
@@ -183,7 +183,7 @@ void Context::TexCoord(const vec2& v, int channel)
 
 	m_texcoords = v;
 
-	TAssert(m_renderer->m_has_texcoord || !m_renderer->m_verts.size());
+	TAssert(m_renderer->m_has_texcoord || !m_renderer->m_dynamic_mesh_floats);
 	m_renderer->m_has_texcoord = true;
 }
 
@@ -193,7 +193,7 @@ void Context::TexCoord(const vec3& v, int channel)
 
 	m_texcoords = vec2(v);
 
-	TAssert(m_renderer->m_has_texcoord || !m_renderer->m_verts.size());
+	TAssert(m_renderer->m_has_texcoord || !m_renderer->m_dynamic_mesh_floats);
 	m_renderer->m_has_texcoord = true;
 }
 
@@ -201,7 +201,7 @@ void Context::Normal(const vec3& v)
 {
 	m_normal = v;
 
-	TAssert(m_renderer->m_has_normal || !m_renderer->m_verts.size());
+	TAssert(m_renderer->m_has_normal || !m_renderer->m_dynamic_mesh_floats);
 	m_renderer->m_has_normal = true;
 }
 
@@ -209,38 +209,38 @@ void Context::Color(const color4& c)
 {
 	m_color = vec4(c);
 
-	TAssert(m_renderer->m_has_color || !m_renderer->m_verts.size());
+	TAssert(m_renderer->m_has_color || !m_renderer->m_dynamic_mesh_floats);
 	m_renderer->m_has_color = true;
 }
 
 void Context::Vertex(const vec3& v)
 {
-	m_renderer->m_verts.push_back(v.x);
-	m_renderer->m_verts.push_back(v.y);
-	m_renderer->m_verts.push_back(v.z);
+	m_renderer->PushDynamicMeshFloat(v.x);
+	m_renderer->PushDynamicMeshFloat(v.y);
+	m_renderer->PushDynamicMeshFloat(v.z);
 
 	if (m_renderer->m_has_texcoord)
 	{
 		//for (size_t i = 0; i < MAX_TEXTURE_CHANNELS; i++)
 		{
-			m_renderer->m_verts.push_back(m_texcoords.x);
-			m_renderer->m_verts.push_back(m_texcoords.y);
+			m_renderer->PushDynamicMeshFloat(m_texcoords.x);
+			m_renderer->PushDynamicMeshFloat(m_texcoords.y);
 		}
 	}
 
 	if (m_renderer->m_has_normal)
 	{
-		m_renderer->m_verts.push_back(m_normal.x);
-		m_renderer->m_verts.push_back(m_normal.y);
-		m_renderer->m_verts.push_back(m_normal.z);
+		m_renderer->PushDynamicMeshFloat(m_normal.x);
+		m_renderer->PushDynamicMeshFloat(m_normal.y);
+		m_renderer->PushDynamicMeshFloat(m_normal.z);
 	}
 
 	if (m_renderer->m_has_color)
 	{
-		m_renderer->m_verts.push_back(m_color.x);
-		m_renderer->m_verts.push_back(m_color.y);
-		m_renderer->m_verts.push_back(m_color.z);
-		m_renderer->m_verts.push_back(m_color.w);
+		m_renderer->PushDynamicMeshFloat(m_color.x);
+		m_renderer->PushDynamicMeshFloat(m_color.y);
+		m_renderer->PushDynamicMeshFloat(m_color.z);
+		m_renderer->PushDynamicMeshFloat(m_color.w);
 	}
 
 	m_renderer->m_num_verts++;
@@ -271,7 +271,7 @@ void Context::EndRender()
 	glBindVertexArray(m_renderer->m_default_vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_renderer->m_dynamic_mesh_vbo);
-	glBufferData(GL_ARRAY_BUFFER, m_renderer->m_verts.size() * sizeof(float), m_renderer->m_verts.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, m_renderer->m_dynamic_mesh_floats * sizeof(float), m_renderer->m_verts, GL_STATIC_DRAW);
 
 	int stride = 3 * sizeof(float);
 	int position_offset = 0;
