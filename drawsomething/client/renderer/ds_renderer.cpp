@@ -38,6 +38,8 @@ void DSRenderer::Draw()
 
 	c.UseShader(SHADER_DEBUGLINE);
 
+	c.SetUniform(UNIFORM_GLOBAL, mat4::s_identity);
+
 	for (int k = 0; k < g_client_data->m_num_strokes; k++)
 	{
 		c.BeginRenderLineStrip();
