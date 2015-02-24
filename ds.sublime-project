@@ -1,0 +1,34 @@
+{
+	"build_systems":
+	[
+		{
+			"name": "BuildDS",
+			"cmd": ["$project_path\\build.bat"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(.*?)\\(([0-9]+),?([0-9]+)?\\) (.*)",
+			"encoding": "cp850",
+
+			"variants":
+			[
+				{
+					"name": "RunDS",
+					"cmd": ["$project_path\\build.bat", "run"],
+					"working_dir": "${project_path}",
+					"encoding": "cp850"
+				},
+				{
+					"name": "BuildFullDS",
+					"cmd": ["$project_path\\build.bat", "full"],
+					"file_regex": "^(.*?)\\(([0-9]+),?([0-9]+)?\\) (.*)",
+					"encoding": "cp850"
+				},
+				{
+					"name": "CleanDS",
+					"cmd": ["$project_path\\build.bat", "clean"],
+					"file_regex": "^(.*?)\\(([0-9]+),?([0-9]+)?\\) (.*)",
+					"encoding": "cp850"
+				}
+			]
+		}
+	]
+}
