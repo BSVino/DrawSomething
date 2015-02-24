@@ -25,7 +25,10 @@ void GameCode::Load()
 	srand((unsigned int)time(0));
 
 	tstring binary_directory(g_shell.m_binary_directory);
-	tstring tmp_dir = tsprintf("tmp%d", rand());
+	
+	CreateDirectoryNonRecursive(binary_directory + "tmp");
+
+	tstring tmp_dir = tsprintf("tmp/%d", rand());
 	CreateDirectoryNonRecursive(binary_directory + tmp_dir + T_DIR_SEP);
 	tstring tmp_binary_name(binary_directory + tmp_dir + T_DIR_SEP + m_binary_name);
 	while (!CopyFileTo(binary_directory + m_binary_name, tmp_binary_name))

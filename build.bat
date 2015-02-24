@@ -51,6 +51,8 @@ exit /b 0
 
 if not exist "%ProjectOutputDir%" mkdir "%ProjectOutputDir%"
 
+rmdir /s /q "%ProjectOutputDir%/tmp"
+
 :: BUILD TINKERLIB
 cl %CommonFlags% %CommonPreprocs% %CommonInclude% common/data.cpp common/platform_win32.cpp common/shell.cpp common/stringtable.cpp common/math/color.cpp common/math/matrix.cpp common/math/quaternion.cpp common/math/vector.cpp /c
 if %errorlevel% neq 0 exit /b %errorlevel%
@@ -88,7 +90,8 @@ set SDLLibs="%ProjectDir%\..\ext-deps\SDL2-2.0.2\lib\x64\SDL2.lib" "%ProjectDir%
 set TinkerLibInclude=/I"%ProjectDir%\..\ext-deps\SDL2-2.0.2\include"
 set TinkerInclude=/I"%ProjectDir%\..\ext-deps\SDL2-2.0.2\include" %CommonInclude%
 cl %CommonFlags% %CommonPreprocs% %TinkerInclude% gamecode.cpp main.cpp window.cpp /link %CommonLinkerFlags% TinkerLib.lib %SDLLibs% /OUT:"%ProjectOutputDir%\Tinker2.exe" /PDB:"%ProjectOutputDir%\Tinker2.pdb" 
-if %errorlevel% neq 0 exit /b %errorlevel%
+:: Error here is OK if we're rebuilding for debug.
+::if %errorlevel% neq 0 exit /b %errorlevel%
 popd
 
 :: BUILD PLAYROOM
