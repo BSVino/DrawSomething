@@ -256,6 +256,7 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 
 	tstring fragment_shader_text;
 	fragment_shader_text += "uniform vec3 u_camera;\n";
+	fragment_shader_text += "uniform vec3 u_camera_direction;\n";
 	fragment_shader_text += "#line 1\n" + tfread_file(f);
 
 	fclose(f);

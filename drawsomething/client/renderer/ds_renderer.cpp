@@ -40,6 +40,7 @@ void DSRenderer::Draw()
 
 	c.SetUniform(UNIFORM_GLOBAL, mat4::s_identity);
 	c.SetUniform(UNIFORM_CAMERA, local->m_position);
+	c.SetUniform(UNIFORM_CAMERA_DIRECTION, base.m_camera_direction);
 
 	for (int k = 0; k < g_client_data->m_num_strokes; k++)
 	{
