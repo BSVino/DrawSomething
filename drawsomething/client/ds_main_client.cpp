@@ -33,6 +33,15 @@ extern "C" TDLLEXPORT void LibraryLoaded()
 void* tinker_vb_alloc(size_t memory_size, vb_alloc_type_t type);
 void tinker_vb_free(void* memory, vb_alloc_type_t type);
 
+void ReloadShaders()
+{
+	g_client_data->m_shaders.CompileShaders();
+	if (g_client_data->m_shaders.m_compiled)
+		vb_console_append("Shaders reloaded.\n");
+	else
+		vb_console_append("Shaders compile failed. See shaders.txt\n");
+}
+
 extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** args)
 {
 	g_shell.Initialize(argc, args);
@@ -65,11 +74,14 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 
 	config.alloc_callback = tinker_vb_alloc;
 	config.free_callback = tinker_vb_free;
+	config.num_data_controls = 1;
 
 	if (!vb_config_install(&config, 0, 0))
 		return 0;
 
 	vb_data_add_profile(vb_str("Default"), NULL);
+
+	vb_data_add_control_button(vb_str("shaders_reload"), ReloadShaders);
 
 	vb_server_create();
 

@@ -39,6 +39,7 @@ void DSRenderer::Draw()
 	c.UseShader(SHADER_DEBUGLINE);
 
 	c.SetUniform(UNIFORM_GLOBAL, mat4::s_identity);
+	c.SetUniform(UNIFORM_CAMERA, local->m_position);
 
 	for (int k = 0; k < g_client_data->m_num_strokes; k++)
 	{

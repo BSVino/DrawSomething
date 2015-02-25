@@ -373,16 +373,3 @@ void Shader::Destroy()
 	glDeleteShader((GLuint)m_fshader);
 	glDeleteProgram((GLuint)m_program);
 }
-
-#if 0
-void ReloadShaders(class CCommand*, tvector<tstring>&, const tstring&)
-{
-	ShaderLibrary::CompileShaders();
-	if (ShaderLibrary::IsCompiled())
-		TMsg("Shaders reloaded.\n");
-	else
-		TMsg("Shaders compile failed. See shaders.txt\n");
-}
-
-CCommand shaders_reload("shaders_reload", ::ReloadShaders);
-#endif
