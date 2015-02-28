@@ -2,33 +2,53 @@
 	"build_systems":
 	[
 		{
-			"name": "BuildDS",
-			"cmd": ["$project_path\\build.bat"],
-			"working_dir": "${project_path}",
-			"file_regex": "^(.*?)\\(([0-9]+),?([0-9]+)?\\) (.*)",
+			"cmd":
+			[
+				"$project_path\\build.bat"
+			],
 			"encoding": "cp850",
-
+			"file_regex": "^(.*?)\\(([0-9]+),?([0-9]+)?\\) (.*)",
+			"name": "BuildDS",
 			"variants":
 			[
 				{
+					"cmd":
+					[
+						"$project_path\\build.bat",
+						"run"
+					],
+					"encoding": "cp850",
 					"name": "RunDS",
-					"cmd": ["$project_path\\build.bat", "run"],
-					"working_dir": "${project_path}",
-					"encoding": "cp850"
+					"working_dir": "${project_path}"
 				},
 				{
-					"name": "BuildFullDS",
-					"cmd": ["$project_path\\build.bat", "full"],
+					"cmd":
+					[
+						"$project_path\\build.bat",
+						"full"
+					],
+					"encoding": "cp850",
 					"file_regex": "^(.*?)\\(([0-9]+),?([0-9]+)?\\) (.*)",
-					"encoding": "cp850"
+					"name": "BuildFullDS"
 				},
 				{
-					"name": "CleanDS",
-					"cmd": ["$project_path\\build.bat", "clean"],
+					"cmd":
+					[
+						"$project_path\\build.bat",
+						"clean"
+					],
+					"encoding": "cp850",
 					"file_regex": "^(.*?)\\(([0-9]+),?([0-9]+)?\\) (.*)",
-					"encoding": "cp850"
+					"name": "CleanDS"
 				}
-			]
+			],
+			"working_dir": "${project_path}"
+		}
+	],
+	"folders":
+	[
+		{
+			"path": "/C/git/DrawSomething"
 		}
 	]
 }
