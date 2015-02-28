@@ -110,6 +110,14 @@ void NetHost::Service()
 				m_shared.Packet_ReadValueChanges(event.packet->data, (uint16)event.packet->dataLength);
 				break;
 
+			case 'G':
+			{
+				TAssert(((uint16)event.packet->dataLength) == event.packet->dataLength);
+				net_peer_t peer_index = (net_peer_t)(event.peer - m_enethost->peers);
+				Packet_ReceiveCustom(peer_index, event.packet->data+1, (uint32)event.packet->dataLength-1);
+				break;
+			}
+
 			default:
 				TUnimplemented();
 				break;

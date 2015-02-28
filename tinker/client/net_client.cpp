@@ -124,6 +124,19 @@ void NetClient::Service()
 	}
 }
 
+void NetClient::Packet_SendCustom(uint8* contents, uint32 length)
+{
+	uint32 packet_length = length+1;
+	TStackAllocate(uint8, packet_contents, packet_length);
+
+	packet_contents[0] = 'G';
+	memcpy(packet_contents+1, contents, length);
+
+	ENetPacket* packet = enet_packet_create(packet_contents, packet_length, ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_NO_ALLOCATE);
+	enet_peer_send(m_enetpeer, 0, packet);
+	enet_host_flush(m_enetclient); // Send packets now since packet_contents is about to go out of scope
+}
+
 void NetClient::AddEntityFromServer(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index)
 {
 	m_shared.m_replicated_entities[entity_instance_index].m_entity_table_index = entity_table_index;

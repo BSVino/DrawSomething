@@ -25,4 +25,5 @@ struct NetHost
 
 	// Game must implement these procedures
 	void ClientConnectedCallback(net_peer_t peer_index);
+	void Packet_ReceiveCustom(net_peer_t from_peer, uint8* data, uint32 data_length);
 };

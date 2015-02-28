@@ -213,4 +213,12 @@ typedef uint64_t uint64;
 
 #define TInvalid(type) ((type)~0)
 
+#ifdef _MSC_VER
+// No VLA's. Use alloca()
+#include <malloc.h>
+#define TStackAllocate(type, name, bytes) type* name = (type*)alloca(bytes)
+#else
+#define TStackAllocate(type, name, bytes) type name[bytes]
+#endif
+
 #endif

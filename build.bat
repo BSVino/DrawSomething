@@ -118,7 +118,11 @@ if not exist "%OutputDir%" mkdir "%OutputDir%"
 
 set ServerInclude=/I"%ProjectDir%\drawsomething\server" %GameInclude%
 
-cl %CommonFlags% %CommonPreprocs% %ServerInclude% ds_main_server.cpp ../shared/net_ds.cpp ../../tinker/shared/net_shared.cpp ../../tinker/server/net_host.cpp /link %CommonLinkerFlags% -dll TinkerLib.lib enet.lib /OUT:"%ProjectOutputDir%\DrawSomethingServer.dll" /PDB:"%ProjectOutputDir%\DrawSomethingServer.pdb" 
+cl %CommonFlags% %CommonPreprocs% %ServerInclude%^
+	ds_main_server.cpp^
+	../shared/net_ds.cpp ../../tinker/shared/net_shared.cpp ../../tinker/server/net_host.cpp^
+	game/s_artist.cpp^
+	/link %CommonLinkerFlags% -dll TinkerLib.lib enet.lib /OUT:"%ProjectOutputDir%\DrawSomethingServer.dll" /PDB:"%ProjectOutputDir%\DrawSomethingServer.pdb" 
 if %errorlevel% neq 0 exit /b %errorlevel%
 popd
 

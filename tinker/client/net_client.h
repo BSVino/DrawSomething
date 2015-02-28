@@ -16,6 +16,8 @@ struct NetClient
 	void Connect(const char* connect);
 	void Service();
 
+	void Packet_SendCustom(uint8* contents, uint32 length);
+
 	// Internal stuff
 	void AddEntityFromServer(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index);
 

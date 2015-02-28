@@ -87,6 +87,40 @@ void NetHost::ClientConnectedCallback(net_peer_t peer_index)
 	replicated_entity_instance_t entity_added_index = AddReplicated(g_server_data->m_net_shared.m_replicated_artist, peer_index, &g_server_data->m_artists[peer_index], &g_server_data->m_artists_replicated[peer_index]);
 	m_shared.m_replicated_entities[entity_added_index].m_peer_index = peer_index;
 }
+
+void NetHost::Packet_ReceiveCustom(net_peer_t from_peer, uint8* data, uint32 data_length)
+{
+	TCheck(data_length >= 0);
+	if (!data_length)
+		return;
+
+	switch (data[0])
+	{
+	case 'S':
+	{
+		ServerArtist* artist = &g_server_data->m_server_artists[from_peer];
+		artist->m_incoming_points_size = 0;
+		break;
+	}
+
+	case 'P':
+	{
+		TAssert(data_length == sizeof(vec3)+1);
+		TAssert(artist->m_incoming_points_size < INCOMING_POINTS_SIZE);
+		if (artist->m_incoming_points_size < INCOMING_POINTS_SIZE)
+		{
+			ServerArtist* artist = &g_server_data->m_server_artists[from_peer];
+			artist->m_incoming_points[artist->m_incoming_points_size] = *(vec3*)(data+1);
+			artist->m_incoming_points_size++;
+		}
+		break;
+	}
+
+	default:
+		TUnimplemented();
+		break;
+	}
+}
 #endif
 
 void tinker_enet_free(void* memory)

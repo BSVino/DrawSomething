@@ -117,6 +117,12 @@ void LocalArtist::HandleInput(ControlData* input)
 
 			m_draw_mode_velocity = vec2(0,0);
 		}
+
+		// Tell the server we've started a new stroke.
+		uint32 length = 1;
+		TStackAllocate(uint8, contents, length);
+		contents[0] = 'S'; // New stroke
+		g_client_data->m_host.Packet_SendCustom(contents, length);
 	}
 
 	if (input->m_draw.m_down)
@@ -156,6 +162,13 @@ void LocalArtist::HandleInput(ControlData* input)
 			{
 				g_client_data->m_stroke_points[stroke->m_first + stroke->m_size] = new_point;
 				stroke->m_size++;
+
+				// Tell the server we've drawn a new point.
+				uint32 length = 1 + sizeof(vec3);
+				TStackAllocate(uint8, contents, length);
+				contents[0] = 'P'; // New point in the current stroke
+				*(vec3*)&contents[1] = new_point;
+				g_client_data->m_host.Packet_SendCustom(contents, length);
 			}
 		}
 	}
