@@ -97,24 +97,24 @@ void NetHost::Packet_ReceiveCustom(net_peer_t from_peer, uint8* data, uint32 dat
 	switch (data[0])
 	{
 	case 'S':
-	{
-		ServerArtist* artist = &g_server_data->m_server_artists[from_peer];
-		artist->m_incoming_points_size = 0;
-		break;
-	}
-
-	case 'P':
-	{
-		TAssert(data_length == sizeof(vec3)+1);
-		TAssert(artist->m_incoming_points_size < INCOMING_POINTS_SIZE);
-		if (artist->m_incoming_points_size < INCOMING_POINTS_SIZE)
+		switch (data[1])
 		{
-			ServerArtist* artist = &g_server_data->m_server_artists[from_peer];
-			artist->m_incoming_points[artist->m_incoming_points_size] = *(vec3*)(data+1);
-			artist->m_incoming_points_size++;
+		case 'N':
+			g_server_data->m_buckets.AddNewStroke(from_peer);
+			break;
+
+		case 'P':
+			g_server_data->m_buckets.AddPointToStroke(from_peer, (vec3*)(data+1));
+			break;
+
+		case 'E':
+			g_server_data->m_buckets.EndStroke(from_peer);
+			break;
+
+		default:
+			TUnimplemented();
 		}
 		break;
-	}
 
 	default:
 		TUnimplemented();

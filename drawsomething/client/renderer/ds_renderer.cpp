@@ -55,6 +55,28 @@ void DSRenderer::Draw()
 		c.EndRender();
 	}
 
+	for (int x = 0; x < 10; x++)
+	{
+		for (int y = 0; y < 10; y++)
+		{
+			for (int z = 0; z < 10; z++)
+			{
+				c.BeginRenderLineStrip();
+					c.Vertex(vec3(x-0.01f, (float)y, (float)z));
+					c.Vertex(vec3(x+0.01f, (float)y, (float)z));
+				c.EndRender();
+				c.BeginRenderLineStrip();
+					c.Vertex(vec3((float)x, y-0.01f, (float)z));
+					c.Vertex(vec3((float)x, y+0.01f, (float)z));
+				c.EndRender();
+				c.BeginRenderLineStrip();
+					c.Vertex(vec3((float)x, (float)y, z-0.01f));
+					c.Vertex(vec3((float)x, (float)y, z+0.01f));
+				c.EndRender();
+			}
+		}
+	}
+
 	base.FinishRendering(&c);
 }
 

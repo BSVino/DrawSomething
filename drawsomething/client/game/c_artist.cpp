@@ -119,9 +119,10 @@ void LocalArtist::HandleInput(ControlData* input)
 		}
 
 		// Tell the server we've started a new stroke.
-		uint32 length = 1;
+		uint32 length = 2;
 		TStackAllocate(uint8, contents, length);
-		contents[0] = 'S'; // New stroke
+		contents[0] = 'S'; // Stroke
+		contents[1] = 'N'; // New stroke
 		g_client_data->m_host.Packet_SendCustom(contents, length);
 	}
 
@@ -164,10 +165,11 @@ void LocalArtist::HandleInput(ControlData* input)
 				stroke->m_size++;
 
 				// Tell the server we've drawn a new point.
-				uint32 length = 1 + sizeof(vec3);
+				uint32 length = 2 + sizeof(vec3);
 				TStackAllocate(uint8, contents, length);
-				contents[0] = 'P'; // New point in the current stroke
-				*(vec3*)&contents[1] = new_point;
+				contents[0] = 'S'; // Stroke
+				contents[1] = 'P'; // New point in the current stroke
+				*(vec3*)&contents[2] = new_point;
 				g_client_data->m_host.Packet_SendCustom(contents, length);
 			}
 		}
@@ -180,6 +182,13 @@ void LocalArtist::HandleInput(ControlData* input)
 		// Erase the line if there's only one point when the artist lets go
 		if (stroke->m_size <= 1)
 			g_client_data->m_num_strokes--;
+
+		// Tell the server we've drawn a new point.
+		uint32 length = 2;
+		TStackAllocate(uint8, contents, length);
+		contents[0] = 'S'; // Stroke
+		contents[1] = 'E'; // End the stroke
+		g_client_data->m_host.Packet_SendCustom(contents, length);
 	}
 }
 
