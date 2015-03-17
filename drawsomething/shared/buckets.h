@@ -45,6 +45,7 @@ struct BucketHeader
 	uint32      m_num_strokes;
 	uint32      m_num_verts;
 
+	bool Valid();
 	void Initialize(BucketCoordinate* bc);
 	void Touch();
 

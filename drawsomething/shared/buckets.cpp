@@ -9,7 +9,7 @@
 
 BucketHashIndex BucketHash_Hash(BucketCoordinate* coordinate)
 {
-	return ((coordinate->x * 3985513591) + (coordinate->y * 3985513592) + (coordinate->y * 3985513593))%NUM_BUCKETS;
+	return ((coordinate->x * 3985513591) + (coordinate->y * 2283571245) + (coordinate->z * 806576490)) % NUM_BUCKETS;
 }
 
 BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
@@ -55,6 +55,11 @@ void StrokeInfo::Initialize(uint32 first_vertex)
 	m_next.m_stroke_index = TInvalid(StrokeIndex);
 	m_first_vertex = first_vertex;
 	m_num_verts = 0;
+}
+
+bool BucketHeader::Valid()
+{
+	return m_coordinates.x != TInvalid(BucketIndex);
 }
 
 void BucketHeader::Initialize(BucketCoordinate* bc)

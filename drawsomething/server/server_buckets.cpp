@@ -23,7 +23,7 @@ void SharedBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 	BucketHeader* bucket_header = &m_buckets_hash[hash_index];
 
 	// Either it's an empty slot or it contains our bucket, otherwise we have a problem.
-	TAssert(bucket_header->m_coordinates.x == TInvalid(BucketIndex) ||
+	TAssert(!bucket_header->Valid() ||
 		(bucket_header->m_coordinates.x == bc.x &&
 		bucket_header->m_coordinates.y == bc.y &&
 		bucket_header->m_coordinates.z == bc.z));

@@ -104,7 +104,7 @@ void NetHost::Packet_ReceiveCustom(net_peer_t from_peer, uint8* data, uint32 dat
 			break;
 
 		case 'P':
-			g_server_data->m_buckets.AddPointToStroke(from_peer, (vec3*)(data+1));
+			g_server_data->m_buckets.AddPointToStroke(from_peer, (vec3*)(data+2));
 			break;
 
 		case 'E':
