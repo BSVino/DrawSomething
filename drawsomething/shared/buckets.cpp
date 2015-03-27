@@ -1,5 +1,7 @@
 #include "buckets.h"
 
+#include "stb_divide.h"
+
 #ifdef CLIENT_LIBRARY
 #define g_shared_data g_client_data
 #else
@@ -23,6 +25,9 @@ BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
 	BucketHashIndex first = r;
 	while (m_buckets_hash[r].m_coordinates.x != TInvalid(BucketIndex))
 	{
+		if (m_buckets_hash[r].m_coordinates.Equals(coordinate))
+			return r;
+		
 		r = (r+1)%NUM_BUCKETS;
 		if (r == first)
 		{
@@ -47,6 +52,15 @@ bool BucketCoordinate::Valid()
 bool BucketCoordinate::Equals(BucketCoordinate* other)
 {
 	return (x == other->x && y == other->y && z == other->z);
+}
+
+BucketCoordinate BucketCoordinate::Aligned()
+{
+	BucketCoordinate aligned;
+	aligned.x = x - stb_mod_eucl(x, FILE_BUCKET_WIDTH);
+	aligned.y = y - stb_mod_eucl(y, FILE_BUCKET_WIDTH);
+	aligned.z = z - stb_mod_eucl(z, FILE_BUCKET_WIDTH);
+	return aligned;
 }
 
 bool StrokeCoordinate::Valid()
@@ -78,8 +92,6 @@ void BucketHeader::Initialize(BucketCoordinate* bc)
 	m_last_used_time = g_shared_data->m_game_time;
 	m_num_strokes = 0;
 	m_num_verts = 0;
-
-	AllocateBucket(bc);
 }
 
 void BucketHeader::Touch()

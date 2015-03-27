@@ -4,7 +4,7 @@
 
 #include "server/net_host.h"
 #include "net_ds.h"
-#include "buckets.h"
+#include "server_buckets.h"
 
 struct ServerData
 {
@@ -20,7 +20,7 @@ struct ServerData
 	DSNetShared m_net_shared;
 	ENetMemory m_enet_memory;
 
-	SharedBuckets m_buckets;
+	ServerBuckets m_buckets;
 
 	double m_game_time;
 	float m_frame_time;

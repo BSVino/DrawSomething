@@ -57,6 +57,7 @@ struct FileMappingInfo
 	size_t m_file_mapping_handle;
 	size_t m_memory_size;
 	void*  m_memory;
+	uint8  m_created : 1;
 };
 #else
 // Unimplemented

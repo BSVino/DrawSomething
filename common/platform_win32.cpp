@@ -443,16 +443,23 @@ void MapFile(char* filename, FileMappingInfo* mapping_info)
 	SYSTEM_INFO system_info;
 	GetSystemInfo(&system_info);
 
-	TAssert(sizeof(HFILE) == sizeof(HANDLE));
+	TAssert(sizeof(HFILE) <= sizeof(HANDLE));
+
+	mapping_info->m_created = false;
 
 	OFSTRUCT ofstruct;
 	HANDLE file_handle = (HANDLE)OpenFile(filename, &ofstruct, OF_READWRITE);
 
 	if ((HFILE)file_handle == HFILE_ERROR)
+	{
 		file_handle = (HANDLE)OpenFile(filename, &ofstruct, OF_CREATE|OF_READWRITE);
+		mapping_info->m_created = true;
+	}
 
 	TAssert((HFILE)file_handle != HFILE_ERROR);
 
+	// The system only gives us allocations at a granularity of 64k, any smaller allocation
+	// will include wasted space. So, roll this allocation up to the next nonzero 64k.
 	DWORD starting_size = GetFileSize(file_handle, NULL);
 
 	int remainder = stb_mod_eucl(starting_size, system_info.dwAllocationGranularity);
@@ -460,8 +467,9 @@ void MapFile(char* filename, FileMappingInfo* mapping_info)
 	if (remainder)
 		aligned_size = starting_size - stb_mod_eucl(starting_size, system_info.dwAllocationGranularity) + system_info.dwAllocationGranularity;
 	else
-		aligned_size = starting_size;
+		aligned_size = std::max(starting_size, system_info.dwAllocationGranularity);
 
+	// We have to resize the file before we make the mapping to be able to use the extra space.
 	DWORD set_file_pointer_result = SetFilePointer(file_handle, aligned_size, NULL, FILE_BEGIN);
 	if (set_file_pointer_result != INVALID_SET_FILE_POINTER)
 	{
@@ -471,7 +479,7 @@ void MapFile(char* filename, FileMappingInfo* mapping_info)
 
 	HANDLE file_mapping_handle = CreateFileMapping(file_handle, NULL, PAGE_READWRITE, 0, 0, NULL);
 
-	TAssert(sizeof(size_t) == sizeof(HANDLE));
+	TAssert(sizeof(size_t) >= sizeof(HANDLE));
 	mapping_info->m_file_handle = (size_t)file_handle;
 	mapping_info->m_file_mapping_handle = (size_t)file_mapping_handle;
 	mapping_info->m_memory_size = aligned_size;
