@@ -4,7 +4,7 @@
 #include "vector.h"
 #include "shared/net_shared.h"
 
-typedef uint32 BucketIndex;
+typedef int32 BucketIndex;
 typedef uint32 StrokeIndex;
 typedef uint32 VertexIndex;
 typedef uint8 BucketHashIndex;
@@ -25,8 +25,6 @@ struct BucketCoordinate
 {
 	BucketIndex x, y, z;
 
-	void Initialize();
-	bool Valid();
 	bool Equals(BucketCoordinate* other);
 
 	BucketCoordinate Aligned();
@@ -64,8 +62,9 @@ struct BucketHeader
 	uint32      m_max_strokes;
 	uint32      m_max_verts;
 
-	bool Valid();
 	void Initialize(BucketCoordinate* bc);
+	void Invalidate();
+	bool Valid();
 	void Touch();
 
 	StrokeCoordinate GetLastStroke();
@@ -80,6 +79,6 @@ struct SharedBuckets
 	SharedBuckets()
 	{
 		for (int k = 0; k < NUM_BUCKETS; k++)
-			m_buckets_hash[k].m_coordinates.x = TInvalid(BucketIndex);
+			m_buckets_hash[k].Invalidate();
 	}
 };

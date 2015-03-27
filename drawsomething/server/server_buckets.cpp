@@ -15,21 +15,21 @@ void ServerBuckets::AddNewStroke(net_peer_t from_peer)
 void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 {
 	BucketCoordinate bc;
-	bc.x = (BucketIndex)point->x;
-	bc.y = (BucketIndex)point->y;
-	bc.z = (BucketIndex)point->z;
+	bc.x = (BucketIndex)floor(point->x);
+	bc.y = (BucketIndex)floor(point->y);
+	bc.z = (BucketIndex)floor(point->z);
 
 	BucketHashIndex hash_index = m_shared.BucketHash_Find(&bc);
 
-	TAssert(hash_index != TInvalid(BucketHashIndex));
+	if (hash_index == TInvalid(BucketHashIndex))
+	{
+		TUnimplemented(); // We need to drop a bucket and try again.
+	}
 
 	BucketHeader* bucket_header = &m_shared.m_buckets_hash[hash_index];
 
 	// Either it's an empty slot or it contains our bucket, otherwise we have a problem.
-	TAssert(!bucket_header->Valid() ||
-		(bucket_header->m_coordinates.x == bc.x &&
-		bucket_header->m_coordinates.y == bc.y &&
-		bucket_header->m_coordinates.z == bc.z));
+	TAssert(!bucket_header->Valid() || bucket_header->m_coordinates.Equals(&bc));
 
 	if (!bucket_header->Valid())
 	{
@@ -58,6 +58,9 @@ void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 		bucket_header->m_verts[stroke->m_first_vertex + stroke->m_num_verts] = *point;
 		stroke->m_num_verts++;
 		bucket_header->m_num_verts++;
+
+		server_artist->m_current_stroke.m_bucket = bucket_header->m_coordinates;
+		server_artist->m_current_stroke.m_stroke_index = bucket_header->m_num_strokes-1;
 	}
 	else
 	{
@@ -125,7 +128,7 @@ void ServerBuckets::LoadBucket(BucketHeader* bucket)
 	file_mapping->m_bc = aligned;
 
 	if (file_mapping->m_memory.m_created)
-		file_mapping->Initialize();
+		file_mapping->CreateSaveFileHeader();
 
 	auto* pointers = &file_mapping->m_header->m_buckets[bc->x - aligned.x][bc->y - aligned.y][bc->z - aligned.z];
 
@@ -153,7 +156,7 @@ void ServerBuckets::LoadBucket(BucketHeader* bucket)
 	TAssert(stb_mod_eucl((int)bucket->m_verts, 64) == 0);
 }
 
-void ServerBuckets::FileMapping::Initialize()
+void ServerBuckets::FileMapping::CreateSaveFileHeader()
 {
 	memset(m_header, 0, sizeof(*m_header));
 

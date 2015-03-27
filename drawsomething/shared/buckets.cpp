@@ -23,30 +23,17 @@ BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
 
 	r = BucketHash_Hash(coordinate);
 	BucketHashIndex first = r;
-	while (m_buckets_hash[r].m_coordinates.x != TInvalid(BucketIndex))
+	while (m_buckets_hash[r].Valid())
 	{
 		if (m_buckets_hash[r].m_coordinates.Equals(coordinate))
 			return r;
-		
+
 		r = (r+1)%NUM_BUCKETS;
 		if (r == first)
-		{
-			TUnimplemented(); // Need to free up the least recently used bucket and make room for this one.
-			break;
-		}
+			return TInvalid(BucketHashIndex);
 	}
 
 	return r;
-}
-
-void BucketCoordinate::Initialize()
-{
-	x = TInvalid(BucketIndex);
-}
-
-bool BucketCoordinate::Valid()
-{
-	return x != TInvalid(BucketIndex);
 }
 
 bool BucketCoordinate::Equals(BucketCoordinate* other)
@@ -81,17 +68,22 @@ void StrokeInfo::Initialize(uint32 first_vertex)
 	m_num_verts = 0;
 }
 
-bool BucketHeader::Valid()
-{
-	return m_coordinates.x != TInvalid(BucketIndex);
-}
-
 void BucketHeader::Initialize(BucketCoordinate* bc)
 {
 	m_coordinates = *bc;
 	m_last_used_time = g_shared_data->m_game_time;
 	m_num_strokes = 0;
 	m_num_verts = 0;
+}
+
+void BucketHeader::Invalidate()
+{
+	m_last_used_time = -1;
+}
+
+bool BucketHeader::Valid()
+{
+	return m_last_used_time >= 0;
 }
 
 void BucketHeader::Touch()

@@ -34,7 +34,7 @@ struct ServerBuckets
 
 		FileMapping()
 		{
-			m_bc.Initialize();
+			m_header = nullptr;
 
 			m_header_size = sizeof(SaveFileHeader);
 
@@ -44,11 +44,12 @@ struct ServerBuckets
 				m_header_size = m_header_size - remainder + 64;
 		}
 
-		void Initialize();
 		bool Valid()
 		{
-			return m_bc.Valid();
+			return !!m_header;
 		}
+
+		void CreateSaveFileHeader();
 
 		uint32 AllocStrokes(uint32 size, BucketCoordinate* bc);
 		uint32 AllocVerts(uint32 size, BucketCoordinate* bc);
