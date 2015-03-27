@@ -1,5 +1,6 @@
 #pragma once
 
+#include "tinker_platform.h"
 #include "vector.h"
 #include "shared/net_shared.h"
 
@@ -12,6 +13,8 @@ struct BucketCoordinate
 {
 	BucketIndex x, y, z;
 
+	void Initialize();
+	bool Valid();
 	bool Equals(BucketCoordinate* other);
 };
 
@@ -50,6 +53,9 @@ struct BucketHeader
 	void Touch();
 
 	StrokeCoordinate GetLastStroke();
+
+	// Shared
+	void AllocateBucket(BucketCoordinate* bc);
 };
 
 // If this grows above 2^8, increase BucketHashIndex
@@ -57,6 +63,8 @@ struct BucketHeader
 #define NUM_BUCKETS 8
 #else
 #define NUM_BUCKETS 4
+#define NUM_FILE_MAPPINGS NUM_BUCKETS
+#define FILE_BUCKET_WIDTH 2 // How many buckets in per dimension go in a single file. 
 #endif
 
 #define NUM_STROKE_VERTS 100
@@ -71,6 +79,24 @@ struct SharedBuckets
 
 	BucketHashIndex BucketHash_Find(BucketCoordinate* coordinate);
 
+#ifndef CLIENT_LIBRARY
+	struct FileMapping
+	{
+		BucketCoordinate m_bc;
+		FileMappingInfo  m_memory;
+
+		FileMapping()
+		{
+			m_bc.Initialize();
+		}
+
+		bool Valid()
+		{
+			return m_bc.Valid();
+		}
+	} m_file_mappings[NUM_FILE_MAPPINGS];
+#endif
+
 	SharedBuckets()
 	{
 		for (int k = 0; k < NUM_BUCKETS; k++)
@@ -82,5 +108,7 @@ struct SharedBuckets
 	void AddNewStroke(net_peer_t from_peer);
 	void AddPointToStroke(net_peer_t from_peer, vec3* new_point);
 	void EndStroke(net_peer_t from_peer);
+
+	void* AllocateBucket(BucketCoordinate* bc);
 #endif
 };

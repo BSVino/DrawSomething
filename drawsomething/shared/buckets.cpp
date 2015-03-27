@@ -34,6 +34,16 @@ BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
 	return r;
 }
 
+void BucketCoordinate::Initialize()
+{
+	x = TInvalid(BucketIndex);
+}
+
+bool BucketCoordinate::Valid()
+{
+	return x != TInvalid(BucketIndex);
+}
+
 bool BucketCoordinate::Equals(BucketCoordinate* other)
 {
 	return (x == other->x && y == other->y && z == other->z);
@@ -69,7 +79,7 @@ void BucketHeader::Initialize(BucketCoordinate* bc)
 	m_num_strokes = 0;
 	m_num_verts = 0;
 
-	TUnimplemented(); // Allocate the memory
+	AllocateBucket(bc);
 }
 
 void BucketHeader::Touch()

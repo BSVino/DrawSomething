@@ -54,11 +54,15 @@ if not exist "%ProjectOutputDir%" mkdir "%ProjectOutputDir%"
 rmdir /s /q "%ProjectOutputDir%/tmp"
 
 :: BUILD TINKERLIB
-cl %CommonFlags% %CommonPreprocs% %CommonInclude% common/data.cpp common/platform_win32.cpp common/shell.cpp common/stringtable.cpp common/math/color.cpp common/math/matrix.cpp common/math/quaternion.cpp common/math/vector.cpp /c
+cl %CommonFlags% %CommonPreprocs% %CommonInclude%^
+    common/data.cpp common/platform_win32.cpp common/shell.cpp common/stringtable.cpp common/stb.cpp^
+    common/math/color.cpp common/math/matrix.cpp common/math/quaternion.cpp common/math/vector.cpp^
+    /c
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 pushd "%ProjectOutputDir%"
-lib -nologo data.obj platform_win32.obj shell.obj stringtable.obj color.obj matrix.obj quaternion.obj vector.obj /out:"%ProjectOutputDir%/TinkerLib.lib"
+lib -nologo data.obj platform_win32.obj shell.obj stringtable.obj stb.obj^
+    color.obj matrix.obj quaternion.obj vector.obj /out:"%ProjectOutputDir%/TinkerLib.lib"
 if %errorlevel% neq 0 exit /b %errorlevel%
 popd
 

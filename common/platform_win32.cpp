@@ -25,6 +25,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <sys/stat.h>
 
 #include <tstring.h>
+#include "stb_divide.h"
 
 size_t GetNumberOfProcessors()
 {
@@ -435,4 +436,54 @@ void FreeBinary(size_t binary)
 void* GetProcedureAddress(size_t binary_handle, char* procedure_name)
 {
 	return GetProcAddress((HMODULE)binary_handle, procedure_name);
+}
+
+void MapFile(char* filename, FileMappingInfo* mapping_info)
+{
+	SYSTEM_INFO system_info;
+	GetSystemInfo(&system_info);
+
+	TAssert(sizeof(HFILE) == sizeof(HANDLE));
+
+	OFSTRUCT ofstruct;
+	HANDLE file_handle = (HANDLE)OpenFile(filename, &ofstruct, OF_READWRITE);
+
+	if ((HFILE)file_handle == HFILE_ERROR)
+		file_handle = (HANDLE)OpenFile(filename, &ofstruct, OF_CREATE|OF_READWRITE);
+
+	TAssert((HFILE)file_handle != HFILE_ERROR);
+
+	DWORD starting_size = GetFileSize(file_handle, NULL);
+
+	int remainder = stb_mod_eucl(starting_size, system_info.dwAllocationGranularity);
+	DWORD aligned_size;
+	if (remainder)
+		aligned_size = starting_size - stb_mod_eucl(starting_size, system_info.dwAllocationGranularity) + system_info.dwAllocationGranularity;
+	else
+		aligned_size = starting_size;
+
+	DWORD set_file_pointer_result = SetFilePointer(file_handle, aligned_size, NULL, FILE_BEGIN);
+	if (set_file_pointer_result != INVALID_SET_FILE_POINTER)
+	{
+		int err = SetEndOfFile(file_handle);
+		TAssert(err != 0);
+	}
+
+	HANDLE file_mapping_handle = CreateFileMapping(file_handle, NULL, PAGE_READWRITE, 0, 0, NULL);
+
+	TAssert(sizeof(size_t) == sizeof(HANDLE));
+	mapping_info->m_file_handle = (size_t)file_handle;
+	mapping_info->m_file_mapping_handle = (size_t)file_mapping_handle;
+	mapping_info->m_memory_size = aligned_size;
+	mapping_info->m_memory = MapViewOfFile(file_mapping_handle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+}
+
+void UnmapFile(FileMappingInfo* mapping_info)
+{
+	UnmapViewOfFile(mapping_info->m_memory);
+
+	TUnimplemented(); // Reduce the file size to what was actually used.
+
+	CloseHandle((HANDLE)mapping_info->m_file_mapping_handle);
+	CloseHandle((HANDLE)mapping_info->m_file_handle);
 }

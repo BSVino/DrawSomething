@@ -51,6 +51,22 @@ void FreeBinary(size_t binary);
 void* GetProcedureAddress(size_t binary_handle, char* procedure_name);
 
 #ifdef _WIN32
+struct FileMappingInfo
+{
+	size_t m_file_handle;
+	size_t m_file_mapping_handle;
+	size_t m_memory_size;
+	void*  m_memory;
+};
+#else
+// Unimplemented
+#error !
+#endif
+
+void MapFile(char* filename, FileMappingInfo* /*OUT*/ mapping_info);
+void UnmapFile(FileMappingInfo* mapping_info);
+
+#ifdef _WIN32
 #define T_DIR_SEP "\\"
 #else
 #define T_DIR_SEP "/"

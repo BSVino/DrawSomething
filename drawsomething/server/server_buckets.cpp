@@ -1,5 +1,8 @@
 #include "buckets.h"
 
+#include "stb_divide.h"
+#include "tinker_platform.h"
+
 #include "ds_server.h"
 #include "game/s_artist.h"
 
@@ -28,7 +31,7 @@ void SharedBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 		bucket_header->m_coordinates.y == bc.y &&
 		bucket_header->m_coordinates.z == bc.z));
 
-	if (bucket_header->m_coordinates.x == TInvalid(BucketIndex))
+	if (!bucket_header->Valid())
 		bucket_header->Initialize(&bc);
 	else
 		bucket_header->Touch();
@@ -73,3 +76,47 @@ void SharedBuckets::EndStroke(net_peer_t from_peer)
 	TUnimplemented();
 }
 
+void* SharedBuckets::AllocateBucket(BucketCoordinate* bc)
+{
+	BucketCoordinate aligned_bc = *bc;
+
+	aligned_bc.x -= stb_mod_eucl(bc->x, FILE_BUCKET_WIDTH);
+	aligned_bc.y -= stb_mod_eucl(bc->y, FILE_BUCKET_WIDTH);
+	aligned_bc.z -= stb_mod_eucl(bc->z, FILE_BUCKET_WIDTH);
+
+	int empty = -1;
+	// Look through our file mappings for The One
+	for (int k = 0; k < NUM_FILE_MAPPINGS; k++)
+	{
+		if (!m_file_mappings[k].Valid())
+			empty = k;
+
+		else if (m_file_mappings[k].m_bc.Equals(&aligned_bc))
+		{
+			// We found The One
+			TUnimplemented();
+		}
+	}
+
+	// Not present. We need to allocate this memory.
+
+	if (empty < 0)
+	{
+		TUnimplemented(); // Kick something else out?
+		return NULL;
+	}
+
+	FileMapping* file_mapping = &m_file_mappings[empty];
+
+	char filename[100];
+	sprintf(filename, "strokes_%d_%d_%d.sav", aligned_bc.x, aligned_bc.y, aligned_bc.z);
+
+	MapFile(filename, &file_mapping->m_memory);
+
+	return file_mapping->m_memory.m_memory;
+}
+
+void BucketHeader::AllocateBucket(BucketCoordinate* bc)
+{
+	g_server_data->m_buckets.AllocateBucket(bc);
+}
