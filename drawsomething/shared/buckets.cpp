@@ -55,6 +55,11 @@ bool StrokeCoordinate::Valid()
 	return m_stroke_index != TInvalid(StrokeIndex);
 }
 
+void StrokeCoordinate::Invalidate()
+{
+	m_stroke_index = TInvalid(StrokeIndex);
+}
+
 bool StrokeCoordinate::Equals(StrokeCoordinate* other)
 {
 	return (m_bucket.Equals(&other->m_bucket) && m_stroke_index == other->m_stroke_index);

@@ -36,6 +36,7 @@ struct StrokeCoordinate
 	StrokeIndex m_stroke_index;
 
 	bool Valid();
+	void Invalidate();
 	bool Equals(StrokeCoordinate* other);
 };
 

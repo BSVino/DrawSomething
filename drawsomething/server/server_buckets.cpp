@@ -9,7 +9,7 @@
 void ServerBuckets::AddNewStroke(net_peer_t from_peer)
 {
 	ServerArtist* server_artist = &g_server_data->m_server_artists[from_peer];
-	server_artist->m_current_stroke.m_stroke_index = TInvalid(StrokeIndex);
+	server_artist->m_current_stroke.Invalidate();
 }
 
 void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
@@ -86,8 +86,25 @@ void ServerBuckets::EndStroke(net_peer_t from_peer)
 	ServerArtist* server_artist = &g_server_data->m_server_artists[from_peer];
 	TAssert(server_artist->m_current_stroke.Valid());
 
+	BucketHashIndex hash_index = m_shared.BucketHash_Find(&server_artist->m_current_stroke.m_bucket);
+
+	TAssert(hash_index != TInvalid(BucketHashIndex));
+
+	BucketHeader* bucket_header = &m_shared.m_buckets_hash[hash_index];
+
+	// If it's not the right bucket we have a problem.
+	TAssert(bucket_header->Valid() && bucket_header->m_coordinates.Equals(&server_artist->m_current_stroke.m_bucket));
+
+	auto* stroke = &bucket_header->m_strokes[server_artist->m_current_stroke.m_stroke_index];
+
 	// Remove the stroke if there's only one vert.
-	TUnimplemented();
+	if (!stroke->m_previous.Valid() && !stroke->m_next.Valid() && stroke->m_num_verts <= 1)
+		// It's not as easy as just num_strokes-- since we may not be the last stroke anymore.
+		// Don't want to rearrange stuff here, so we'll just kick it down the line for the
+		// defragmenter to worry about.
+		stroke->m_num_verts = 0;
+
+	server_artist->m_current_stroke.Invalidate();
 }
 
 void ServerBuckets::LoadBucket(BucketHeader* bucket)
