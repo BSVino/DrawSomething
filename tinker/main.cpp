@@ -181,13 +181,22 @@ void WriteFunData(GameCode* server, GameCode* client)
 	FILE* fp = fopen("fundata.txt", "a");
 	fprintf(fp, "session {\n");
 	fprintf(fp, "\ttimestamp: %d\n", time(0));
+
+#ifdef _WIN64
+	fprintf(fp, "\tplatform: win64\n");
+#else
+#error !
+#endif
+
 	fprintf(fp, "\tserver_memory: %d\n", server->m_game_data.m_memory_size);
 	fprintf(fp, "\tclient_memory: %d\n", client->m_game_data.m_memory_size);
+
 #ifdef _DEBUG
 	fprintf(fp, "\tdebug: 1\n");
 #else
 	fprintf(fp, "\tdebug: 0\n");
 #endif
+
 	fprintf(fp, "}\n\n");
 	fclose(fp);
 }
