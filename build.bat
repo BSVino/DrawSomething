@@ -2,6 +2,7 @@
 setlocal
 
 :: Activate the x86 -> x64 cross compiler environment.
+::call "%VS110COMNTOOLS%/../../VC/vcvarsall.bat" x86_amd64
 call "%VS120COMNTOOLS%/../../VC/vcvarsall.bat" x86_amd64
 
 set arg1=%1

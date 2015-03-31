@@ -25,7 +25,7 @@ BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
 	BucketHashIndex first = r;
 	while (m_buckets_hash[r].Valid())
 	{
-		if (m_buckets_hash[r].m_coordinates.Equals(coordinate))
+		if (m_buckets_hash[r].m_coordinates.m_bucket.Equals(coordinate))
 			return r;
 
 		r = (r+1)%NUM_BUCKETS;
@@ -47,6 +47,19 @@ BucketCoordinate BucketCoordinate::Aligned()
 	aligned.x = x - stb_mod_eucl(x, FILE_BUCKET_WIDTH);
 	aligned.y = y - stb_mod_eucl(y, FILE_BUCKET_WIDTH);
 	aligned.z = z - stb_mod_eucl(z, FILE_BUCKET_WIDTH);
+	return aligned;
+}
+
+bool AlignedCoordinate::Equals(AlignedCoordinate* other)
+{
+	return m_bucket.Equals(&other->m_bucket);
+}
+
+AlignedCoordinate AlignedCoordinate::Aligned(BucketCoordinate* bc)
+{
+	AlignedCoordinate aligned;
+	aligned.m_bucket = *bc;
+	aligned.m_aligned = bc->Aligned();
 	return aligned;
 }
 
@@ -73,7 +86,7 @@ void StrokeInfo::Initialize(uint32 first_vertex)
 	m_num_verts = 0;
 }
 
-void BucketHeader::Initialize(BucketCoordinate* bc)
+void BucketHeader::Initialize(AlignedCoordinate* bc)
 {
 	m_coordinates = *bc;
 	m_last_used_time = g_shared_data->m_game_time;
@@ -99,7 +112,7 @@ void BucketHeader::Touch()
 StrokeCoordinate BucketHeader::GetLastStroke()
 {
 	StrokeCoordinate c;
-	c.m_bucket = m_coordinates;
+	c.m_bucket = m_coordinates.m_bucket;
 	c.m_stroke_index = TInvalid(StrokeIndex);
 
 	if (!m_num_strokes)

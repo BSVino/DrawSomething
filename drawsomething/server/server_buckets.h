@@ -10,7 +10,7 @@ struct ServerBuckets
 
 	struct FileMapping
 	{
-		BucketCoordinate m_bc;
+		BucketCoordinate m_bc; // Aligned
 		FileMappingInfo  m_memory;
 
 		struct SaveFileHeader
@@ -28,6 +28,15 @@ struct ServerBuckets
 				uint32 m_start;
 				uint32 m_length;
 			} m_sections[FILE_BUCKET_WIDTH * FILE_BUCKET_WIDTH * FILE_BUCKET_WIDTH * 2];
+
+			BucketSections* GetBucketSections(AlignedCoordinate* ac)
+			{
+				int x = ac->m_bucket.x - ac->m_aligned.x;
+				int y = ac->m_bucket.y - ac->m_aligned.y;
+				int z = ac->m_bucket.z - ac->m_aligned.z;
+
+				return &m_buckets[x][y][z];
+			}
 		}* m_header;
 
 		uint32 m_header_size;
@@ -62,6 +71,10 @@ struct ServerBuckets
 	void AddPointToStroke(net_peer_t from_peer, vec3* new_point);
 	void EndStroke(net_peer_t from_peer);
 
-	void LoadBucket(BucketHeader* bucket);
+	StrokeInfo* PushStroke(BucketHeader* bucket_header);
+	vec3* PushVert(BucketHeader* bucket_header, StrokeInfo* stroke);
+
+	FileMappingIndex FindMapping(AlignedCoordinate* bc, FileMappingIndex* empty = nullptr);
+	FileMappingIndex LoadBucket(BucketHeader* bucket);
 };
 

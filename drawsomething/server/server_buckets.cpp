@@ -19,6 +19,8 @@ void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 	bc.y = (BucketIndex)floor(point->y);
 	bc.z = (BucketIndex)floor(point->z);
 
+	AlignedCoordinate ac = AlignedCoordinate::Aligned(&bc);
+
 	BucketHashIndex hash_index = m_shared.BucketHash_Find(&bc);
 
 	if (hash_index == TInvalid(BucketHashIndex))
@@ -29,13 +31,13 @@ void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 	BucketHeader* bucket_header = &m_shared.m_buckets_hash[hash_index];
 
 	// Either it's an empty slot or it contains our bucket, otherwise we have a problem.
-	TAssert(!bucket_header->Valid() || bucket_header->m_coordinates.Equals(&bc));
+	TAssert(!bucket_header->Valid() || bucket_header->m_coordinates.Equals(&ac));
 
 	if (!bucket_header->Valid())
 	{
 		// Either it doesn't exist or it needs to be loaded from disk.
-		bucket_header->Initialize(&bc);
-		LoadBucket(bucket_header);
+		bucket_header->Initialize(&ac);
+		bucket_header->m_file_mapping = LoadBucket(bucket_header);
 	}
 	else
 		// It's already in memory.
@@ -45,21 +47,9 @@ void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 
 	if (server_artist->m_current_stroke.m_stroke_index == TInvalid(StrokeIndex))
 	{
-		TAssert(bucket_header->m_num_strokes < bucket_header->m_max_strokes);
-		TAssert(bucket_header->m_num_verts < bucket_header->m_max_verts);
+		*PushVert(bucket_header, PushStroke(bucket_header)) = *point;
 
-		// Make a new stroke!
-		StrokeInfo* stroke = &bucket_header->m_strokes[bucket_header->m_num_strokes];
-		bucket_header->m_num_strokes++;
-
-		stroke->Initialize(bucket_header->m_num_verts);
-
-		// Add the vert to the stroke!
-		bucket_header->m_verts[stroke->m_first_vertex + stroke->m_num_verts] = *point;
-		stroke->m_num_verts++;
-		bucket_header->m_num_verts++;
-
-		server_artist->m_current_stroke.m_bucket = bucket_header->m_coordinates;
+		server_artist->m_current_stroke.m_bucket = bucket_header->m_coordinates.m_bucket;
 		server_artist->m_current_stroke.m_stroke_index = bucket_header->m_num_strokes-1;
 	}
 	else
@@ -72,9 +62,7 @@ void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 		if (server_artist->m_current_stroke.Equals(&last_stroke))
 		{
 			// If the last stroke in the bucket is our current stroke then we can just append.
-			bucket_header->m_verts[stroke->m_first_vertex + stroke->m_num_verts] = *point;
-			stroke->m_num_verts++;
-			bucket_header->m_num_verts++;
+			*PushVert(bucket_header, stroke) = *point;
 		}
 		else
 			TUnimplemented();
@@ -93,7 +81,7 @@ void ServerBuckets::EndStroke(net_peer_t from_peer)
 	BucketHeader* bucket_header = &m_shared.m_buckets_hash[hash_index];
 
 	// If it's not the right bucket we have a problem.
-	TAssert(bucket_header->Valid() && bucket_header->m_coordinates.Equals(&server_artist->m_current_stroke.m_bucket));
+	TAssert(bucket_header->Valid() && bucket_header->m_coordinates.m_bucket.Equals(&server_artist->m_current_stroke.m_bucket));
 
 	auto* stroke = &bucket_header->m_strokes[server_artist->m_current_stroke.m_stroke_index];
 
@@ -107,34 +95,83 @@ void ServerBuckets::EndStroke(net_peer_t from_peer)
 	server_artist->m_current_stroke.Invalidate();
 }
 
-void ServerBuckets::LoadBucket(BucketHeader* bucket)
+StrokeInfo* ServerBuckets::PushStroke(BucketHeader* bucket_header)
 {
-	BucketCoordinate* bc = &bucket->m_coordinates;
-	BucketCoordinate aligned = bc->Aligned();
+	TAssert(bucket_header->m_num_strokes < bucket_header->m_max_strokes);
 
-	int empty = -1;
+	StrokeInfo* stroke = &bucket_header->m_strokes[bucket_header->m_num_strokes];
+	stroke->Initialize(bucket_header->m_num_verts);
+
+	bucket_header->m_num_strokes++;
+
+	FileMappingIndex index = bucket_header->m_file_mapping;
+	TAssert(index != TInvalid(FileMappingIndex));
+
+	auto* file_bucket = m_file_mappings[index].m_header->GetBucketSections(&bucket_header->m_coordinates);
+	file_bucket->m_num_strokes++;
+
+	return stroke;
+}
+
+vec3* ServerBuckets::PushVert(BucketHeader* bucket_header, StrokeInfo* stroke)
+{
+	TAssert(bucket_header->m_num_verts < bucket_header->m_max_verts);
+
+	vec3* vert = &bucket_header->m_verts[stroke->m_first_vertex + stroke->m_num_verts];
+
+	stroke->m_num_verts++;
+
+	FileMappingIndex index = bucket_header->m_file_mapping;
+	TAssert(index != TInvalid(FileMappingIndex));
+
+	auto* file_bucket = m_file_mappings[index].m_header->GetBucketSections(&bucket_header->m_coordinates);
+	file_bucket->m_num_verts++;
+
+	return vert;
+}
+
+FileMappingIndex ServerBuckets::FindMapping(AlignedCoordinate* aligned, FileMappingIndex* empty)
+{
+	FileMappingIndex emptyempty = TInvalid(FileMappingIndex);
+
 	// Look through our file mappings for The One
 	for (int k = 0; k < NUM_FILE_MAPPINGS; k++)
 	{
 		if (!m_file_mappings[k].Valid())
-			empty = k;
-
-		else if (m_file_mappings[k].m_bc.Equals(&aligned))
+			emptyempty = (FileMappingIndex)k;
+		else if (m_file_mappings[k].m_bc.Equals(&aligned->m_aligned))
 		{
 			// We found The One
 			TUnimplemented();
+			return (FileMappingIndex)k;
 		}
 	}
 
-	// Not present. We need to allocate this memory.
+	if (empty)
+		*empty = emptyempty;
 
-	if (empty < 0)
+	return TInvalid(FileMappingIndex);
+}
+
+FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
+{
+	FileMappingIndex empty;
+	FileMappingIndex index = FindMapping(&bucket->m_coordinates, &empty);
+
+	if (empty == TInvalid(FileMappingIndex) && index == TInvalid(FileMappingIndex))
 	{
+		// There are no empty slots and we couldn't find the right mapping.
 		TUnimplemented(); // Kick something else out?
-		return;
+		return TInvalid(FileMappingIndex);
 	}
 
-	FileMapping* file_mapping = &m_file_mappings[empty];
+	if (index == TInvalid(FileMappingIndex))
+		index = empty;
+
+	BucketCoordinate bc = bucket->m_coordinates.m_bucket;
+	BucketCoordinate aligned = bucket->m_coordinates.m_aligned;
+
+	FileMapping* file_mapping = &m_file_mappings[index];
 
 	char filename[100];
 	sprintf(filename, "strokes_%d_%d_%d.sav", aligned.x, aligned.y, aligned.z);
@@ -147,13 +184,13 @@ void ServerBuckets::LoadBucket(BucketHeader* bucket)
 	if (file_mapping->m_memory.m_created)
 		file_mapping->CreateSaveFileHeader();
 
-	auto* pointers = &file_mapping->m_header->m_buckets[bc->x - aligned.x][bc->y - aligned.y][bc->z - aligned.z];
+	auto* pointers = file_mapping->m_header->GetBucketSections(&bucket->m_coordinates);
 
 	if (pointers->m_strokes_section == TInvalid(uint32))
-		file_mapping->AllocStrokes(sizeof(StrokeInfo) * 100, bc); // Room for 100 stroke fragments
+		file_mapping->AllocStrokes(sizeof(StrokeInfo) * 100, &bc); // Room for 100 stroke fragments
 
 	if (pointers->m_verts_section == TInvalid(uint32))
-		file_mapping->AllocVerts(sizeof(vec3) * 1000, bc); // Room for 1000 stroke points
+		file_mapping->AllocVerts(sizeof(vec3) * 1000, &bc); // Room for 1000 stroke points
 
 	auto* strokes_section = &file_mapping->m_header->m_sections[pointers->m_strokes_section];
 	auto* verts_section = &file_mapping->m_header->m_sections[pointers->m_verts_section];
@@ -171,6 +208,8 @@ void ServerBuckets::LoadBucket(BucketHeader* bucket)
 
 	TAssert(stb_mod_eucl((int)bucket->m_strokes, 64) == 0);
 	TAssert(stb_mod_eucl((int)bucket->m_verts, 64) == 0);
+
+	return index;
 }
 
 void ServerBuckets::FileMapping::CreateSaveFileHeader()
