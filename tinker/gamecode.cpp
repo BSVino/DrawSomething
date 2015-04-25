@@ -5,7 +5,7 @@
 #include "shell.h"
 #include "window.h"
 
-void GameCode::Initialize(char* binary, struct WindowData* window_data, struct ControlData* input)
+void GameCode::Initialize(const char* binary, struct WindowData* window_data, struct ControlData* input)
 {
 	m_binary_name = binary;
 

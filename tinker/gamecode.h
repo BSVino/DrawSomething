@@ -25,7 +25,7 @@ struct GameCode
 #ifdef _DEBUG
 	time_t m_binary_modified_time;
 #endif
-	char*  m_binary_name;
+	const char*  m_binary_name;
 
 	GameData m_game_data;
 
@@ -34,7 +34,7 @@ struct GameCode
 	GameFrameProcedure m_game_frame;
 	LibraryLoadedProcedure m_library_loaded;
 
-	void Initialize(char* binary, struct WindowData* window_data, struct ControlData* input);
+	void Initialize(const char* binary, struct WindowData* window_data, struct ControlData* input);
 	void Load();
 	void Refresh();
 };

@@ -438,6 +438,15 @@ void* GetProcedureAddress(size_t binary_handle, char* procedure_name)
 	return GetProcAddress((HMODULE)binary_handle, procedure_name);
 }
 
+#include <direct.h>
+#define chdir _chdir
+
+void SetCurrentDirectory(const char* dir)
+{
+	TUnimplemented();
+	chdir(dir);
+}
+
 void MapFile(char* filename, FileMappingInfo* mapping_info)
 {
 	SYSTEM_INFO system_info;

@@ -160,10 +160,12 @@ int stb_div_floor(int v1, int v2)
    return v1/v2;
    #else
    if (v1 >= 0 && v2 < 0)
+   {
       if ((-v1)+v2+1 < 0) // check if increasing v1's magnitude overflows
          return -stb__div(-v1+v2+1,v2); // nope, so just compute it
       else
          return -stb__div(-v1,v2) + ((-v1)%v2 ? -1 : 0);
+   }
    if (v1 < 0 && v2 >= 0)
       if (v1 != INT_MIN)
          if (v1-v2+1 < 0) // check if increasing v1's magnitude overflows

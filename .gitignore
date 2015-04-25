@@ -1,7 +1,9 @@
+.DS_Store
 /*.opensdf
 /*.sdf
 /*.suo
 x64
+Debug
 /ipch
 /tinker/assets.cpp
 /tinker/assets.h

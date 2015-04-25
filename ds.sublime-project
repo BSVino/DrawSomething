@@ -2,10 +2,21 @@
 	"build_systems":
 	[
 		{
-			"cmd":
-			[
-				"$project_path\\build.bat"
-			],
+			"windows":
+			{
+				"cmd":
+				[
+					"$project_path\\build.bat"
+				]
+			},
+			"osx":
+			{
+				"cmd":
+				[
+					"$project_path/build_osx.sh"
+				],
+				"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+			},
 			"encoding": "cp850",
 			"file_regex": "^(.*?)\\(([0-9]+),?([0-9]+)?\\) (.*)",
 			"name": "BuildDS",
@@ -48,7 +59,7 @@
 	"folders":
 	[
 		{
-			"path": "/E/DrawSomething"
+			"path": "."
 		}
 	]
 }

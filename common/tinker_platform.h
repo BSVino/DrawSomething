@@ -48,9 +48,9 @@ void ClearLowPeriodScheduler();
 void InitializeNetworking();
 size_t LoadBinary(const char* binary);
 void FreeBinary(size_t binary);
-void* GetProcedureAddress(size_t binary_handle, char* procedure_name);
+void* GetProcedureAddress(size_t binary_handle, const char* procedure_name);
+void SetCurrentDirectory(const char* dir);
 
-#ifdef _WIN32
 struct FileMappingInfo
 {
 	size_t m_file_handle;
@@ -59,10 +59,6 @@ struct FileMappingInfo
 	void*  m_memory;
 	uint8  m_created : 1;
 };
-#else
-// Unimplemented
-#error !
-#endif
 
 void MapFile(char* filename, FileMappingInfo* /*OUT*/ mapping_info);
 void UnmapFile(FileMappingInfo* mapping_info);

@@ -81,7 +81,7 @@ public:
 #ifdef WITH_EASTL
 		eastl::sort(begin(), end());
 #else
-		std::sort(begin(), end());
+		std::sort(tvector<T>::begin(), tvector<T>::end());
 #endif
 	}
 };

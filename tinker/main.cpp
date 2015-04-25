@@ -6,9 +6,6 @@
 #include "gamecode.h"
 #include "input.h"
 
-#include <direct.h>
-#define chdir _chdir
-
 GameCode g_server_code;
 GameCode g_client_code;
 
@@ -19,7 +16,7 @@ int main(int argc, char** args)
 	g_shell.Initialize(argc, args);
 
 	if (g_shell.HasCommandLineSwitchValue("-game"))
-		chdir(g_shell.GetCommandLineSwitchValue("-game"));
+		SetCurrentDirectory(g_shell.GetCommandLineSwitchValue("-game"));
 
 	bool server = true;
 	bool client = true;
@@ -180,16 +177,18 @@ void WriteFunData(GameCode* server, GameCode* client)
 {
 	FILE* fp = fopen("fundata.txt", "a");
 	fprintf(fp, "session {\n");
-	fprintf(fp, "\ttimestamp: %d\n", time(0));
+	fprintf(fp, "\ttimestamp: %d\n", (int)time(0));
 
 #ifdef _WIN64
 	fprintf(fp, "\tplatform: win64\n");
+#elif __APPLE__
+	fprintf(fp, "\tplatform: osx\n");
 #else
 #error !
 #endif
 
-	fprintf(fp, "\tserver_memory: %d\n", server->m_game_data.m_memory_size);
-	fprintf(fp, "\tclient_memory: %d\n", client->m_game_data.m_memory_size);
+	fprintf(fp, "\tserver_memory: %d\n", (int)server->m_game_data.m_memory_size);
+	fprintf(fp, "\tclient_memory: %d\n", (int)client->m_game_data.m_memory_size);
 
 #ifdef _DEBUG
 	fprintf(fp, "\tdebug: 1\n");

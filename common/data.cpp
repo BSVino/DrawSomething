@@ -300,6 +300,11 @@ KVEntryIndex KVData::FindEntryIndex(KVEntryIndex parent, char* key)
 
 char* KVData::FindChildValueString(KVEntryIndex parent, char* key, char* def)
 {
+	const char* const_def = def;
+
+	if (!const_def)
+		const_def = "";
+
 	KVEntryIndex entry = FindEntryIndex(parent, key);
 	if (entry == TInvalid(KVEntryIndex))
 		return def;
