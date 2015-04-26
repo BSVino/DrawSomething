@@ -3,6 +3,17 @@
 set -o nounset
 set -e
 
+BuildFull=0
+if [ $# -gt 0 ]; then
+	if [ $1 == "full" ]; then
+		BuildFull=1
+	fi
+fi
+
+if [ "$BuildFull" == "1" ]; then
+	echo "FULL BUILD"
+fi
+
 ProjectDir=`pwd`
 OutputDir="Debug/"
 ProjectOutputDir="${ProjectDir}/${OutputDir}"
@@ -29,23 +40,25 @@ libtool -static -o libtinker.a o/tinker/*.o
 popd > /dev/null
 
 
-# BUILD ENET
-echo "Building libenet..."
-mkdir -p $ProjectOutputDir/o/enet
+if [ "$BuildFull" == "1" ]; then
+	# BUILD ENET
+	echo "Building libenet..."
+	mkdir -p $ProjectOutputDir/o/enet
 
-ENetDirectory="$ProjectDir/../ext-deps/enet"
-pushd $ProjectOutputDir/o/enet > /dev/null
-mkdir -p "$OutputDir"
-ENetInclude="-I$ProjectDir/../ext-deps/enet/include"
-clang $CommonExtDepsFlags $ENetInclude -c \
-	$ENetDirectory/callbacks.c $ENetDirectory/compress.c \
-	$ENetDirectory/host.c $ENetDirectory/list.c \
-	$ENetDirectory/packet.c $ENetDirectory/peer.c \
-	$ENetDirectory/protocol.c $ENetDirectory/unix.c \
+	ENetDirectory="$ProjectDir/../ext-deps/enet"
+	pushd $ProjectOutputDir/o/enet > /dev/null
+	mkdir -p "$OutputDir"
+	ENetInclude="-I$ProjectDir/../ext-deps/enet/include"
+	clang $CommonExtDepsFlags $ENetInclude -c \
+		$ENetDirectory/callbacks.c $ENetDirectory/compress.c \
+		$ENetDirectory/host.c $ENetDirectory/list.c \
+		$ENetDirectory/packet.c $ENetDirectory/peer.c \
+		$ENetDirectory/protocol.c $ENetDirectory/unix.c \
 
-cd ../..
-libtool -static -o libenet.a o/enet/*.o
-popd > /dev/null
+	cd ../..
+	libtool -static -o libenet.a o/enet/*.o
+	popd > /dev/null
+fi
 
 
 # BUILD TINKER
@@ -60,10 +73,31 @@ clang++ $SDLLibs $CommonFlags $TinkerInclude \
 
 
 # BUILD IGOR
-echo "Building igor..."
 
-clang++ $CommonFlags $CommonInclude tools/igor/igor.cpp \
-	-o $OutputDir/igor $CommonLinkerFlags -ltinker
+RebuildIgor()
+{
+	IgorBinary=Debug/igor
+
+	if [ ! -e $IgorBinary ]; then
+		echo "No igor binary. Rebuilding igor."
+		return 0;
+	fi
+
+	if [ tools/igor/igor.cpp -nt $IgorBinary ]; then
+		echo "igor.cpp has been updated. Rebuilding igor."
+		return 0;
+	fi
+
+	# Igor is cool.
+	return 1
+}
+
+if RebuildIgor || [ "$BuildFull" == "1" ]; then
+	echo "Building igor..."
+
+	clang++ $CommonFlags $CommonInclude tools/igor/igor.cpp \
+		-o $OutputDir/igor $CommonLinkerFlags -ltinker
+fi
 
 
 # RUN IGOR!

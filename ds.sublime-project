@@ -25,19 +25,28 @@
 				{
 					"cmd":
 					[
-						"$project_path\\build.bat",
-						"run"
+						"$project_path\\build.bat", "run"
 					],
 					"encoding": "cp850",
 					"name": "RunDS",
 					"working_dir": "${project_path}"
 				},
 				{
-					"cmd":
-					[
-						"$project_path\\build.bat",
-						"full"
-					],
+					"windows":
+					{
+						"cmd":
+						[
+							"$project_path\\build.bat", "full"
+						]
+					},
+					"osx":
+					{
+						"cmd":
+						[
+							"$project_path/build_osx.sh", "full"
+						],
+						"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+					},
 					"encoding": "cp850",
 					"file_regex": "^(.*?)\\(([0-9]+),?([0-9]+)?\\) (.*)",
 					"name": "BuildFullDS"
@@ -45,8 +54,7 @@
 				{
 					"cmd":
 					[
-						"$project_path\\build.bat",
-						"clean"
+						"$project_path\\build.bat", "clean"
 					],
 					"encoding": "cp850",
 					"file_regex": "^(.*?)\\(([0-9]+),?([0-9]+)?\\) (.*)",
