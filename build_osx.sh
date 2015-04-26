@@ -59,16 +59,16 @@ clang++ $SDLLibs $CommonFlags $TinkerInclude \
 	-o $OutputDir/tinker $CommonLinkerFlags -ltinker
 
 
-# BUILD PLAYROOM
-echo "Building playroom..."
+# BUILD IGOR
+echo "Building igor..."
 
-clang++ $CommonFlags $CommonInclude tools/playroom/playroom.cpp \
-	-o $OutputDir/playroom $CommonLinkerFlags -ltinker
+clang++ $CommonFlags $CommonInclude tools/igor/igor.cpp \
+	-o $OutputDir/igor $CommonLinkerFlags -ltinker
 
 
-# RUN PLAYROOM!
-echo "Running playroom..."
-$ProjectOutputDir/playroom -game "$ProjectDir/install" -header "$ProjectDir/tinker/assets.h" -source "$ProjectDir/tinker/assets.cpp"
+# RUN IGOR!
+echo "Running igor..."
+$ProjectOutputDir/igor -game "$ProjectDir/install" -header "$ProjectDir/tinker/assets.h" -source "$ProjectDir/tinker/assets.cpp"
 
 
 # BUILD SERVER

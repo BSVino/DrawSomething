@@ -42,7 +42,7 @@ exit /b 0
 if %CleanBuild%=="0" goto skip_clean
 echo Deleting intermediate files...
 rmdir /s /q "%ProjectDir%/tinker/%OutputDir%"
-rmdir /s /q "%ProjectDir%/playroom/%OutputDir%"
+rmdir /s /q "%ProjectDir%/igor/%OutputDir%"
 rmdir /s /q "%ProjectDir%/tinker/enet/%OutputDir%"
 rmdir /s /q "%ProjectDir%/drawsomething/client/%OutputDir%"
 rmdir /s /q "%ProjectDir%/drawsomething/server/%OutputDir%"
@@ -98,21 +98,21 @@ cl %CommonFlags% %CommonPreprocs% %TinkerInclude% gamecode.cpp main.cpp window.c
 ::if %errorlevel% neq 0 exit /b %errorlevel%
 popd
 
-:: BUILD PLAYROOM
-if %FullBuild% == "0" goto skip_playroom
-pushd "tools/playroom"
+:: BUILD IGOR
+if %FullBuild% == "0" goto skip_igor
+pushd "tools/igor"
 if not exist "%OutputDir%" mkdir "%OutputDir%"
 
-cl %CommonFlags% %CommonPreprocs% %CommonInclude% playroom.cpp /link %CommonLinkerFlags% TinkerLib.lib /OUT:"%ProjectOutputDir%\playroom.exe" /PDB:"%ProjectOutputDir%\playroom.pdb"
+cl %CommonFlags% %CommonPreprocs% %CommonInclude% igor.cpp /link %CommonLinkerFlags% TinkerLib.lib /OUT:"%ProjectOutputDir%\igor.exe" /PDB:"%ProjectOutputDir%\igor.pdb"
 if %errorlevel% neq 0 exit /b %errorlevel%
 popd
 
-:: RUN PLAYROOM!
+:: RUN IGOR!
 
-call "%ProjectOutputDir%\playroom" -game "%ProjectDir%\install" -header "%ProjectDir%\tinker\assets.h" -source "%ProjectDir%\tinker\assets.cpp"
+call "%ProjectOutputDir%\igor" -game "%ProjectDir%\install" -header "%ProjectDir%\tinker\assets.h" -source "%ProjectDir%\tinker\assets.cpp"
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-:skip_playroom
+:skip_igor
 
 set GameInclude=/I"%ProjectDir%\drawsomething" /I"%ProjectDir%\..\ext-deps\enet\include" /I"%ProjectDir%\drawsomething\shared" %CommonInclude%
 
