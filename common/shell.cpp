@@ -1,6 +1,6 @@
 #include "shell.h"
 
-#include <cstring>
+#include <string.h>
 
 Shell g_shell;
 

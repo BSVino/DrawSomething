@@ -5,7 +5,7 @@
 
 #include "../ds_client.h"
 
-#include <GL3/gl3w.h>
+#include "tinker_gl.h"
 
 void DSRenderer::Draw()
 {

@@ -6,9 +6,9 @@ struct pstring
 	pstring() {}
 
 	// Assumes a null-terminated input string!
-	pstring(char* s)
+	pstring(const char* s)
 	{
-		start = s;
+		start = (char*)s;
 		length = strlen(s);
 	}
 

@@ -1,7 +1,6 @@
-#include <GL3/gl3w.h>
-
 #include <viewback2.h>
 
+#include "tinker_gl.h"
 #include "tinker_platform.h"
 #include "shell.h"
 

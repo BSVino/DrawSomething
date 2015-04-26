@@ -206,8 +206,8 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 	bucket->m_max_strokes = strokes_section->m_length/sizeof(StrokeInfo);
 	bucket->m_max_verts = verts_section->m_length/sizeof(vec3);
 
-	TAssert(stb_mod_eucl((int)bucket->m_strokes, 64) == 0);
-	TAssert(stb_mod_eucl((int)bucket->m_verts, 64) == 0);
+	TAssert(stb_mod_eucl((size_t)bucket->m_strokes, 64) == 0);
+	TAssert(stb_mod_eucl((size_t)bucket->m_verts, 64) == 0);
 
 	return index;
 }
@@ -296,6 +296,6 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 		}
 	}
 
-	return NULL;
+	return 0;
 }
 

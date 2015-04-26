@@ -285,7 +285,7 @@ void KVData::Reset()
 	m_strings.clear();
 }
 
-KVEntryIndex KVData::FindEntryIndex(KVEntryIndex parent, char* key)
+KVEntryIndex KVData::FindEntryIndex(KVEntryIndex parent, const char* key)
 {
 	KVEntryIndex first = 0;
 	if (parent != TInvalid(KVEntryIndex))
@@ -298,7 +298,7 @@ KVEntryIndex KVData::FindEntryIndex(KVEntryIndex parent, char* key)
 	return (KVEntryIndex)~0;
 }
 
-char* KVData::FindChildValueString(KVEntryIndex parent, char* key, char* def)
+const char* KVData::FindChildValueString(KVEntryIndex parent, const char* key, char* def)
 {
 	const char* const_def = def;
 
@@ -307,7 +307,7 @@ char* KVData::FindChildValueString(KVEntryIndex parent, char* key, char* def)
 
 	KVEntryIndex entry = FindEntryIndex(parent, key);
 	if (entry == TInvalid(KVEntryIndex))
-		return def;
+		return const_def;
 
 	return st_get(m_strings, m_data[entry].value);
 }

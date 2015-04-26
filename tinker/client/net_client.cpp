@@ -1,5 +1,7 @@
 #include "net_client.h"
 
+#include <string.h> // for memcpy
+
 #include <common.h>
 
 #include <enet/enet.h>
@@ -94,7 +96,7 @@ void NetClient::Service()
 				TAssert(event.packet->dataLength == 5);
 				replicated_entity_instance_t entity_instance_index = event.packet->data[1];
 				replicated_entity_t entity_table_index = event.packet->data[2];
-				uint16 entity_index = ntohs(*(uint16*)&event.packet->data[3]);
+				uint16 entity_index = tntohs(*(uint16*)&event.packet->data[3]);
 				AddEntityFromServer(entity_instance_index, entity_table_index, entity_index);
 				break;
 			}
@@ -118,6 +120,10 @@ void NetClient::Service()
 			break;
 
 		case ENET_EVENT_TYPE_DISCONNECT:
+			TUnimplemented();
+			break;
+
+		default:
 			TUnimplemented();
 			break;
 		}

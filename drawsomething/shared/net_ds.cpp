@@ -9,7 +9,7 @@
 #include "server/net_host.h"
 #endif
 
-#define STRUCT_OFFSET(s, f) ((uint16)&(s.f) - (uint16)&(s))
+#define STRUCT_OFFSET(s, f) (uint16)((size_t)&(s.f) - (size_t)&(s))
 
 #ifdef CLIENT_LIBRARY
 #define g_library_data g_client_data

@@ -98,7 +98,10 @@ int main(int argc, char** args)
 
 		fclose(fp);
 
-		source_text += tsprintf("\t{ \"%s\", \"shaders/%s.vs\", \"shaders/%s.fs\", \"u_projection\", \"u_view\", \"u_global\", \"u_camera\", \"u_camera_direction\", },\n", data.FindChildValueString(TInvalid(KVEntryIndex), "Name"), data.FindChildValueString(TInvalid(KVEntryIndex), "Vertex"), data.FindChildValueString(TInvalid(KVEntryIndex), "Fragment"));
+		const char* v1 = data.FindChildValueString(TInvalid(KVEntryIndex), "Name");
+		const char* v2 = data.FindChildValueString(TInvalid(KVEntryIndex), "Vertex");
+		const char* v3 = data.FindChildValueString(TInvalid(KVEntryIndex), "Fragment");
+		source_text += tsprintf("\t{ \"%s\", \"shaders/%s.vs\", \"shaders/%s.fs\", \"u_projection\", \"u_view\", \"u_global\", \"u_camera\", \"u_camera_direction\", },\n", v1, v2, v3);
 		header_text += tsprintf("\tSHADER_%s = %d,\n", tstring(data.FindChildValueString(TInvalid(KVEntryIndex), "Name")).toupper().c_str(), i);
 	}
 
@@ -119,8 +122,8 @@ int main(int argc, char** args)
 	{
 		FILE* fp = fopen((tstring(game_directory) + "/fundata.txt").c_str(), "a");
 		fprintf(fp, "playroom {\n");
-		fprintf(fp, "\ttimestamp: %d\n", time(0));
-		fprintf(fp, "\tnum_shaders: %d\n", shaders.size());
+		fprintf(fp, "\ttimestamp: %d\n", (int)time(0));
+		fprintf(fp, "\tnum_shaders: %d\n", (int)shaders.size());
 		fprintf(fp, "}\n\n");
 		fclose(fp);
 	}
@@ -140,8 +143,8 @@ int main(int argc, char** args)
 		return 1;
 	}
 
-	fprintf(fp_header, header_text.c_str());
-	fprintf(fp_source, source_text.c_str());
+	fprintf(fp_header, "%s", header_text.c_str());
+	fprintf(fp_source, "%s", source_text.c_str());
 
 	fclose(fp_header);
 	fclose(fp_source);

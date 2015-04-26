@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-#include <GL3/gl3w.h>
+#include "tinker_gl.h"
 
 #include "matrix.h"
 

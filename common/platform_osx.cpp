@@ -71,34 +71,34 @@ void SetClipboard(const tstring& sBuf)
 {
 }
 
-tvector<tstring> ListDirectory(const tstring& sFullDirectory, bool bDirectories)
+tvector<tstring> ListDirectory(const char* full_directory, bool include_directories)
 {
-	tstring sDirectory = sFullDirectory;
-	if (sDirectory.startswith("$ASSETS/"))
-		sDirectory = sDirectory.substr(8);
+	tstring directory = full_directory;
+	if (directory.startswith("$ASSETS/"))
+		directory = directory.substr(8);
 
-	tvector<tstring> asResult;
+	tvector<tstring> result;
 
 	struct dirent *dp;
 
-	DIR *dir = opendir((sDirectory).c_str());
+	DIR *dir = opendir((directory).c_str());
 	while ((dp=readdir(dir)) != NULL)
 	{
-		if (!bDirectories && (dp->d_type == DT_DIR))
+		if (!include_directories && (dp->d_type == DT_DIR))
 			continue;
 
-		tstring sName = dp->d_name;
-		if (sName == ".")
+		tstring name = dp->d_name;
+		if (name == ".")
 			continue;
 
-		if (sName == "..")
+		if (name == "..")
 			continue;
 
-		asResult.push_back(sName);
+		result.push_back(name);
 	}
 	closedir(dir);
 
-	return asResult;
+	return result;
 }
 
 bool IsFile(const tstring& sPath)

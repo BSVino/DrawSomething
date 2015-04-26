@@ -8,4 +8,4 @@ typedef tvector<char> StringTable;
 
 StringTableIndex st_add(StringTable& st, pstring s);
 char* st_get(StringTable& st, StringTableIndex string);
-StringTableIndex st_find(StringTable& st, char* s);
+StringTableIndex st_find(StringTable& st, const char* s);

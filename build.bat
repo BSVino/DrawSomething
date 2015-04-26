@@ -92,7 +92,6 @@ pushd tinker
 if not exist "%OutputDir%" mkdir "%OutputDir%"
 
 set SDLLibs="%ProjectDir%\..\ext-deps\SDL2-2.0.2\lib\x64\SDL2.lib" "%ProjectDir%\..\ext-deps\SDL2-2.0.2\lib\x64\SDL2main.lib"
-set TinkerLibInclude=/I"%ProjectDir%\..\ext-deps\SDL2-2.0.2\include"
 set TinkerInclude=/I"%ProjectDir%\..\ext-deps\SDL2-2.0.2\include" %CommonInclude%
 cl %CommonFlags% %CommonPreprocs% %TinkerInclude% gamecode.cpp main.cpp window.cpp /link %CommonLinkerFlags% TinkerLib.lib %SDLLibs% /OUT:"%ProjectOutputDir%\Tinker2.exe" /PDB:"%ProjectOutputDir%\Tinker2.pdb" 
 :: Error here is OK if we're rebuilding for debug.
@@ -135,7 +134,7 @@ popd
 pushd "drawsomething/client"
 if not exist "%OutputDir%" mkdir "%OutputDir%"
 
-set ClientInclude=/I"%ProjectDir%\..\viewback\server" /I"%ProjectDir%\..\ext-deps\gl3w\include" /I"%ProjectDir%\drawsomething\client" /I"%ProjectDir%\drawsomething\client" %GameInclude%
+set ClientInclude=/I"%ProjectDir%\..\viewback\server" /I"%ProjectDir%\..\ext-deps\gl3w\include" /I"%ProjectDir%\drawsomething\client" %GameInclude%
 set ClientPreprocs=-DUSE_SKYBOX -DCLIENT_LIBRARY -DVIEWBACK_TIME_DOUBLE %CommonPreprocs%
 
 cl %CommonExtDepFlags% %ClientInclude% %ProjectDir%\..\ext-deps\gl3w\src\gl3w.c /c

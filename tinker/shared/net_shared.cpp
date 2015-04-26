@@ -19,9 +19,9 @@ void NetShared::Initialize()
 	TAssert(pow(2.0f, (float)sizeof(replicated_field_t) * 8) > MAX_REPLICATED_FIELDS);
 	TAssert(pow(2.0f, (float)sizeof(replicated_entity_t) * 8) > MAX_REPLICATED_ENTITIES);
 	TAssert(pow(2.0f, (float)sizeof(replicated_entity_instance_t) * 8) > MAX_INSTANCE_ENTITIES);
-	TAssert(sizeof(replicated_field_t) == 1);           // If this gets larger, reads/writes need to start using ntoh/hton
-	TAssert(sizeof(replicated_entity_t) == 1);          // If this gets larger, reads/writes need to start using ntoh/hton
-	TAssert(sizeof(replicated_entity_instance_t) == 1); // If this gets larger, reads/writes need to start using ntoh/hton
+	TAssert(sizeof(replicated_field_t) == 1);           // If this gets larger, reads/writes need to start using tntoh/thton
+	TAssert(sizeof(replicated_entity_t) == 1);          // If this gets larger, reads/writes need to start using tntoh/thton
+	TAssert(sizeof(replicated_entity_instance_t) == 1); // If this gets larger, reads/writes need to start using tntoh/thton
 	TAssert(pow(2.0f, (float)sizeof(net_peer_t) * 8) > MAX_PLAYERS);
 }
 
@@ -80,7 +80,7 @@ void NetShared::Packet_WriteValueChange(uint8* packet_contents, uint16* packet_s
 		{
 			uint16* dest16 = ((uint16*)dest) + j;
 			uint16* src = ((uint16*)ENTITY_FIELD_OFFSET(entity_instance->m_entity, table_entry->m_offset)) + j;
-			*dest16 = htons(*src);
+			*dest16 = thtons(*src);
 		}
 		break;
 
@@ -90,7 +90,7 @@ void NetShared::Packet_WriteValueChange(uint8* packet_contents, uint16* packet_s
 		{
 			uint32* dest32 = ((uint32*)dest) + j;
 			uint32* src = ((uint32*)ENTITY_FIELD_OFFSET(entity_instance->m_entity, table_entry->m_offset)) + j;
-			*dest32 = htonl(*src);
+			*dest32 = thtonl(*src);
 		}
 		break;
 
@@ -100,7 +100,7 @@ void NetShared::Packet_WriteValueChange(uint8* packet_contents, uint16* packet_s
 		{
 			uint64* dest64 = ((uint64*)dest) + j;
 			uint64* src = ((uint64*)ENTITY_FIELD_OFFSET(entity_instance->m_entity, table_entry->m_offset)) + j;
-			*dest64 = htonll(*src);
+			*dest64 = thtonll(*src);
 		}
 		break;
 
@@ -110,8 +110,12 @@ void NetShared::Packet_WriteValueChange(uint8* packet_contents, uint16* packet_s
 		{
 			uint32* destf = ((uint32*)dest) + j;
 			float* src = ((float*)ENTITY_FIELD_OFFSET(entity_instance->m_entity, table_entry->m_offset)) + j;
-			*destf = htonf(*src);
+			*destf = thtonf(*src);
 		}
+		break;
+
+	default:
+		TUnimplemented();
 		break;
 	}
 
@@ -158,7 +162,7 @@ void NetShared::Packet_ReadValueChanges(uint8* packet, uint16 packet_size)
 			{
 				uint16* dest16 = ((uint16*)dest) + j;
 				uint16* src16 = ((uint16*)src) + j;
-				*dest16 = ntohs(*src16);
+				*dest16 = tntohs(*src16);
 			}
 			break;
 
@@ -168,7 +172,7 @@ void NetShared::Packet_ReadValueChanges(uint8* packet, uint16 packet_size)
 			{
 				uint32* dest32 = ((uint32*)dest) + j;
 				uint32* src32 = ((uint32*)src) + j;
-				*dest32 = ntohl(*src32);
+				*dest32 = tntohl(*src32);
 			}
 			break;
 
@@ -178,7 +182,7 @@ void NetShared::Packet_ReadValueChanges(uint8* packet, uint16 packet_size)
 			{
 				uint64* dest64 = ((uint64*)dest) + j;
 				uint64* src64 = ((uint64*)src) + j;
-				*dest64 = ntohll(*src64);
+				*dest64 = tntohll(*src64);
 			}
 			break;
 
@@ -188,8 +192,12 @@ void NetShared::Packet_ReadValueChanges(uint8* packet, uint16 packet_size)
 			{
 				float* destf = ((float*)dest) + j;
 				float* srcf = ((float*)src) + j;
-				*destf = ntohf(*(unsigned int*)srcf);
+				*destf = tntohf(*(unsigned int*)srcf);
 			}
+			break;
+
+		default:
+			TUnimplemented();
 			break;
 		}
 	}

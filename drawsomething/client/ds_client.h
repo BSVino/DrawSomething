@@ -76,7 +76,7 @@ struct ClientData
 extern ClientData* g_client_data;
 
 // We reload the DLL so we have to store any strings we pass into VB.
-inline char* vb_str(char* s)
+inline const char* vb_str(const char* s)
 {
 	StringTableIndex i = st_find(g_client_data->m_vb_strings, s);
 

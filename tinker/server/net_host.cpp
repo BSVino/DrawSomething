@@ -1,5 +1,7 @@
 #include "net_host.h"
 
+#include <string.h>
+
 #include <math.h>
 #include <enet/enet.h>
 
@@ -129,6 +131,10 @@ void NetHost::Service()
 		case ENET_EVENT_TYPE_DISCONNECT:
 			TUnimplemented();
 			break;
+
+		default:
+			TUnimplemented();
+			break;
 		}
 	}
 }
@@ -223,7 +229,7 @@ void NetHost::Packet_WriteCreateEntity(net_peer_t destination_peer, replicated_e
 	packet_contents[0] = 'C';
 	packet_contents[1] = entity_instance_index;
 	packet_contents[2] = entity_table_index;
-	*(uint16*)(&packet_contents[3]) = htons(entity_index);
+	*(uint16*)(&packet_contents[3]) = thtons(entity_index);
 
 	ENetPacket* packet = enet_packet_create(packet_contents, packet_length, ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_NO_ALLOCATE);
 

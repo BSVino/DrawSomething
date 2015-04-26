@@ -43,9 +43,9 @@ struct KVData
 
 	void Reset();
 
-	KVEntryIndex FindEntryIndex(KVEntryIndex parent, char* key);
+	KVEntryIndex FindEntryIndex(KVEntryIndex parent, const char* key);
 
-	char* FindChildValueString(KVEntryIndex parent, char* key, char* def = nullptr);
+	const char* FindChildValueString(KVEntryIndex parent, const char* key, char* def = nullptr);
 
 	void ReadData(FILE* fp);
 	void SaveData(FILE* fp);

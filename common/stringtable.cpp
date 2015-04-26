@@ -31,7 +31,7 @@ char* st_get(StringTable& st, StringTableIndex string)
 	return &st.data()[string];
 }
 
-StringTableIndex st_find(StringTable& st, char* s)
+StringTableIndex st_find(StringTable& st, const char* s)
 {
 	size_t st_size = st.size();
 	const char* p = st.data();

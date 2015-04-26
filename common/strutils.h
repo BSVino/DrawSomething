@@ -258,29 +258,40 @@ inline tstring tsprintf(tstring s, ...)
 	p.sprintf_va_list(s.c_str(), arguments);
 #else
 
+#ifdef __APPLE__
+	int characters = vsnprintf(nullptr, 0, s.c_str(), arguments);
+	va_start(arguments, s);
+
+	char* c = (char*)malloc(characters*2+1);
+	characters = vsnprintf(c, characters*2-1, s.c_str(), arguments);
+	p = c;
+	free(c);
+#else
+
 #ifdef _MSC_VER
 #define VSNPRINTF8 _vsnprintf
 #else
 #define VSNPRINTF8 vsnprintf
 #endif
 	tstring q = " ";
-	int iCharacters = VSNPRINTF8(&q[0], 0, s.c_str(), arguments);
+	int characters = VSNPRINTF8(&q[0], 0, s.c_str(), arguments);
 
-	if(iCharacters >= (int)q.length())
+	if(characters >= (int)q.length())
 	{
-		q.resize(iCharacters*2+1);
-		iCharacters = VSNPRINTF8(&q[0], q.size()-1, s.c_str(), arguments);
+		q.resize(characters*2+1);
+		characters = VSNPRINTF8(&q[0], q.size()-1, s.c_str(), arguments);
 	}
-	else if(iCharacters < 0)
+	else if(characters < 0)
 	{
-		while (iCharacters < 0)
+		while (characters < 0)
 		{
 			q.resize(q.size()*2);
-			iCharacters = VSNPRINTF8(&q[0], q.size()-1, s.c_str(), arguments);
+			characters = VSNPRINTF8(&q[0], q.size()-1, s.c_str(), arguments);
 		}
 	}
 
 	p = &q[0];
+#endif
 #endif
 
 	va_end(arguments);

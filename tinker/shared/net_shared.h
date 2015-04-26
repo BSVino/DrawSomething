@@ -87,6 +87,22 @@ void tinker_enet_free(void*);
 void* tinker_enet_malloc(size_t);
 void tinker_enet_no_memory();
 
+// All of my ship platforms are little endian so use my own ntof so
+// I don't do all the work to convert all my data to and from big endian.
+#if defined(_WIN32) || __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define thtons(x)  (x)
+#define thtonl(x)  (x)
+#define thtonll(x) (x)
+#define thtonf(x)  (x)
+
+#define tntohs(x)  (x)
+#define tntohl(x)  (x)
+#define tntohll(x) (x)
+#define tntohf(x)  (x)
+#else
+#error !
+#endif
+
 /*
 Player welcome message packet -- Sent to the connecting client when it first connects. Format:
 	Byte 0: 'W'
