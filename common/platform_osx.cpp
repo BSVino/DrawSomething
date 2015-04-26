@@ -217,10 +217,16 @@ void* GetProcedureAddress(size_t binary_handle, const char* procedure_name)
 
 void MapFile(char* filename, FileMappingInfo* /*OUT*/ mapping_info)
 {
-
+	TUnimplemented();
 }
 
 void UnmapFile(FileMappingInfo* mapping_info)
 {
+	TUnimplemented();
+}
+
+void InitializeNetworking()
+{
+	// Nothing to do on OSX.
 }
 

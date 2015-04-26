@@ -110,5 +110,5 @@ clang++ $CommonFlags $ClientInclude $ClientPreprocs \
 	tinker/shared/net_shared.cpp \
 	tinker/client/net_client.cpp \
 	drawsomething/client/viewback.cpp \
-	-dynamiclib -o $OutputDir/client.dylib $CommonLinkerFlags -ltinker -lenet
+	-dynamiclib -o $OutputDir/client.dylib $CommonLinkerFlags -ltinker -lenet -framework OpenGL
 
