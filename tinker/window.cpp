@@ -44,6 +44,10 @@ void Window::Open(const char* title, int width, int height)
 	SDL_GL_SetSwapInterval(1);
 
 	SDL_SetRelativeMouseMode(m_data.m_cursor_visible?SDL_TRUE:SDL_FALSE);
+
+	SDL_GL_GetDrawableSize(m_SDL_window, &m_data.m_drawable_width, &m_data.m_drawable_height);
+
+	m_data.m_render_scale = (float)m_data.m_drawable_width/m_data.m_width;
 }
 
 bool Window::IsOpen()

@@ -7,6 +7,9 @@ struct WindowData
 	// Read only variables:
 	int m_width;
 	int m_height;
+	int m_drawable_width;
+	int m_drawable_height;
+	float m_render_scale;
 
 	// x, y location of the mouse in [0, width]x[0, height], only valid if mouse is visible.
 	int m_mouse_x;

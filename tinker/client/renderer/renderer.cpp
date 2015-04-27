@@ -64,6 +64,8 @@ void Renderer::SetCamera(vec3 camera_position, vec3 camera_direction, vec3 camer
 
 void Renderer::StartRendering(Context* c)
 {
+	glViewport(0, 0, (GLsizei)m_window_data->m_drawable_width, (GLsizei)m_window_data->m_drawable_height);
+
 	float aspect_ratio = (float)m_window_data->m_width / (float)m_window_data->m_height;
 
 	mat4 projection = mat4::ProjectPerspective(m_camera_fov, aspect_ratio, m_camera_near, m_camera_far);
