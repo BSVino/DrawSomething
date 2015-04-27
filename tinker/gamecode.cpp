@@ -83,9 +83,14 @@ void GameCode::Refresh()
 	tstring binary_directory(g_shell.m_binary_directory);
 	if (GetFileModificationTime((binary_directory + m_binary_name).c_str()) > m_binary_modified_time)
 	{
+#ifdef _WIN32
 		tstring pdb = binary_directory + tstring(m_binary_name).substr(0, strlen(m_binary_name) - 3) + "pdb";
 		if (IsFile(binary_directory + m_binary_name) && IsFile(pdb))
 			Load();
+#else
+		if (IsFile(binary_directory + m_binary_name))
+			Load();
+#endif
 	}
 #endif
 }
