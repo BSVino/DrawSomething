@@ -18,7 +18,7 @@ ProjectDir=`pwd`
 OutputDir="Debug/"
 ProjectOutputDir="${ProjectDir}/${OutputDir}"
 CommonInclude="-I${ProjectDir}/common -I${ProjectDir}/common/math -I${ProjectDir}/tinker"
-CommonFlags="-Werror -std=c++11 -g"
+CommonFlags="-Werror -std=c++11 -g -D_DEBUG"
 CommonExtDepsFlags=""
 CommonLinkerFlags="-L${ProjectOutputDir}"
 
@@ -121,7 +121,7 @@ clang++ $CommonFlags $ServerInclude \
 	tinker/shared/net_shared.cpp \
 	tinker/server/net_host.cpp \
 	drawsomething/server/game/s_artist.cpp \
-	-dynamiclib -o $OutputDir/server.dylib $CommonLinkerFlags -ltinker -lenet
+	-dynamiclib -o $ProjectOutputDir/server.dylib $CommonLinkerFlags -ltinker -lenet
 
 
 # BUILD CLIENT
@@ -144,5 +144,5 @@ clang++ $CommonFlags $ClientInclude $ClientPreprocs \
 	tinker/shared/net_shared.cpp \
 	tinker/client/net_client.cpp \
 	drawsomething/client/viewback.cpp \
-	-dynamiclib -o $OutputDir/client.dylib $CommonLinkerFlags -ltinker -lenet -framework OpenGL
+	-dynamiclib -o $ProjectOutputDir/client.dylib $CommonLinkerFlags -ltinker -lenet -framework OpenGL
 

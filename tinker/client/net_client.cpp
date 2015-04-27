@@ -36,7 +36,7 @@ void NetClient::Connect(const char* connect)
 	m_enetpeer = enet_host_connect(m_enetclient, &address, 1, 0);
 
 #ifdef _DEBUG
-	enet_peer_timeout(m_enetpeer, MAXUINT32, MAXUINT32, MAXUINT32);
+	enet_peer_timeout(m_enetpeer, UINT32_MAX, UINT32_MAX, UINT32_MAX);
 #endif
 }
 

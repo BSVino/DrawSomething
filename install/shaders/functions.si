@@ -1,18 +1,18 @@
 // These common functions will be included in the build of every other shader.
 
-float RemapVal(float input, float in_lo, float in_hi, float out_lo, float out_hi)
+float RemapVal(float i, float in_lo, float in_hi, float out_lo, float out_hi)
 {
-	return mix(out_lo, out_hi, (input - in_lo)/(in_hi - in_lo));
+	return mix(out_lo, out_hi, (i - in_lo)/(in_hi - in_lo));
 }
 
-float RemapValClamped(float input, float in_lo, float in_hi, float out_lo, float out_hi)
+float RemapValClamped(float i, float in_lo, float in_hi, float out_lo, float out_hi)
 {
-	return mix(out_lo, out_hi, clamp((input - in_lo)/(in_hi - in_lo), 0.0, 1.0));
+	return mix(out_lo, out_hi, clamp((i - in_lo)/(in_hi - in_lo), 0.0, 1.0));
 }
 
-float RemapValSmooth(float input, float in_lo, float in_hi, float out_lo, float out_hi)
+float RemapValSmooth(float i, float in_lo, float in_hi, float out_lo, float out_hi)
 {
-	return mix(out_lo, out_hi, smoothstep(in_lo, in_hi, input));
+	return mix(out_lo, out_hi, smoothstep(in_lo, in_hi, i));
 }
 
 float length_sqr(vec3 v)

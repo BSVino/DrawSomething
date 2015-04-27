@@ -170,7 +170,7 @@ replicated_entity_instance_t NetHost::AddReplicated(replicated_entity_t entity_t
 void NetHost::ClientConnected(net_peer_t peer_index)
 {
 #ifdef _DEBUG
-	enet_peer_timeout(&m_enethost->peers[peer_index], MAXUINT32, MAXUINT32, MAXUINT32);
+	enet_peer_timeout(&m_enethost->peers[peer_index], UINT32_MAX, UINT32_MAX, UINT32_MAX);
 #endif
 
 	{

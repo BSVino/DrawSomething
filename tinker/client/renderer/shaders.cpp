@@ -108,9 +108,9 @@ void ShaderLibrary::CompileShaders()
 	else
 		TMsg(tstring("Warning: Couldn't find shader main file: ") + sMain + "\n");
 
-	*m_functions = "#line 1\n" + *m_functions;
-	*m_header = "#line 1\n" + *m_header;
-	*m_main = "#line 1\n" + *m_main;
+	*m_functions = *m_functions;
+	*m_header = *m_header;
+	*m_main = *m_main;
 
 	fclose(f);
 
@@ -276,7 +276,7 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 		int log_length = 0;
 		char log[1024];
 		glGetShaderInfoLog((GLuint)vshader, 1024, &log_length, log);
-		library->WriteLog(asset_shaders[index].vertex_file + tstring(".vs"), log, full_vertex_shader_char);
+		library->WriteLog(asset_shaders[index].vertex_file, log, full_vertex_shader_char);
 	}
 
 	tstring full_fragment_shader = fragment_header_text + fragment_shader_text + *library->m_main;
@@ -294,7 +294,7 @@ bool Shader::Compile(ShaderIndex index, ShaderLibrary* library)
 		int log_length = 0;
 		char log[1024];
 		glGetShaderInfoLog((GLuint)fshader, 1024, &log_length, log);
-		library->WriteLog(asset_shaders[index].fragment_file + tstring(".fs"), log, full_fragment_shader_char);
+		library->WriteLog(asset_shaders[index].fragment_file, log, full_fragment_shader_char);
 	}
 
 	size_t program = glCreateProgram();

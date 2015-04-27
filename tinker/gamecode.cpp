@@ -7,7 +7,13 @@
 
 void GameCode::Initialize(const char* binary, struct WindowData* window_data, struct ControlData* input)
 {
-	m_binary_name = binary;
+#ifdef __APPLE__
+	const char* ext = "dylib";
+#else
+#error !
+#endif
+
+	snprintf(m_binary_name, BINARY_NAME_SIZE, "%s.%s", binary, ext);
 
 	Load();
 
@@ -22,10 +28,11 @@ void GameCode::Load()
 	FreeBinary(m_binary_handle);
 
 #ifdef _DEBUG
+	tstring binary_directory(g_shell.m_binary_directory);
+
+#ifdef _WIN32
 	srand((unsigned int)time(0));
 
-	tstring binary_directory(g_shell.m_binary_directory);
-	
 	CreateDirectoryNonRecursive(binary_directory + "tmp");
 
 	tstring tmp_dir = tsprintf("tmp/%d", rand());
@@ -40,6 +47,9 @@ void GameCode::Load()
 		SleepMS(100); // Let the compiler finish writing stuff. Otherwise, crash.
 
 	m_binary_handle = LoadBinary(tmp_binary_name.c_str());
+#else
+	m_binary_handle = LoadBinary((binary_directory + m_binary_name).c_str());
+#endif
 #else
 	m_binary_handle = LoadBinary(m_binary_name);
 #endif

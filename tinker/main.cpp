@@ -35,10 +35,10 @@ int main(int argc, char** args)
 	ControlData input;
 
 	if (server)
-		g_server_code.Initialize("drawsomethingserver.dll", &window.m_data, &input);
+		g_server_code.Initialize("server", &window.m_data, &input);
 
 	if (client)
-		g_client_code.Initialize("drawsomethingclient.dll", &window.m_data, &input);
+		g_client_code.Initialize("client", &window.m_data, &input);
 
 #ifdef _DEBUG
 	double target_frame_time = 1.0f/30;

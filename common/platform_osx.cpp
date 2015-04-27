@@ -22,11 +22,14 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON A
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <dlfcn.h>
 
 #include <strutils.h>
+#include "stb_divide.h"
 
 void GetMACAddresses(unsigned char*& paiAddresses, size_t& iAddresses)
 {
@@ -131,8 +134,6 @@ bool IsDirectory(const tstring& sPath)
 
 void CreateDirectoryNonRecursive(const tstring& sPath)
 {
-	TUnimplemented();
-
 	mkdir(sPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
 
@@ -155,8 +156,6 @@ tstring FindAbsolutePath(const tstring& sPath)
 
 time_t GetFileModificationTime(const char* pszFile)
 {
-	TUnimplemented();
-
 	struct stat s;
 	if (stat(pszFile, &s) != 0)
 		return 0;
@@ -187,10 +186,12 @@ int TranslateKeyFromQwerty(int iKey)
 
 void SetLowPeriodScheduler()
 {
+	// No op on OSX
 }
 
 void ClearLowPeriodScheduler()
 {
+	// No op on OSX
 }
 
 void SetCurrentDirectory(const char* dir)
@@ -200,29 +201,65 @@ void SetCurrentDirectory(const char* dir)
 
 size_t LoadBinary(const char* binary)
 {
-	TUnimplemented();
-	return 0;
+	void* r = dlopen(binary, 0);
+
+	TAssert(r);
+	if (!r)
+		printf("Couldn't dlopen: %s\n", dlerror());
+
+	return (size_t)r;
 }
 
 void FreeBinary(size_t binary)
 {
-	TUnimplemented();
+	dlclose((void*)binary);
 }
 
 void* GetProcedureAddress(size_t binary_handle, const char* procedure_name)
 {
-	TUnimplemented();
-	return 0;
+	return dlsym((void*)binary_handle, procedure_name);
 }
 
 void MapFile(char* filename, FileMappingInfo* /*OUT*/ mapping_info)
 {
-	TUnimplemented();
+	mapping_info->m_created = false;
+
+	int fd = open(filename, O_RDWR);
+
+	if (!fd)
+	{
+		fd = open(filename, O_CREAT | O_TRUNC | O_RDWR);
+		mapping_info->m_created = true;
+	}
+
+	TAssert(fd);
+
+	struct stat file_statbuf;
+
+	fstat(fd, &file_statbuf);
+	int starting_size = file_statbuf.st_size;
+
+	// The system only gives us allocations at a granularity of 4k, any smaller allocation
+	// will include wasted space. So, roll this allocation up to the next nonzero 4k.
+	int page_size = sysconf(_SC_PAGESIZE);
+	int remainder = stb_mod_eucl(starting_size, page_size);
+	int aligned_size;
+	if (remainder)
+		aligned_size = starting_size - stb_mod_eucl(starting_size, page_size) + page_size;
+	else
+		aligned_size = std::max(starting_size, page_size);
+
+	ftruncate(fd, aligned_size);
+
+	mapping_info->m_file_handle = (size_t)fd;
+	mapping_info->m_memory_size = aligned_size;
+	mapping_info->m_memory = mmap(nullptr, file_statbuf.st_size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
 }
 
 void UnmapFile(FileMappingInfo* mapping_info)
 {
-	TUnimplemented();
+	munmap(mapping_info->m_memory, mapping_info->m_memory_size);
+	close(mapping_info->m_file_handle);
 }
 
 void InitializeNetworking()

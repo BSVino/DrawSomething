@@ -126,7 +126,7 @@ cl %CommonFlags% %CommonPreprocs% %ServerInclude%^
 	ds_main_server.cpp ../shared/buckets.cpp server_buckets.cpp^
 	../shared/net_ds.cpp ../../tinker/shared/net_shared.cpp ../../tinker/server/net_host.cpp^
 	game/s_artist.cpp^
-	/link %CommonLinkerFlags% -dll TinkerLib.lib enet.lib /OUT:"%ProjectOutputDir%\DrawSomethingServer.dll" /PDB:"%ProjectOutputDir%\DrawSomethingServer.pdb" 
+	/link %CommonLinkerFlags% -dll TinkerLib.lib enet.lib /OUT:"%ProjectOutputDir%\server.dll" /PDB:"%ProjectOutputDir%\server.pdb" 
 if %errorlevel% neq 0 exit /b %errorlevel%
 popd
 
@@ -144,7 +144,7 @@ cl %CommonFlags% %ClientPreprocs% %ClientInclude%^
     renderer/ds_renderer.cpp ../../tinker/client/renderer/renderer.cpp ../../tinker/client/renderer/context.cpp ../../tinker/client/renderer/shaders.cpp ../../tinker/client/renderer/skybox.cpp^
     ../shared/net_ds.cpp ../../tinker/shared/net_shared.cpp ../../tinker/client/net_client.cpp^
     %ProjectDir%\..\viewback\server\viewback.c^
-    /link %CommonLinkerFlags% -dll TinkerLib.lib enet.lib %OutputDir%\gl3w.obj /OUT:"%ProjectOutputDir%\DrawSomethingClient.dll" /PDB:"%ProjectOutputDir%\DrawSomethingClient.pdb" 
+    /link %CommonLinkerFlags% -dll TinkerLib.lib enet.lib %OutputDir%\gl3w.obj /OUT:"%ProjectOutputDir%\client.dll" /PDB:"%ProjectOutputDir%\client.pdb" 
 if %errorlevel% neq 0 exit /b %errorlevel%
 popd
 

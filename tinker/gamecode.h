@@ -25,7 +25,9 @@ struct GameCode
 #ifdef _DEBUG
 	time_t m_binary_modified_time;
 #endif
-	const char*  m_binary_name;
+
+#define BINARY_NAME_SIZE 1024
+	char m_binary_name[BINARY_NAME_SIZE];
 
 	GameData m_game_data;
 

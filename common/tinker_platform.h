@@ -54,7 +54,9 @@ void SetCurrentDirectory(const char* dir);
 struct FileMappingInfo
 {
 	size_t m_file_handle;
+#ifdef _WIN32
 	size_t m_file_mapping_handle;
+#endif
 	size_t m_memory_size;
 	void*  m_memory;
 	uint8  m_created : 1;
