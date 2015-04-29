@@ -126,7 +126,7 @@ PRAGMA_WARNING_POP \
 #define TCheck(x) TAssert(x)
 
 #if defined(__ANDROID__)
-// If you hit this, the code is either incomplete or untested.
+// If you hit this, the code incomplete.
 #define TUnimplemented() do { \
 	char s[1000]; \
 	sprintf(s, "TUnimplemented file " __FILE__ " line %d\n", __LINE__); \
@@ -134,9 +134,12 @@ PRAGMA_WARNING_POP \
 	TAssertNoMsg(false); \
 	} while (0)
 #else
-// If you hit this, the code is either incomplete or untested.
+// If you hit this, the code incomplete.
 #define TUnimplemented() TAssert(false)
 #endif
+
+// I wrote some code but I didn't test it. If you hit this, the code may have bugs.
+#define TUntested() TAssert(false)
 
 #ifdef _DEBUG
 
@@ -222,5 +225,7 @@ typedef uint64_t uint64;
 #else
 #define TStackAllocate(type, name, bytes) type name[bytes]
 #endif
+
+#define TArraySize(x) (sizeof(x)/sizeof(x[0]))
 
 #endif

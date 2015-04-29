@@ -184,13 +184,14 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 	if (file_mapping->m_memory.m_created)
 		file_mapping->CreateSaveFileHeader();
 
-	auto* pointers = file_mapping->m_header->GetBucketSections(&bucket->m_coordinates);
-
-	if (pointers->m_strokes_section == TInvalid(uint32))
+	// We are not caching the result of GetBucketSections because it invalidates over Alloc().
+	if (file_mapping->m_header->GetBucketSections(&bucket->m_coordinates)->m_strokes_section == TInvalid(uint32))
 		file_mapping->AllocStrokes(sizeof(StrokeInfo) * 100, &bc); // Room for 100 stroke fragments
 
-	if (pointers->m_verts_section == TInvalid(uint32))
+	if (file_mapping->m_header->GetBucketSections(&bucket->m_coordinates)->m_verts_section == TInvalid(uint32))
 		file_mapping->AllocVerts(sizeof(vec3) * 1000, &bc); // Room for 1000 stroke points
+
+	auto* pointers = file_mapping->m_header->GetBucketSections(&bucket->m_coordinates);
 
 	auto* strokes_section = &file_mapping->m_header->m_sections[pointers->m_strokes_section];
 	auto* verts_section = &file_mapping->m_header->m_sections[pointers->m_verts_section];
@@ -227,6 +228,11 @@ void ServerBuckets::FileMapping::CreateSaveFileHeader()
 			}
 		}
 	}
+
+	m_header->m_first_section = -1;
+
+	for (int k = 0; k < TArraySize(m_header->m_sections); k++)
+		m_header->m_sections[k].m_next = -1;
 }
 
 uint32 ServerBuckets::FileMapping::AllocStrokes(uint32 size, BucketCoordinate* bc)
@@ -256,44 +262,88 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 	if (remainder)
 		size = size - remainder + 64;
 
-	if (!m_header->m_sections[0].m_length)
+	if (m_header->m_first_section < 0)
 	{
 		// This is the very first allocation.
+
+		int32 bytes_remaining = (int32)m_memory.m_memory_size - m_header_size;
+
+		if (bytes_remaining < size)
+		{
+			// We need to expand the file
+			ResizeMap(&m_memory, m_memory.m_memory_size * 2 + size);
+			m_header = (FileMapping::SaveFileHeader*)m_memory.m_memory;
+
+			bytes_remaining = (int32)m_memory.m_memory_size - m_header_size;
+		}
+
+		TAssert(bytes_remaining >= size);
 		TAssert(size <= m_memory.m_memory_size);
 		m_header->m_sections[0].m_length = size;
 		m_header->m_sections[0].m_start = m_header_size;
+		m_header->m_sections[0].m_next = -1;
+		m_header->m_first_section = 0;
 		return 0;
 	}
 
-	for (int k = 0; k < FILE_BUCKET_WIDTH * FILE_BUCKET_WIDTH * FILE_BUCKET_WIDTH * 2; k++)
+	// Find an unused section to hold the info.
+	int alloc_section = -1;
+	for (int k = 0; k < TArraySize(m_header->m_sections); k++)
 	{
-		if (!m_header->m_sections[k].m_length)
+		if (m_header->m_sections[k].m_length == 0)
 		{
-			// We've come to the end of the list with no openings in the middle, we can put it here.
+			alloc_section = k;
+			break;
+		}
+	}
 
-			TAssert(k > 0); // Should never happen since it's handled before this loop.
+	TAssert(alloc_section >= 0);
 
-			uint32 start = m_header->m_sections[k-1].m_start + m_header->m_sections[k-1].m_length;
+	int prev_section = -1;
+	int curr_section = m_header->m_first_section;
+
+	// I don't see any reason for this not to be true. If it ever becomes
+	// not true then we need to check for space before the first section.
+	TAssert(m_header->m_sections[curr_section].m_start == m_header_size);
+
+	while (true)
+	{
+		TAssert(curr_section >= 0);
+
+		if (m_header->m_sections[curr_section].m_next < 0)
+		{
+			// This is the last one, we can allocate stuff after it.
+
+			int32 start = m_header->m_sections[curr_section].m_start + m_header->m_sections[curr_section].m_length;
+
+			TAssert(start <= m_memory.m_memory_size);
 
 			// Return memory aligned to a cache line.
 			int remainder = stb_mod_eucl(start, 64);
 			if (remainder)
 				start = start - remainder + 64;
 
-			TAssert(start <= m_memory.m_memory_size);
-			uint32 bytes_remaining = (uint32)m_memory.m_memory_size - start;
+			int32 bytes_remaining = (int32)m_memory.m_memory_size - start;
 
 			if (bytes_remaining < size)
 			{
-				// We need to expand the file.
-				TUnimplemented();
+				// We need to expand the file
+				TUntested();
+
+				ResizeMap(&m_memory, m_memory.m_memory_size * 2 + size);
+				m_header = (FileMapping::SaveFileHeader*)m_memory.m_memory;
+
+				bytes_remaining = (int32)m_memory.m_memory_size - start;
 			}
 
 			TAssert(bytes_remaining >= size);
-			m_header->m_sections[k].m_start = start;
-			m_header->m_sections[k].m_length = size;
-			return k;
+			m_header->m_sections[alloc_section].m_start = start;
+			m_header->m_sections[alloc_section].m_length = size;
+			m_header->m_sections[alloc_section].m_next = -1;
+			m_header->m_sections[curr_section].m_next = alloc_section;
+			return alloc_section;
 		}
+		TUnimplemented();
 	}
 
 	return 0;

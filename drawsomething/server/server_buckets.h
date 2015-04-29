@@ -25,9 +25,12 @@ struct ServerBuckets
 
 			struct MemorySection
 			{
-				uint32 m_start;
-				uint32 m_length;
+				int32 m_start;
+				int32 m_length;
+				int8  m_next;
 			} m_sections[FILE_BUCKET_WIDTH * FILE_BUCKET_WIDTH * FILE_BUCKET_WIDTH * 2];
+
+			int8 m_first_section;
 
 			BucketSections* GetBucketSections(AlignedCoordinate* ac)
 			{

@@ -226,13 +226,13 @@ void MapFile(char* filename, FileMappingInfo* /*OUT*/ mapping_info)
 
 	int fd = open(filename, O_RDWR);
 
-	if (!fd)
+	if (fd < 0)
 	{
 		fd = open(filename, O_CREAT | O_TRUNC | O_RDWR);
 		mapping_info->m_created = true;
 	}
 
-	TAssert(fd);
+	TAssert(fd >= 0);
 
 	struct stat file_statbuf;
 
@@ -249,11 +249,44 @@ void MapFile(char* filename, FileMappingInfo* /*OUT*/ mapping_info)
 	else
 		aligned_size = std::max(starting_size, page_size);
 
-	ftruncate(fd, aligned_size);
+	int truncated = ftruncate(fd, aligned_size);
+	TAssert(truncated == 0);
 
 	mapping_info->m_file_handle = (size_t)fd;
 	mapping_info->m_memory_size = aligned_size;
-	mapping_info->m_memory = mmap(nullptr, file_statbuf.st_size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
+	mapping_info->m_memory = mmap(nullptr, aligned_size, PROT_READ|PROT_WRITE, MAP_FILE|MAP_SHARED, fd, 0);
+
+	TAssert(mapping_info->m_memory != MAP_FAILED);
+}
+
+void ResizeMap(FileMappingInfo* mapping_info, size_t minimum_size)
+{
+	munmap(mapping_info->m_memory, mapping_info->m_memory_size);
+
+	struct stat file_statbuf;
+
+	fstat(mapping_info->m_file_handle, &file_statbuf);
+	int file_size = file_statbuf.st_size;
+
+	// I'm not sure this will ever happen. If years go by and this assert is
+	// never hit then the fstat and the next tmax below can be removed.
+	TAssert(file_size <= minimum_size);
+
+	minimum_size = tmax(minimum_size, file_size);
+
+	int page_size = sysconf(_SC_PAGESIZE);
+	int remainder = stb_mod_eucl(minimum_size, page_size);
+	int aligned_size;
+	if (remainder)
+		aligned_size = minimum_size - stb_mod_eucl(minimum_size, page_size) + page_size;
+	else
+		aligned_size = tmax(minimum_size, page_size);
+
+	int truncated = ftruncate(mapping_info->m_file_handle, aligned_size);
+	TAssert(truncated == 0);
+
+	mapping_info->m_memory_size = aligned_size;
+	mapping_info->m_memory = mmap(nullptr, aligned_size, PROT_READ|PROT_WRITE, MAP_FILE|MAP_SHARED, mapping_info->m_file_handle, 0);
 }
 
 void UnmapFile(FileMappingInfo* mapping_info)

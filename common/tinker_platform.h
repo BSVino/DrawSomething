@@ -63,6 +63,7 @@ struct FileMappingInfo
 };
 
 void MapFile(char* filename, FileMappingInfo* /*OUT*/ mapping_info);
+void ResizeMap(FileMappingInfo* mapping_info, size_t minimum_size);
 void UnmapFile(FileMappingInfo* mapping_info);
 
 #ifdef _WIN32
