@@ -17,7 +17,7 @@ struct DSNetShared
 
 #define MAX_OUTGOING_COMMANDS 4
 #define MAX_ACKNOWLEDGEMENTS 4
-#define MAX_PACKETS 4
+#define MAX_PACKETS 8
 #define DATA_LENGTH 32
 #define MAX_DATA 4
 
