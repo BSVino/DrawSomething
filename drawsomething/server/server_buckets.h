@@ -79,5 +79,7 @@ struct ServerBuckets
 
 	FileMappingIndex FindMapping(AlignedCoordinate* bc, FileMappingIndex* empty = nullptr);
 	FileMappingIndex LoadBucket(BucketHeader* bucket);
+
+	BucketHeader* RetrieveBucket(BucketCoordinate* bc);
 };
 

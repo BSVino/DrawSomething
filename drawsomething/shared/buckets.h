@@ -51,6 +51,7 @@ struct StrokeCoordinate
 	BucketCoordinate m_bucket;
 	StrokeIndex m_stroke_index;
 
+	void Set(BucketCoordinate* bc, StrokeIndex* si);
 	bool Valid();
 	void Invalidate();
 	bool Equals(StrokeCoordinate* other);

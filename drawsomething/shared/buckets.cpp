@@ -63,6 +63,12 @@ AlignedCoordinate AlignedCoordinate::Aligned(BucketCoordinate* bc)
 	return aligned;
 }
 
+void StrokeCoordinate::Set(BucketCoordinate* bc, StrokeIndex* si)
+{
+	m_bucket = *bc;
+	m_stroke_index = *si;
+}
+
 bool StrokeCoordinate::Valid()
 {
 	return m_stroke_index != TInvalid(StrokeIndex);

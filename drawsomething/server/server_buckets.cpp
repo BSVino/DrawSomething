@@ -19,29 +19,7 @@ void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 	bc.y = (BucketIndex)floor(point->y);
 	bc.z = (BucketIndex)floor(point->z);
 
-	AlignedCoordinate ac = AlignedCoordinate::Aligned(&bc);
-
-	BucketHashIndex hash_index = m_shared.BucketHash_Find(&bc);
-
-	if (hash_index == TInvalid(BucketHashIndex))
-	{
-		TUnimplemented(); // We need to drop a bucket and try again.
-	}
-
-	BucketHeader* bucket_header = &m_shared.m_buckets_hash[hash_index];
-
-	// Either it's an empty slot or it contains our bucket, otherwise we have a problem.
-	TAssert(!bucket_header->Valid() || bucket_header->m_coordinates.Equals(&ac));
-
-	if (!bucket_header->Valid())
-	{
-		// Either it doesn't exist or it needs to be loaded from disk.
-		bucket_header->Initialize(&ac);
-		bucket_header->m_file_mapping = LoadBucket(bucket_header);
-	}
-	else
-		// It's already in memory.
-		bucket_header->Touch();
+	BucketHeader* bucket_header = RetrieveBucket(&bc);
 
 	ServerArtist* server_artist = &g_server_data->m_server_artists[from_peer];
 
@@ -65,7 +43,38 @@ void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 			*PushVert(bucket_header, stroke) = *point;
 		}
 		else
-			TUnimplemented();
+		{
+			// The last stroke in the current bucket is not the stroke we've
+			// been working on.
+
+			if (server_artist->m_current_stroke.m_bucket.Equals(&bc))
+			{
+				// We're in the same bucket but we're not the most current stroke.
+				// This can happen if another artist is drawing in the same bucket.
+				TUnimplemented();
+			}
+			else
+			{
+				// The previous part of this stroke is in another bucket.
+				BucketHeader* previous_bucket_header = RetrieveBucket(&server_artist->m_current_stroke.m_bucket);
+				TAssert(bucket_header->Valid()); // Hopefully the old one wasn't pushed out.
+				TAssert(previous_bucket_header->Valid());
+
+				StrokeInfo* previous_stroke = &previous_bucket_header->m_strokes[server_artist->m_current_stroke.m_stroke_index];
+				TAssert(!previous_stroke->m_next.Valid());
+
+				StrokeInfo* new_stroke = PushStroke(bucket_header);
+				StrokeIndex new_stroke_index = bucket_header->m_num_strokes-1;
+				TAssert(new_stroke == &bucket_header->m_strokes[new_stroke_index]);
+
+				*PushVert(bucket_header, new_stroke) = *point;
+
+				previous_stroke->m_next.Set(&bc, &new_stroke_index);
+				new_stroke->m_previous = server_artist->m_current_stroke;
+
+				server_artist->m_current_stroke.Set(&bc, &new_stroke_index);
+			}
+		}
 	}
 }
 
@@ -213,6 +222,35 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 	return index;
 }
 
+BucketHeader* ServerBuckets::RetrieveBucket(BucketCoordinate* bc)
+{
+	AlignedCoordinate ac = AlignedCoordinate::Aligned(bc);
+
+	BucketHashIndex hash_index = m_shared.BucketHash_Find(bc);
+
+	if (hash_index == TInvalid(BucketHashIndex))
+	{
+		TUnimplemented(); // We need to drop a bucket and try again.
+	}
+
+	BucketHeader* bucket_header = &m_shared.m_buckets_hash[hash_index];
+
+	// Either it's an empty slot or it contains our bucket, otherwise we have a problem.
+	TAssert(!bucket_header->Valid() || bucket_header->m_coordinates.Equals(&ac));
+
+	if (!bucket_header->Valid())
+	{
+		// Either it doesn't exist or it needs to be loaded from disk.
+		bucket_header->Initialize(&ac);
+		bucket_header->m_file_mapping = LoadBucket(bucket_header);
+	}
+	else
+		// It's already in memory.
+		bucket_header->Touch();
+
+	return bucket_header;
+}
+
 void ServerBuckets::FileMapping::CreateSaveFileHeader()
 {
 	memset(m_header, 0, sizeof(*m_header));
@@ -328,8 +366,6 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 			if (bytes_remaining < size)
 			{
 				// We need to expand the file
-				TUntested();
-
 				ResizeMap(&m_memory, m_memory.m_memory_size * 2 + size);
 				m_header = (FileMapping::SaveFileHeader*)m_memory.m_memory;
 
