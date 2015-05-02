@@ -42,7 +42,7 @@ struct ServerBuckets
 			}
 		}* m_header;
 
-		uint32 m_header_size;
+		uint32 m_header_size; // TODO: Move this up to ServerBuckets
 
 		FileMapping()
 		{

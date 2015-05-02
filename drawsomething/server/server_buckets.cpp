@@ -149,11 +149,8 @@ FileMappingIndex ServerBuckets::FindMapping(AlignedCoordinate* aligned, FileMapp
 		if (!m_file_mappings[k].Valid())
 			emptyempty = (FileMappingIndex)k;
 		else if (m_file_mappings[k].m_bc.Equals(&aligned->m_aligned))
-		{
 			// We found The One
-			TUnimplemented();
 			return (FileMappingIndex)k;
-		}
 	}
 
 	if (empty)
@@ -166,6 +163,7 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 {
 	FileMappingIndex empty;
 	FileMappingIndex index = FindMapping(&bucket->m_coordinates, &empty);
+	printf("LoadBucket bucket %d %d %d, found mapping index: %d\n", bucket->m_coordinates.m_bucket.x, bucket->m_coordinates.m_bucket.y, bucket->m_coordinates.m_bucket.z, index);
 
 	if (empty == TInvalid(FileMappingIndex) && index == TInvalid(FileMappingIndex))
 	{
@@ -182,16 +180,19 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 
 	FileMapping* file_mapping = &m_file_mappings[index];
 
-	char filename[100];
-	sprintf(filename, "strokes_%d_%d_%d.sav", aligned.x, aligned.y, aligned.z);
+	if (!file_mapping->Valid())
+	{
+		char filename[100];
+		sprintf(filename, "strokes_%d_%d_%d.sav", aligned.x, aligned.y, aligned.z);
 
-	MapFile(filename, &file_mapping->m_memory);
+		MapFile(filename, &file_mapping->m_memory);
 
-	file_mapping->m_header = (FileMapping::SaveFileHeader*)file_mapping->m_memory.m_memory;
-	file_mapping->m_bc = aligned;
+		file_mapping->m_header = (FileMapping::SaveFileHeader*)file_mapping->m_memory.m_memory;
+		file_mapping->m_bc = aligned;
 
-	if (file_mapping->m_memory.m_created)
-		file_mapping->CreateSaveFileHeader();
+		if (file_mapping->m_memory.m_created)
+			file_mapping->CreateSaveFileHeader();
+	}
 
 	// We are not caching the result of GetBucketSections because it invalidates over Alloc().
 	if (file_mapping->m_header->GetBucketSections(&bucket->m_coordinates)->m_strokes_section == TInvalid(uint32))
@@ -227,6 +228,7 @@ BucketHeader* ServerBuckets::RetrieveBucket(BucketCoordinate* bc)
 	AlignedCoordinate ac = AlignedCoordinate::Aligned(bc);
 
 	BucketHashIndex hash_index = m_shared.BucketHash_Find(bc);
+	printf("RetrieveBucket bucket %d %d %d, hash index: %d\n", bc->x, bc->y, bc->z, hash_index);
 
 	if (hash_index == TInvalid(BucketHashIndex))
 	{
