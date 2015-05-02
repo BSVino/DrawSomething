@@ -163,7 +163,6 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 {
 	FileMappingIndex empty;
 	FileMappingIndex index = FindMapping(&bucket->m_coordinates, &empty);
-	printf("LoadBucket bucket %d %d %d, found mapping index: %d\n", bucket->m_coordinates.m_bucket.x, bucket->m_coordinates.m_bucket.y, bucket->m_coordinates.m_bucket.z, index);
 
 	if (empty == TInvalid(FileMappingIndex) && index == TInvalid(FileMappingIndex))
 	{
@@ -228,7 +227,6 @@ BucketHeader* ServerBuckets::RetrieveBucket(BucketCoordinate* bc)
 	AlignedCoordinate ac = AlignedCoordinate::Aligned(bc);
 
 	BucketHashIndex hash_index = m_shared.BucketHash_Find(bc);
-	printf("RetrieveBucket bucket %d %d %d, hash index: %d\n", bc->x, bc->y, bc->z, hash_index);
 
 	if (hash_index == TInvalid(BucketHashIndex))
 	{
@@ -342,9 +340,11 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 	int prev_section = -1;
 	int curr_section = m_header->m_first_section;
 
-	// I don't see any reason for this not to be true. If it ever becomes
-	// not true then we need to check for space before the first section.
-	TAssert(m_header->m_sections[curr_section].m_start == m_header_size);
+	if (m_header->m_sections[curr_section].m_start > m_header_size)
+	{
+		// We need to check the space before the first section.
+		TUnimplemented();
+	}
 
 	while (true)
 	{
@@ -381,7 +381,20 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 			m_header->m_sections[curr_section].m_next = alloc_section;
 			return alloc_section;
 		}
-		TUnimplemented();
+		else
+		{
+			int next_section = m_header->m_sections[curr_section].m_next;
+			int32 next_start = m_header->m_sections[next_section].m_start;
+			int32 this_start = m_header->m_sections[curr_section].m_start;
+			int32 this_length = m_header->m_sections[curr_section].m_length;
+
+			if (next_start - (this_start + this_length) > size)
+			{
+				TUnimplemented();
+			}
+
+			curr_section = next_section;
+		}
 	}
 
 	return 0;
