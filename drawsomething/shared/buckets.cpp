@@ -11,7 +11,7 @@
 
 BucketHashIndex BucketHash_Hash(BucketCoordinate* coordinate)
 {
-	return ((coordinate->x * 3985513591) + (coordinate->y * 2283571245) + (coordinate->z * 806576490)) % NUM_BUCKETS;
+	return (uint32)(((coordinate->x * 3985513591) + (coordinate->y * 2283571245) + (coordinate->z * 806576490))) % NUM_BUCKETS;
 }
 
 BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
@@ -23,6 +23,7 @@ BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
 
 	r = BucketHash_Hash(coordinate);
 	BucketHashIndex first = r;
+	TAssert(first < NUM_BUCKETS);
 	while (m_buckets_hash[r].Valid())
 	{
 		if (m_buckets_hash[r].m_coordinates.m_bucket.Equals(coordinate))
