@@ -97,9 +97,13 @@ struct BucketHeader
 
 struct SharedBuckets
 {
+	// m_buckets_hash : BucketHashIndex -> BucketHeader
 	BucketHeader m_buckets_hash[NUM_BUCKETS];
 
 	BucketHashIndex BucketHash_Find(BucketCoordinate* coordinate);
+
+	// Least recently used
+	void GetLRUBucket(BucketHashIndex* LRU, double* LRU_time);
 
 	SharedBuckets()
 	{

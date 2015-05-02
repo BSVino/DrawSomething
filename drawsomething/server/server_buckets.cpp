@@ -178,6 +178,7 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 	BucketCoordinate aligned = bucket->m_coordinates.m_aligned;
 
 	FileMapping* file_mapping = &m_file_mappings[index];
+	file_mapping->m_num_active_buckets++;
 
 	if (!file_mapping->Valid())
 	{
@@ -230,7 +231,9 @@ BucketHeader* ServerBuckets::RetrieveBucket(BucketCoordinate* bc)
 
 	if (hash_index == TInvalid(BucketHashIndex))
 	{
-		TUnimplemented(); // We need to drop a bucket and try again.
+		UnloadLRUBucket();
+		hash_index = m_shared.BucketHash_Find(bc);
+		TAssert(hash_index != TInvalid(BucketHashIndex));
 	}
 
 	BucketHeader* bucket_header = &m_shared.m_buckets_hash[hash_index];
@@ -249,6 +252,34 @@ BucketHeader* ServerBuckets::RetrieveBucket(BucketCoordinate* bc)
 		bucket_header->Touch();
 
 	return bucket_header;
+}
+
+void ServerBuckets::UnloadLRUBucket()
+{
+	double LRU_time;
+	BucketHashIndex LRU;
+
+	m_shared.GetLRUBucket(&LRU, &LRU_time);
+
+	UnloadBucket(LRU);
+}
+
+void ServerBuckets::UnloadBucket(BucketHashIndex i)
+{
+	TAssert(m_shared.m_buckets_hash[i].Valid());
+
+	BucketHeader* header = &m_shared.m_buckets_hash[i];
+	FileMappingIndex file_mapping_index = header->m_file_mapping;
+
+	TAssert(file_mapping_index != TInvalid(FileMappingIndex));
+
+	FileMapping* file_mapping = &m_file_mappings[file_mapping_index];
+
+	file_mapping->m_num_active_buckets--;
+
+	header->Invalidate();
+
+	TAssert(!m_shared.m_buckets_hash[i].Valid());
 }
 
 void ServerBuckets::FileMapping::CreateSaveFileHeader()
@@ -399,4 +430,3 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 
 	return 0;
 }
-

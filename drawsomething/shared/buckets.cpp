@@ -37,6 +37,24 @@ BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
 	return r;
 }
 
+void SharedBuckets::GetLRUBucket(BucketHashIndex* LRU, double* LRU_time)
+{
+	double lru_time = g_server_data->m_game_time + 1;
+	BucketHashIndex lru = -1;
+
+	for (int k = 0; k < NUM_BUCKETS; k++)
+	{
+		if (m_buckets_hash[k].m_last_used_time < lru_time)
+		{
+			lru = k;
+			lru_time = m_buckets_hash[k].m_last_used_time;
+		}
+	}
+
+	*LRU = lru;
+	*LRU_time = lru_time;
+}
+
 bool BucketCoordinate::Equals(BucketCoordinate* other)
 {
 	return (x == other->x && y == other->y && z == other->z);

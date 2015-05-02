@@ -42,11 +42,13 @@ struct ServerBuckets
 			}
 		}* m_header;
 
-		uint32 m_header_size; // TODO: Move this up to ServerBuckets
+		uint32 m_header_size; // TODO: Move this up to ServerBuckets to save memory
+		uint8 m_num_active_buckets; // How many of the buckets in this file are using it?
 
 		FileMapping()
 		{
 			m_header = nullptr;
+			m_num_active_buckets = 0;
 
 			m_header_size = sizeof(SaveFileHeader);
 
@@ -81,5 +83,8 @@ struct ServerBuckets
 	FileMappingIndex LoadBucket(BucketHeader* bucket);
 
 	BucketHeader* RetrieveBucket(BucketCoordinate* bc);
+
+	void UnloadLRUBucket();
+	void UnloadBucket(BucketHashIndex i);
 };
 
