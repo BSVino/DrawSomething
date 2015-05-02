@@ -15,7 +15,7 @@ struct DSNetShared
 	replicated_entity_t m_replicated_artist;
 };
 
-#define MAX_OUTGOING_COMMANDS 4
+#define MAX_OUTGOING_COMMANDS 8
 #define MAX_ACKNOWLEDGEMENTS 4
 #define MAX_PACKETS 8
 #define DATA_LENGTH 32
