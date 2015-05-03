@@ -70,6 +70,9 @@ struct ServerBuckets
 
 		// Caller's responsibility to fix up m_buckets
 		uint32 Alloc(uint32 size);
+		void ResizeMap(uint32 size);
+
+		void UpdateSectionPointers(BucketHeader* bucket);
 	} m_file_mappings[NUM_FILE_MAPPINGS];
 
 	void AddNewStroke(net_peer_t from_peer);

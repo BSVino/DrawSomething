@@ -201,24 +201,17 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 	if (file_mapping->m_header->GetBucketSections(&bucket->m_coordinates)->m_verts_section == TInvalid(uint32))
 		file_mapping->AllocVerts(sizeof(vec3) * 1000, &bc); // Room for 1000 stroke points
 
+	file_mapping->UpdateSectionPointers(bucket);
+
 	auto* pointers = file_mapping->m_header->GetBucketSections(&bucket->m_coordinates);
 
 	auto* strokes_section = &file_mapping->m_header->m_sections[pointers->m_strokes_section];
 	auto* verts_section = &file_mapping->m_header->m_sections[pointers->m_verts_section];
 
-	uint32 strokes_start = strokes_section->m_start;
-	uint32 verts_start = verts_section->m_start;
-
-	bucket->m_strokes = (StrokeInfo*)((uint8*)file_mapping->m_memory.m_memory + strokes_start);
-	bucket->m_verts = (vec3*)((uint8*)file_mapping->m_memory.m_memory + verts_start);
-
 	bucket->m_num_strokes = pointers->m_num_strokes;
 	bucket->m_num_verts = pointers->m_num_verts;
 	bucket->m_max_strokes = strokes_section->m_length/sizeof(StrokeInfo);
 	bucket->m_max_verts = verts_section->m_length/sizeof(vec3);
-
-	TAssert(stb_mod_eucl((size_t)bucket->m_strokes, 64) == 0);
-	TAssert(stb_mod_eucl((size_t)bucket->m_verts, 64) == 0);
 
 	return index;
 }
@@ -339,9 +332,7 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 
 		if (bytes_remaining < size)
 		{
-			// We need to expand the file
-			ResizeMap(&m_memory, m_memory.m_memory_size * 2 + size);
-			m_header = (FileMapping::SaveFileHeader*)m_memory.m_memory;
+			ResizeMap(size);
 
 			bytes_remaining = (int32)m_memory.m_memory_size - m_header_size;
 		}
@@ -398,9 +389,7 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 
 			if (bytes_remaining < size)
 			{
-				// We need to expand the file
-				ResizeMap(&m_memory, m_memory.m_memory_size * 2 + size);
-				m_header = (FileMapping::SaveFileHeader*)m_memory.m_memory;
+				ResizeMap(size);
 
 				bytes_remaining = (int32)m_memory.m_memory_size - start;
 			}
@@ -429,4 +418,43 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 	}
 
 	return 0;
+}
+
+// If this proc has bad prof then it can be rewritten to iterate only buckets in
+// this file mapping, but the file mapping would have to be modified to store that.
+void ServerBuckets::FileMapping::ResizeMap(uint32 size)
+{
+	// We need to expand the file
+	::ResizeMap(&m_memory, m_memory.m_memory_size * 2 + size);
+	m_header = (FileMapping::SaveFileHeader*)m_memory.m_memory;
+
+	// Remapping the memory invalidated stroke and vert pointers, now we should
+	// update them.
+	for (int k = 0; k < NUM_BUCKETS; k++)
+	{
+		BucketHeader* bucket = &g_server_data->m_buckets.m_shared.m_buckets_hash[k];
+
+		UpdateSectionPointers(bucket);
+	}
+}
+
+void ServerBuckets::FileMapping::UpdateSectionPointers(BucketHeader* bucket)
+{
+	auto* pointers = m_header->GetBucketSections(&bucket->m_coordinates);
+
+	if (pointers->m_strokes_section != TInvalid(uint32))
+	{
+		auto* strokes_section = &m_header->m_sections[pointers->m_strokes_section];
+		uint32 strokes_start = strokes_section->m_start;
+		bucket->m_strokes = (StrokeInfo*)((uint8*)m_memory.m_memory + strokes_start);
+		TAssert(stb_mod_eucl((size_t)bucket->m_strokes, 64) == 0);
+	}
+
+	if (pointers->m_verts_section != TInvalid(uint32))
+	{
+		auto* verts_section = &m_header->m_sections[pointers->m_verts_section];
+		uint32 verts_start = verts_section->m_start;
+		bucket->m_verts = (vec3*)((uint8*)m_memory.m_memory + verts_start);
+		TAssert(stb_mod_eucl((size_t)bucket->m_verts, 64) == 0);
+	}
 }
