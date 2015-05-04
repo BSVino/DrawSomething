@@ -40,7 +40,7 @@ BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
 void SharedBuckets::GetLRUBucket(BucketHashIndex* LRU, double* LRU_time)
 {
 	double lru_time = g_server_data->m_game_time + 1;
-	BucketHashIndex lru = -1;
+	BucketHashIndex lru = TInvalid(BucketHashIndex);
 
 	for (int k = 0; k < NUM_BUCKETS; k++)
 	{

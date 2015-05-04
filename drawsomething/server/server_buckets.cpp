@@ -167,8 +167,12 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 	if (empty == TInvalid(FileMappingIndex) && index == TInvalid(FileMappingIndex))
 	{
 		// There are no empty slots and we couldn't find the right mapping.
-		TUnimplemented(); // Kick something else out?
-		return TInvalid(FileMappingIndex);
+		UnloadInvactiveMappings();
+
+		index = FindMapping(&bucket->m_coordinates, &empty);
+
+		// Since we just freed one up, we should find a valid empty spot.
+		TAssert(index == TInvalid(FileMappingIndex) && empty != TInvalid(FileMappingIndex));
 	}
 
 	if (index == TInvalid(FileMappingIndex))
@@ -254,6 +258,9 @@ void ServerBuckets::UnloadLRUBucket()
 
 	m_shared.GetLRUBucket(&LRU, &LRU_time);
 
+	TAssert(LRU != TInvalid(BucketHashIndex));
+	TAssert(m_shared.m_buckets_hash[LRU].Valid());
+
 	UnloadBucket(LRU);
 }
 
@@ -273,6 +280,27 @@ void ServerBuckets::UnloadBucket(BucketHashIndex i)
 	header->Invalidate();
 
 	TAssert(!m_shared.m_buckets_hash[i].Valid());
+}
+
+void ServerBuckets::UnloadInvactiveMappings()
+{
+	FileMappingIndex available = TInvalid(FileMappingIndex);
+
+	for (int k = 0; k < NUM_BUCKETS; k++)
+	{
+		if (!m_file_mappings[k].m_num_active_buckets)
+		{
+			available = k;
+			break;
+		}
+	}
+
+	TAssert(available != TInvalid(FileMappingIndex));
+	TAssert(m_file_mappings[available].Valid());
+
+	UnmapFile(&m_file_mappings[available].m_memory);
+
+	m_file_mappings[available].m_header = nullptr; // Invalidate
 }
 
 void ServerBuckets::FileMapping::CreateSaveFileHeader()
