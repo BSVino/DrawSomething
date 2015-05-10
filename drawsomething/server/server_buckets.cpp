@@ -133,8 +133,7 @@ vec3* ServerBuckets::PushVert(BucketHeader* bucket_header, StrokeInfo* stroke)
 	FileMappingIndex index = bucket_header->m_file_mapping;
 	TAssert(index != TInvalid(FileMappingIndex));
 
-	auto* file_bucket = m_file_mappings[index].m_header->GetBucketSections(&bucket_header->m_coordinates);
-	file_bucket->m_num_verts++;
+	bucket_header->m_num_verts++;
 
 	return vert;
 }
@@ -276,6 +275,10 @@ void ServerBuckets::UnloadBucket(BucketHashIndex i)
 	FileMapping* file_mapping = &m_file_mappings[file_mapping_index];
 
 	file_mapping->m_num_active_buckets--;
+
+	auto* file_bucket = file_mapping->m_header->GetBucketSections(&header->m_coordinates);
+	file_bucket->m_num_strokes = header->m_num_strokes;
+	file_bucket->m_num_verts = header->m_num_verts;
 
 	header->Invalidate();
 
