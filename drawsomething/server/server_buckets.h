@@ -70,7 +70,12 @@ struct ServerBuckets
 
 		// Caller's responsibility to fix up m_buckets
 		uint32 Alloc(uint32 size);
+		void Free(uint32 section);
+
 		void ResizeMap(uint32 size);
+
+		void ExpandStrokes(BucketHeader* bucket);
+		void ExpandVerts(BucketHeader* bucket);
 
 		void UpdateSectionPointers(BucketHeader* bucket);
 	} m_file_mappings[NUM_FILE_MAPPINGS];
@@ -80,7 +85,7 @@ struct ServerBuckets
 	void EndStroke(net_peer_t from_peer);
 
 	StrokeInfo* PushStroke(BucketHeader* bucket_header);
-	vec3* PushVert(BucketHeader* bucket_header, StrokeInfo* stroke);
+	vec3* PushVert(BucketHeader* bucket_header, StrokeIndex stroke);
 
 	FileMappingIndex FindMapping(AlignedCoordinate* bc, FileMappingIndex* empty = nullptr);
 	FileMappingIndex LoadBucket(BucketHeader* bucket);

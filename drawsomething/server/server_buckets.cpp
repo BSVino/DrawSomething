@@ -25,22 +25,20 @@ void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 
 	if (server_artist->m_current_stroke.m_stroke_index == TInvalid(StrokeIndex))
 	{
-		*PushVert(bucket_header, PushStroke(bucket_header)) = *point;
+		StrokeInfo* new_stroke = PushStroke(bucket_header);
+		TAssert(new_stroke == &bucket_header->m_strokes[bucket_header->m_num_strokes-1]);
+		*PushVert(bucket_header, bucket_header->m_num_strokes-1) = *point;
 
 		server_artist->m_current_stroke.m_bucket = bucket_header->m_coordinates.m_bucket;
 		server_artist->m_current_stroke.m_stroke_index = bucket_header->m_num_strokes-1;
 	}
 	else
 	{
-		TAssert(bucket_header->m_num_verts < bucket_header->m_max_verts);
-
-		StrokeInfo* stroke = &bucket_header->m_strokes[server_artist->m_current_stroke.m_stroke_index];
-
 		StrokeCoordinate last_stroke = bucket_header->GetLastStroke();
 		if (server_artist->m_current_stroke.Equals(&last_stroke))
 		{
 			// If the last stroke in the bucket is our current stroke then we can just append.
-			*PushVert(bucket_header, stroke) = *point;
+			*PushVert(bucket_header, server_artist->m_current_stroke.m_stroke_index) = *point;
 		}
 		else
 		{
@@ -67,7 +65,7 @@ void ServerBuckets::AddPointToStroke(net_peer_t from_peer, vec3* point)
 				StrokeIndex new_stroke_index = bucket_header->m_num_strokes-1;
 				TAssert(new_stroke == &bucket_header->m_strokes[new_stroke_index]);
 
-				*PushVert(bucket_header, new_stroke) = *point;
+				*PushVert(bucket_header, new_stroke_index) = *point;
 
 				previous_stroke->m_next.Set(&bc, &new_stroke_index);
 				new_stroke->m_previous = server_artist->m_current_stroke;
@@ -106,6 +104,12 @@ void ServerBuckets::EndStroke(net_peer_t from_peer)
 
 StrokeInfo* ServerBuckets::PushStroke(BucketHeader* bucket_header)
 {
+	FileMappingIndex index = bucket_header->m_file_mapping;
+	TAssert(index != TInvalid(FileMappingIndex));
+
+	if (bucket_header->m_num_strokes >= bucket_header->m_max_strokes)
+		m_file_mappings[index].ExpandStrokes(bucket_header);
+
 	TAssert(bucket_header->m_num_strokes < bucket_header->m_max_strokes);
 
 	StrokeInfo* stroke = &bucket_header->m_strokes[bucket_header->m_num_strokes];
@@ -113,25 +117,27 @@ StrokeInfo* ServerBuckets::PushStroke(BucketHeader* bucket_header)
 
 	bucket_header->m_num_strokes++;
 
-	FileMappingIndex index = bucket_header->m_file_mapping;
-	TAssert(index != TInvalid(FileMappingIndex));
-
 	auto* file_bucket = m_file_mappings[index].m_header->GetBucketSections(&bucket_header->m_coordinates);
 	file_bucket->m_num_strokes++;
 
 	return stroke;
 }
 
-vec3* ServerBuckets::PushVert(BucketHeader* bucket_header, StrokeInfo* stroke)
+vec3* ServerBuckets::PushVert(BucketHeader* bucket_header, StrokeIndex stroke_index)
 {
+	FileMappingIndex index = bucket_header->m_file_mapping;
+	TAssert(index != TInvalid(FileMappingIndex));
+
+	if (bucket_header->m_num_verts >= bucket_header->m_max_verts)
+		m_file_mappings[index].ExpandVerts(bucket_header);
+
 	TAssert(bucket_header->m_num_verts < bucket_header->m_max_verts);
+
+	StrokeInfo* stroke = &bucket_header->m_strokes[stroke_index];
 
 	vec3* vert = &bucket_header->m_verts[stroke->m_first_vertex + stroke->m_num_verts];
 
 	stroke->m_num_verts++;
-
-	FileMappingIndex index = bucket_header->m_file_mapping;
-	TAssert(index != TInvalid(FileMappingIndex));
 
 	bucket_header->m_num_verts++;
 
@@ -199,7 +205,7 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 
 	// We are not caching the result of GetBucketSections because it invalidates over Alloc().
 	if (file_mapping->m_header->GetBucketSections(&bucket->m_coordinates)->m_strokes_section == TInvalid(uint32))
-		file_mapping->AllocStrokes(sizeof(StrokeInfo) * 100, &bc); // Room for 100 stroke fragments
+		file_mapping->AllocStrokes(sizeof(StrokeInfo) * 10, &bc); // Room for 100 stroke fragments
 
 	if (file_mapping->m_header->GetBucketSections(&bucket->m_coordinates)->m_verts_section == TInvalid(uint32))
 		file_mapping->AllocVerts(sizeof(vec3) * 1000, &bc); // Room for 1000 stroke points
@@ -393,10 +399,15 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 	int prev_section = -1;
 	int curr_section = m_header->m_first_section;
 
-	if (m_header->m_sections[curr_section].m_start > m_header_size)
+	if (m_header->m_sections[curr_section].m_start - m_header_size >= size)
 	{
-		// We need to check the space before the first section.
-		TUnimplemented();
+		TAssert(stb_mod_eucl(m_header_size, 64) == 0);
+
+		m_header->m_sections[alloc_section].m_start = m_header_size;
+		m_header->m_sections[alloc_section].m_length = size;
+		m_header->m_sections[alloc_section].m_next = m_header->m_first_section;
+		m_header->m_first_section = alloc_section;
+		return alloc_section;
 	}
 
 	while (true)
@@ -449,6 +460,77 @@ uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
 	}
 
 	return 0;
+}
+
+void ServerBuckets::FileMapping::Free(uint32 section)
+{
+	if (m_header->m_first_section == section)
+	{
+		m_header->m_sections[m_header->m_first_section].m_length = 0;
+		m_header->m_first_section = m_header->m_sections[m_header->m_first_section].m_next;
+		return;
+	}
+
+	int8 last_section = m_header->m_first_section;
+	int8 curr_section = m_header->m_sections[m_header->m_first_section].m_next;
+	while (curr_section != section)
+	{
+		last_section = curr_section;
+		curr_section = m_header->m_sections[m_header->m_first_section].m_next;
+	}
+
+	TAssert(curr_section == section); // If not, we tried to free an un-allocated section.
+
+	m_header->m_sections[curr_section].m_length = 0;
+	m_header->m_sections[last_section].m_next = m_header->m_sections[curr_section].m_next;
+}
+
+void ServerBuckets::FileMapping::ExpandStrokes(BucketHeader* bucket)
+{
+	auto* section = m_header->GetBucketSections(&bucket->m_coordinates);
+	uint32 old_section = section->m_strokes_section;
+
+	int new_size = m_header->m_sections[old_section].m_length * 2;
+
+	int new_section = Alloc(new_size);
+
+	// This pointer was invalidated by the alloc.
+	section = m_header->GetBucketSections(&bucket->m_coordinates);
+	section->m_strokes_section = new_section;
+
+	memcpy((uint8*)m_memory.m_memory + m_header->m_sections[section->m_strokes_section].m_start,
+		(uint8*)m_memory.m_memory + m_header->m_sections[old_section].m_start,
+		m_header->m_sections[old_section].m_length);
+
+	Free(old_section);
+
+	bucket->m_max_strokes = m_header->m_sections[new_section].m_length/sizeof(StrokeInfo);
+
+	UpdateSectionPointers(bucket);
+}
+
+void ServerBuckets::FileMapping::ExpandVerts(BucketHeader* bucket)
+{
+	auto* section = m_header->GetBucketSections(&bucket->m_coordinates);
+	uint32 old_section = section->m_verts_section;
+
+	int new_size = m_header->m_sections[old_section].m_length * 2;
+
+	int new_section = Alloc(new_size);
+
+	// This pointer was invalidated by the alloc.
+	section = m_header->GetBucketSections(&bucket->m_coordinates);
+	section->m_verts_section = new_section;
+
+	memcpy((uint8*)m_memory.m_memory + m_header->m_sections[section->m_verts_section].m_start,
+		(uint8*)m_memory.m_memory + m_header->m_sections[old_section].m_start,
+		m_header->m_sections[old_section].m_length);
+
+	Free(old_section);
+
+	bucket->m_max_verts = m_header->m_sections[new_section].m_length/sizeof(vec3);
+
+	UpdateSectionPointers(bucket);
 }
 
 // If this proc has bad prof then it can be rewritten to iterate only buckets in

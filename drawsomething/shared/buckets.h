@@ -44,6 +44,21 @@ struct AlignedCoordinate
 	}
 
 	static AlignedCoordinate Aligned(BucketCoordinate* bc);
+
+	int GetXOffset()
+	{
+		return m_bucket.x - m_aligned.x;
+	}
+
+	int GetYOffset()
+	{
+		return m_bucket.y - m_aligned.y;
+	}
+
+	int GetZOffset()
+	{
+		return m_bucket.z - m_aligned.z;
+	}
 };
 
 struct StrokeCoordinate
