@@ -15,6 +15,21 @@ int main(int argc, char** args)
 {
 	g_shell.Initialize(argc, args);
 
+#ifdef __APPLE__
+	char* last_slash = strrchr(args[0], '/');
+
+	if (strstr(args[0], "Contents/MacOS") == last_slash - 14)
+	{
+		// We're being run from inside the app bundle. Change our
+		// directory to the resources directory. That's where all
+		// the stuff is.
+		char resources[2048];
+		strncpy(resources, args[0], (last_slash - args[0]));
+		strcpy(strrchr(resources, '/'), "/Resources");
+		SetCurrentDirectory(resources);
+	}
+#endif
+
 	if (g_shell.HasCommandLineSwitchValue("-game"))
 		SetCurrentDirectory(g_shell.GetCommandLineSwitchValue("-game"));
 

@@ -4,9 +4,13 @@ set -o nounset
 set -e
 
 BuildFull=0
+BuildRelease=0
 if [ $# -gt 0 ]; then
 	if [ $1 == "full" ]; then
 		BuildFull=1
+	fi
+	if [ $1 == "release" ]; then
+		BuildRelease=1
 	fi
 fi
 
@@ -14,14 +18,21 @@ if [ "$BuildFull" == "1" ]; then
 	echo "FULL BUILD"
 fi
 
+if [ "$BuildRelease" == "1" ]; then
+	echo "RELEASE BUILD"
+fi
+
 ProjectDir=`pwd`
 OutputDir="Debug/"
 ProjectOutputDir="${ProjectDir}/${OutputDir}"
 CommonInclude="-I${ProjectDir}/common -I${ProjectDir}/common/math -I${ProjectDir}/tinker"
-CommonFlags="-Werror -std=c++11 -g -D_DEBUG"
+CommonFlags="-Werror -std=c++11"
 CommonExtDepsFlags=""
 CommonLinkerFlags="-L${ProjectOutputDir}"
 
+if [ "$BuildRelease" == "0" ]; then
+	CommonFlags="${CommonFlags} -g -D_DEBUG"
+fi
 
 # BUILD TINKERLIB
 echo "Building libtinker..."
@@ -40,7 +51,7 @@ libtool -static -o libtinker.a o/tinker/*.o
 popd > /dev/null
 
 
-if [ "$BuildFull" == "1" ]; then
+if [ "$BuildFull" == "1" ] || [ "$BuildRelease" == "1" ]; then
 	# BUILD ENET
 	echo "Building libenet..."
 	mkdir -p $ProjectOutputDir/o/enet
@@ -69,7 +80,7 @@ SDLLibs="-framework SDL2"
 TinkerInclude="-I/System/Library/Frameworks/SDL2.framework/Headers $CommonInclude"
 clang++ $SDLLibs $CommonFlags $TinkerInclude \
 	tinker/main.cpp tinker/gamecode.cpp tinker/window.cpp \
-	-o $OutputDir/tinker $CommonLinkerFlags -ltinker
+	-o $OutputDir/Linecraft $CommonLinkerFlags -ltinker
 
 
 
@@ -93,7 +104,7 @@ RebuildIgor()
 	return 1
 }
 
-if RebuildIgor || [ "$BuildFull" == "1" ]; then
+if RebuildIgor || [ "$BuildFull" == "1" ] || [ "$BuildRelease" == "1" ]; then
 	echo "Building igor..."
 
 	clang++ $CommonFlags $CommonInclude tools/igor/igor.cpp \
@@ -146,4 +157,20 @@ clang++ $CommonFlags $ClientInclude $ClientPreprocs \
 	tinker/client/net_client.cpp \
 	drawsomething/client/viewback.cpp \
 	-dynamiclib -o $ProjectOutputDir/client.dylib $CommonLinkerFlags -ltinker -lenet -framework OpenGL
+
+if [ "$BuildRelease" == "1" ]; then
+	InstallDir=~/Documents/Linecraft.app
+	rm -f install/*.sav
+	rm -rf $InstallDir
+	mkdir -p $InstallDir
+	mkdir -p $InstallDir/Contents/Resources
+	mkdir -p $InstallDir/Contents/MacOS
+	cp -r install/* $InstallDir/Contents/Resources
+	cp $ProjectOutputDir/Linecraft $InstallDir/Contents/MacOS
+	cp -r $ProjectOutputDir/client.dylib $InstallDir/Contents/Resources
+	cp -r $ProjectOutputDir/server.dylib $InstallDir/Contents/Resources
+	#cp -r $ProjectOutputDir/Linecraft.dSYM $InstallDir/Contents/MacOS
+	#cp -r $ProjectOutputDir/server.dSYM $InstallDir/Contents/Resources
+	#cp -r $ProjectOutputDir/client.dSYM $InstallDir/Contents/Resources
+fi
 
