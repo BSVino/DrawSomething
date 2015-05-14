@@ -26,12 +26,14 @@ ProjectDir=`pwd`
 OutputDir="Debug/"
 ProjectOutputDir="${ProjectDir}/${OutputDir}"
 CommonInclude="-I${ProjectDir}/common -I${ProjectDir}/common/math -I${ProjectDir}/tinker"
-CommonFlags="-Werror -std=c++11"
+CommonFlags="-Werror -std=c++11 -g"
 CommonExtDepsFlags=""
 CommonLinkerFlags="-L${ProjectOutputDir}"
 
 if [ "$BuildRelease" == "0" ]; then
-	CommonFlags="${CommonFlags} -g -D_DEBUG"
+	CommonFlags="${CommonFlags} -D_DEBUG"
+else
+	CommonFlags="${CommonFlags} -O2"
 fi
 
 # BUILD TINKERLIB
