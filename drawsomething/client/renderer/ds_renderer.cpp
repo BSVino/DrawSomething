@@ -7,6 +7,9 @@
 
 #include "tinker_gl.h"
 
+
+#include "../../server/ds_server.h"
+
 void DSRenderer::Draw()
 {
 	Artist* local = g_client_data->GetLocalArtist();
@@ -36,12 +39,13 @@ void DSRenderer::Draw()
 		c.Vertex(vec3(-10, 10, 0));
 	c.EndRender();
 
-	c.UseShader(SHADER_DEBUGLINE);
+	c.UseShader(SHADER_LINE);
 
 	c.SetUniform(UNIFORM_GLOBAL, mat4::s_identity);
 	c.SetUniform(UNIFORM_CAMERA, local->m_position);
 	c.SetUniform(UNIFORM_CAMERA_DIRECTION, base.m_camera_direction);
 
+#if 0
 	for (int k = 0; k < g_client_data->m_num_strokes; k++)
 	{
 		c.BeginRenderLineStrip();
@@ -54,8 +58,15 @@ void DSRenderer::Draw()
 			}
 		c.EndRender();
 	}
+#endif
 
 #ifdef _DEBUG
+	c.UseShader(SHADER_DEBUGLINE);
+	c.SetUniform(UNIFORM_GLOBAL, mat4::s_identity);
+	c.SetUniform(UNIFORM_CAMERA, local->m_position);
+	c.SetUniform(UNIFORM_CAMERA_DIRECTION, base.m_camera_direction);
+
+	color4 color_white(255, 255, 255, 255);
 	for (int x = 0; x < 10; x++)
 	{
 		for (int y = 0; y < 10; y++)
@@ -63,20 +74,68 @@ void DSRenderer::Draw()
 			for (int z = 0; z < 10; z++)
 			{
 				c.BeginRenderLineStrip();
+					c.Color(color_white);
 					c.Vertex(vec3(x-0.01f, (float)y, (float)z));
 					c.Vertex(vec3(x+0.01f, (float)y, (float)z));
 				c.EndRender();
 				c.BeginRenderLineStrip();
+					c.Color(color_white);
 					c.Vertex(vec3((float)x, y-0.01f, (float)z));
 					c.Vertex(vec3((float)x, y+0.01f, (float)z));
 				c.EndRender();
 				c.BeginRenderLineStrip();
+					c.Color(color_white);
 					c.Vertex(vec3((float)x, (float)y, z-0.01f));
 					c.Vertex(vec3((float)x, (float)y, z+0.01f));
 				c.EndRender();
 			}
 		}
 	}
+
+#if 1
+	color4 color_header_loaded(100, 255, 100, 255);
+	if (g_server_data)
+	{
+		for (int k = 0; k < NUM_SERVER_BUCKETS; k++)
+		{
+			BucketHeader* header = &g_server_data->m_buckets.m_buckets_hash[k];
+
+			if (!header->Valid())
+				continue;
+
+			BucketCoordinate* bc = &header->m_coordinates.m_bucket;
+
+			c.BeginRenderLineStrip();
+				c.Color(color_header_loaded);
+				c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.01f, (float)bc->z+0.01f));
+				c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.01f, (float)bc->z+0.01f));
+				c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.99f, (float)bc->z+0.01f));
+				c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.99f, (float)bc->z+0.01f));
+				c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.01f, (float)bc->z+0.01f));
+				c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.01f, (float)bc->z+0.99f));
+				c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.99f, (float)bc->z+0.99f));
+				c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.99f, (float)bc->z+0.99f));
+				c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.01f, (float)bc->z+0.99f));
+				c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.01f, (float)bc->z+0.99f));
+			c.EndRender();
+			c.BeginRenderLineStrip();
+				c.Color(color_header_loaded);
+				c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.01f, (float)bc->z+0.01f));
+				c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.01f, (float)bc->z+0.99f));
+			c.EndRender();
+			c.BeginRenderLineStrip();
+				c.Color(color_header_loaded);
+				c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.99f, (float)bc->z+0.01f));
+				c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.99f, (float)bc->z+0.99f));
+			c.EndRender();
+			c.BeginRenderLineStrip();
+				c.Color(color_header_loaded);
+				c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.99f, (float)bc->z+0.01f));
+				c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.99f, (float)bc->z+0.99f));
+			c.EndRender();
+		}
+	}
+#endif
 #endif
 
 	base.FinishRendering(&c);

@@ -16,11 +16,11 @@ struct ServerData
 	// m_server_artists : net_peer_t -> ServerArtist
 	ServerArtist m_server_artists[MAX_ARTISTS];
 
+	ServerBuckets m_buckets;
+
 	NetHost m_host;
 	DSNetShared m_net_shared;
 	ENetMemory m_enet_memory;
-
-	ServerBuckets m_buckets;
 
 	double m_game_time;
 	float m_frame_time;

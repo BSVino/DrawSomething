@@ -295,7 +295,7 @@ void ServerBuckets::UnloadInvactiveMappings()
 {
 	FileMappingIndex available = TInvalid(FileMappingIndex);
 
-	for (int k = 0; k < NUM_BUCKETS; k++)
+	for (int k = 0; k < NUM_SERVER_BUCKETS; k++)
 	{
 		if (!m_file_mappings[k].m_num_active_buckets)
 		{
@@ -543,7 +543,7 @@ void ServerBuckets::FileMapping::ResizeMap(uint32 size)
 
 	// Remapping the memory invalidated stroke and vert pointers, now we should
 	// update them.
-	for (int k = 0; k < NUM_BUCKETS; k++)
+	for (int k = 0; k < NUM_SERVER_BUCKETS; k++)
 	{
 		BucketHeader* bucket = &g_server_data->m_buckets.m_shared.m_buckets_hash[k];
 
@@ -571,3 +571,22 @@ void ServerBuckets::FileMapping::UpdateSectionPointers(BucketHeader* bucket)
 		TAssert(stb_mod_eucl((size_t)bucket->m_verts, 64) == 0);
 	}
 }
+
+AlignedCoordinate AlignedCoordinate::Aligned(BucketCoordinate* bc)
+{
+	AlignedCoordinate aligned;
+	aligned.m_bucket = *bc;
+	aligned.m_aligned = bc->Aligned();
+	return aligned;
+}
+
+BucketCoordinate BucketCoordinate::Aligned()
+{
+	BucketCoordinate aligned;
+	aligned.x = x - stb_mod_eucl(x, FILE_BUCKET_WIDTH);
+	aligned.y = y - stb_mod_eucl(y, FILE_BUCKET_WIDTH);
+	aligned.z = z - stb_mod_eucl(z, FILE_BUCKET_WIDTH);
+	return aligned;
+}
+
+

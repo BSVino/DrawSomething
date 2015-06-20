@@ -74,6 +74,9 @@ void GameCode::Load()
 	m_library_loaded = (LibraryLoadedProcedure)GetProcedureAddress(m_binary_handle, "LibraryLoaded");
 	TAssert(m_library_loaded);
 
+	m_set_local_network_memory = (SetLocalNetworkMemoryProcedure)GetProcedureAddress(m_binary_handle, "SetLocalNetworkMemory");
+	TAssert(m_set_local_network_memory);
+
 	m_library_loaded();
 }
 

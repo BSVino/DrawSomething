@@ -7,6 +7,8 @@ struct LocalArtist
 {
 	Artist* m_local;
 
+	StrokeCoordinate m_current_stroke;
+
 	double m_draw_time; // Stay in draw mode until this time.
 	float m_draw_mode;
 	vec2 m_draw_mode_velocity; // For when the user puts the mouse at the edges.

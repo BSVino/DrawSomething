@@ -18,6 +18,7 @@ typedef size_t(*GetMemorySizeProcedure)();
 typedef bool(*GameInitializeProcedure)(GameData* game_data, int argc, char** args);
 typedef bool(*GameFrameProcedure)(GameData* game_data);
 typedef void(*LibraryLoadedProcedure)();
+typedef void(*SetLocalNetworkMemoryProcedure)(GameData* game_data);
 
 struct GameCode
 {
@@ -35,6 +36,7 @@ struct GameCode
 	GameInitializeProcedure m_game_init;
 	GameFrameProcedure m_game_frame;
 	LibraryLoadedProcedure m_library_loaded;
+	SetLocalNetworkMemoryProcedure m_set_local_network_memory;
 
 	void Initialize(const char* binary, struct WindowData* window_data, struct ControlData* input);
 	void Load();

@@ -11,6 +11,8 @@
 #include "ds_client.h"
 #include "net_ds.h"
 
+#include "../server/ds_server.h"
+
 ClientData* g_client_data;
 
 extern "C" TDLLEXPORT size_t GetMemorySize()
@@ -123,6 +125,13 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 	vb_static_retrieve(&g_client_data->m_vb1, &g_client_data->m_vb2);
 
 	return 1;
+}
+
+ServerData* g_server_data = nullptr; // This will only be non-null in listen servers!
+
+extern "C" TDLLEXPORT void SetLocalNetworkMemory(GameData* game_data)
+{
+	g_server_data = (ServerData*)game_data->m_memory;
 }
 
 void* tinker_vb_alloc(size_t memory_size, vb_alloc_type_t type)

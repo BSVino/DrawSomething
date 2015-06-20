@@ -10,14 +10,6 @@ typedef uint32 VertexIndex;
 typedef uint8 BucketHashIndex;
 typedef uint8 FileMappingIndex;
 
-#ifdef CLIENT_LIBRARY
-#define NUM_BUCKETS 8 // If this grows above 2^8, increase BucketHashIndex
-#else
-#define NUM_BUCKETS 4 // If this grows above 2^8, increase BucketHashIndex
-#define NUM_FILE_MAPPINGS NUM_BUCKETS // If this grows above 2^8, increase FileMappingIndex
-#define FILE_BUCKET_WIDTH 2 // How many buckets in per dimension go in a single file. 
-#endif
-
 #define NUM_STROKE_VERTS 100
 #define NUM_STROKES 10
 
@@ -98,9 +90,7 @@ struct BucketHeader
 	uint32      m_max_strokes; // Maximum strokes the buffer will hold
 	uint32      m_max_verts;   // Maximum verts the buffer will hold
 
-#ifndef CLIENT_LIBRARY
 	FileMappingIndex m_file_mapping; // index into ServerBuckets::m_file_mappings
-#endif
 
 	void Initialize(AlignedCoordinate* bc);
 	void Invalidate();
@@ -113,16 +103,20 @@ struct BucketHeader
 struct SharedBuckets
 {
 	// m_buckets_hash : BucketHashIndex -> BucketHeader
-	BucketHeader m_buckets_hash[NUM_BUCKETS];
+	BucketHeader* m_buckets_hash;
+	int           m_num_buckets;
 
 	BucketHashIndex BucketHash_Find(BucketCoordinate* coordinate);
 
 	// Least recently used
 	void GetLRUBucket(BucketHashIndex* LRU, double* LRU_time);
 
-	SharedBuckets()
+	SharedBuckets(BucketHeader* buckets_hash, int num_buckets)
 	{
-		for (int k = 0; k < NUM_BUCKETS; k++)
+		m_buckets_hash = buckets_hash;
+		m_num_buckets = num_buckets;
+
+		for (int k = 0; k < num_buckets; k++)
 			m_buckets_hash[k].Invalidate();
 	}
 };

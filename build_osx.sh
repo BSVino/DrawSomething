@@ -146,6 +146,8 @@ ClientPreprocs="-DUSE_SKYBOX -DCLIENT_LIBRARY -DVIEWBACK_TIME_DOUBLE"
 
 clang++ $CommonFlags $ClientInclude $ClientPreprocs \
 	drawsomething/client/ds_main_client.cpp \
+	drawsomething/client/client_buckets.cpp \
+	drawsomething/shared/buckets.cpp \
 	tinker/assets.cpp \
 	drawsomething/client/game/c_artist.cpp \
 	drawsomething/shared/artist.cpp \

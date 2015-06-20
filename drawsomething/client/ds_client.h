@@ -4,6 +4,7 @@
 
 #include "client/renderer/shaders.h"
 #include "client/net_client.h"
+#include "client/client_buckets.h"
 #include "net_ds.h"
 
 #include "renderer/ds_renderer.h"
@@ -22,6 +23,8 @@ struct ClientData
 	Artist m_local_artist_replicated;
 	LocalArtist m_local_artist;
 
+	ClientBuckets m_buckets;
+
 	NetClient m_host;
 	DSNetShared m_net_shared;
 	ENetMemory m_enet_memory;
@@ -30,18 +33,6 @@ struct ClientData
 
 	double m_game_time;
 	float m_frame_time;
-
-	// Temporary!
-#define MAX_STROKE_POINTS 1000
-	vec3 m_stroke_points[MAX_STROKE_POINTS];
-#define MAX_STROKES 1000
-	struct Stroke
-	{
-		// A stroke is m_stroke_points[first] to m_stroke_points[first + size - 1]
-		int m_first;
-		int m_size;
-	} m_strokes[MAX_STROKES];
-	int m_num_strokes;
 
 	// Viewback stuff.
 	void* m_vb1;
@@ -59,7 +50,6 @@ struct ClientData
 	ClientData(struct WindowData* window_data)
 		: m_renderer(&m_shaders, window_data)
 	{
-		m_num_strokes = 0;
 		m_vb_items = m_vb_main1 = m_vb_main2 = m_vb_af1 = m_vb_af2 = 0;
 	}
 

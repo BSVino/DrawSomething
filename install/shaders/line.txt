@@ -1,0 +1,3 @@
+Name: line
+Vertex: pass
+Fragment: line

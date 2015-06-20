@@ -76,6 +76,9 @@ int main(int argc, char** args)
 
 	if (server && client)
 	{
+		g_server_code.m_set_local_network_memory(&g_client_code.m_game_data);
+		g_client_code.m_set_local_network_memory(&g_server_code.m_game_data);
+
 		double last_frame_start_time = 0;
 		double game_time = 0;
 		while (window.IsOpen() && game_active)

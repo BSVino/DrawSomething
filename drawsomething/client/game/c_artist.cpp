@@ -101,22 +101,9 @@ void LocalArtist::HandleInput(ControlData* input)
 
 	if (input->m_draw.m_pressed)
 	{
-		if (g_client_data->m_num_strokes < MAX_STROKES)
-		{
-			ClientData::Stroke* stroke = &g_client_data->m_strokes[g_client_data->m_num_strokes];
+		g_client_data->m_buckets.AddNewStroke();
 
-			// Start a new stroke
-			int first_point = 0;
-			if (g_client_data->m_num_strokes)
-				first_point = (stroke - 1)->m_first + (stroke - 1)->m_size;
-
-			stroke->m_first = first_point;
-			stroke->m_size = 0;
-
-			g_client_data->m_num_strokes++;
-
-			m_draw_mode_velocity = vec2(0,0);
-		}
+		m_draw_mode_velocity = vec2(0,0);
 
 		// Tell the server we've started a new stroke.
 		uint32 length = 2;
@@ -128,8 +115,6 @@ void LocalArtist::HandleInput(ControlData* input)
 
 	if (input->m_draw.m_down)
 	{
-		ClientData::Stroke* stroke = &g_client_data->m_strokes[g_client_data->m_num_strokes - 1];
-
 		float aspect_ratio = (float)g_client_data->m_window_data->m_width / (float)g_client_data->m_window_data->m_height;
 
 		vec3 view_direction = AngleVector(m_local->m_looking);
@@ -150,20 +135,19 @@ void LocalArtist::HandleInput(ControlData* input)
 
 		bool skip = false;
 
-		if (stroke->m_size >= 1)
+		if (g_client_data->m_local_artist.m_current_stroke.Valid())
 		{
-			vec3 previous_point = g_client_data->m_stroke_points[stroke->m_first + stroke->m_size - 1];
+			TUnimplemented();
+			/*
+			vec3 previous_point = g_client_data->m_buckets.m_shared.;
 			if ((new_point - previous_point).LengthSqr() < 0.000001f)
 				skip = true;
+			*/
 		}
 
 		if (!skip)
 		{
-			if (stroke->m_first + stroke->m_size < MAX_STROKE_POINTS)
-			{
-				g_client_data->m_stroke_points[stroke->m_first + stroke->m_size] = new_point;
-				stroke->m_size++;
-			}
+			g_client_data->m_buckets.AddPointToStroke(&new_point);
 
 			// Tell the server we've drawn a new point.
 			uint32 length = 2 + sizeof(vec3);
@@ -177,11 +161,7 @@ void LocalArtist::HandleInput(ControlData* input)
 
 	if (input->m_draw.m_released)
 	{
-		ClientData::Stroke* stroke = &g_client_data->m_strokes[g_client_data->m_num_strokes - 1];
-
-		// Erase the line if there's only one point when the artist lets go
-		if (stroke->m_size <= 1)
-			g_client_data->m_num_strokes--;
+		g_client_data->m_buckets.EndStroke();
 
 		// Tell the server we've drawn a new point.
 		uint32 length = 2;

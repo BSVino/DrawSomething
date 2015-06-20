@@ -4,9 +4,17 @@
 
 #include "buckets.h"
 
+#define NUM_SERVER_BUCKETS 4 // If this grows above 2^8, increase BucketHashIndex
+
+#define NUM_FILE_MAPPINGS NUM_SERVER_BUCKETS // If this grows above 2^8, increase FileMappingIndex
+#define FILE_BUCKET_WIDTH 2 // How many buckets in per dimension go in a single file. 
+
 struct ServerBuckets
 {
 	SharedBuckets m_shared;
+
+	// m_buckets_hash : BucketHashIndex -> BucketHeader
+	BucketHeader m_buckets_hash[NUM_SERVER_BUCKETS];
 
 	struct FileMapping
 	{
@@ -79,6 +87,10 @@ struct ServerBuckets
 
 		void UpdateSectionPointers(BucketHeader* bucket);
 	} m_file_mappings[NUM_FILE_MAPPINGS];
+
+	ServerBuckets()
+		: m_shared(m_buckets_hash, NUM_SERVER_BUCKETS)
+	{}
 
 	void AddNewStroke(net_peer_t from_peer);
 	void AddPointToStroke(net_peer_t from_peer, vec3* new_point);

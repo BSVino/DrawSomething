@@ -6,6 +6,8 @@
 
 #include "net_ds.h"
 
+#include "../client/ds_client.h"
+
 ServerData* g_server_data;
 
 extern "C" TDLLEXPORT size_t GetMemorySize()
@@ -50,3 +52,11 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 
 	return 1;
 }
+
+ClientData* g_client_data = nullptr; // This will only be non-null in listen servers!
+
+extern "C" TDLLEXPORT void SetLocalNetworkMemory(GameData* game_data)
+{
+	g_client_data = (ClientData*)game_data->m_memory;
+}
+

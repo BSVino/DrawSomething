@@ -4,6 +4,7 @@
 
 #ifdef CLIENT_LIBRARY
 #define g_shared_data g_client_data
+#include "ds_client.h"
 #else
 #define g_shared_data g_server_data
 #include "ds_server.h"
@@ -11,7 +12,7 @@
 
 BucketHashIndex BucketHash_Hash(BucketCoordinate* coordinate)
 {
-	return (uint32)(((coordinate->x * 3985513591) + (coordinate->y * 2283571245) + (coordinate->z * 806576490))) % NUM_BUCKETS;
+	return (uint32)(((coordinate->x * 3985513591) + (coordinate->y * 2283571245) + (coordinate->z * 806576490))) % g_shared_data->m_buckets.m_shared.m_num_buckets;
 }
 
 BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
@@ -23,13 +24,13 @@ BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
 
 	r = BucketHash_Hash(coordinate);
 	BucketHashIndex first = r;
-	TAssert(first < NUM_BUCKETS);
+	TAssert(first < m_num_buckets);
 	while (m_buckets_hash[r].Valid())
 	{
 		if (m_buckets_hash[r].m_coordinates.m_bucket.Equals(coordinate))
 			return r;
 
-		r = (r+1)%NUM_BUCKETS;
+		r = (r+1)%m_num_buckets;
 		if (r == first)
 			return TInvalid(BucketHashIndex);
 	}
@@ -39,10 +40,10 @@ BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
 
 void SharedBuckets::GetLRUBucket(BucketHashIndex* LRU, double* LRU_time)
 {
-	double lru_time = g_server_data->m_game_time + 1;
+	double lru_time = g_shared_data->m_game_time + 1;
 	BucketHashIndex lru = TInvalid(BucketHashIndex);
 
-	for (int k = 0; k < NUM_BUCKETS; k++)
+	for (int k = 0; k < m_num_buckets; k++)
 	{
 		if (m_buckets_hash[k].m_last_used_time < lru_time)
 		{
@@ -60,26 +61,9 @@ bool BucketCoordinate::Equals(BucketCoordinate* other)
 	return (x == other->x && y == other->y && z == other->z);
 }
 
-BucketCoordinate BucketCoordinate::Aligned()
-{
-	BucketCoordinate aligned;
-	aligned.x = x - stb_mod_eucl(x, FILE_BUCKET_WIDTH);
-	aligned.y = y - stb_mod_eucl(y, FILE_BUCKET_WIDTH);
-	aligned.z = z - stb_mod_eucl(z, FILE_BUCKET_WIDTH);
-	return aligned;
-}
-
 bool AlignedCoordinate::Equals(AlignedCoordinate* other)
 {
 	return m_bucket.Equals(&other->m_bucket);
-}
-
-AlignedCoordinate AlignedCoordinate::Aligned(BucketCoordinate* bc)
-{
-	AlignedCoordinate aligned;
-	aligned.m_bucket = *bc;
-	aligned.m_aligned = bc->Aligned();
-	return aligned;
 }
 
 void StrokeCoordinate::Set(BucketCoordinate* bc, StrokeIndex* si)
