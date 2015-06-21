@@ -164,6 +164,21 @@ FileMappingIndex ServerBuckets::FindMapping(AlignedCoordinate* aligned, FileMapp
 	return TInvalid(FileMappingIndex);
 }
 
+static int32 ResizeFileMapping(SectionAllocator* sa, int32 size)
+{
+	for (int k = 0; k < NUM_FILE_MAPPINGS; k++)
+	{
+		if (&g_server_data->m_buckets.m_file_mappings[k].m_allocator == sa)
+		{
+			g_server_data->m_buckets.m_file_mappings[k].ResizeMap(size);
+			return g_server_data->m_buckets.m_file_mappings[k].m_memory.m_memory_size;
+		}
+	}
+
+	TAssert(false); // bad
+	return -1;
+}
+
 FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 {
 	FileMappingIndex empty;
@@ -198,6 +213,8 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 
 		file_mapping->m_header = (FileMapping::SaveFileHeader*)file_mapping->m_memory.m_memory;
 		file_mapping->m_bc = aligned;
+		file_mapping->m_allocator.LoadFrom(file_mapping->m_header->m_sections, TArraySize(file_mapping->m_header->m_sections), file_mapping->m_memory.m_memory_size, &file_mapping->m_header->m_memory_info);
+		file_mapping->m_allocator.SetResizeCallback(ResizeFileMapping);
 
 		if (file_mapping->m_memory.m_created)
 			file_mapping->CreateSaveFileHeader();
@@ -328,15 +345,13 @@ void ServerBuckets::FileMapping::CreateSaveFileHeader()
 		}
 	}
 
-	m_header->m_first_section = -1;
-
-	for (int k = 0; k < TArraySize(m_header->m_sections); k++)
-		m_header->m_sections[k].m_next = -1;
+	m_allocator.Initialize(m_header->m_sections, TArraySize(m_header->m_sections), m_memory.m_memory_size, &m_header->m_memory_info);
+	m_allocator.SetResizeCallback(ResizeFileMapping);
 }
 
 uint32 ServerBuckets::FileMapping::AllocStrokes(uint32 size, BucketCoordinate* bc)
 {
-	uint32 result = Alloc(size);
+	uint32 result = m_allocator.Alloc(size);
 
 	auto* bucket_sections = &m_header->m_buckets[bc->x - m_bc.x][bc->y - m_bc.y][bc->z - m_bc.z];
 	bucket_sections->m_strokes_section = result;
@@ -346,143 +361,12 @@ uint32 ServerBuckets::FileMapping::AllocStrokes(uint32 size, BucketCoordinate* b
 
 uint32 ServerBuckets::FileMapping::AllocVerts(uint32 size, BucketCoordinate* bc)
 {
-	uint32 result = Alloc(size);
+	uint32 result = m_allocator.Alloc(size);
 
 	auto* bucket_sections = &m_header->m_buckets[bc->x - m_bc.x][bc->y - m_bc.y][bc->z - m_bc.z];
 	bucket_sections->m_verts_section = result;
 
 	return result;
-}
-
-uint32 ServerBuckets::FileMapping::Alloc(uint32 size)
-{
-	// Round up to the next cache line.
-	int remainder = stb_mod_eucl(size, 64);
-	if (remainder)
-		size = size - remainder + 64;
-
-	if (m_header->m_first_section < 0)
-	{
-		// This is the very first allocation.
-
-		int32 bytes_remaining = (int32)m_memory.m_memory_size - m_header_size;
-
-		if (bytes_remaining < size)
-		{
-			ResizeMap(size);
-
-			bytes_remaining = (int32)m_memory.m_memory_size - m_header_size;
-		}
-
-		TAssert(bytes_remaining >= size);
-		TAssert(size <= m_memory.m_memory_size);
-		m_header->m_sections[0].m_length = size;
-		m_header->m_sections[0].m_start = m_header_size;
-		m_header->m_sections[0].m_next = -1;
-		m_header->m_first_section = 0;
-		return 0;
-	}
-
-	// Find an unused section to hold the info.
-	int alloc_section = -1;
-	for (int k = 0; k < TArraySize(m_header->m_sections); k++)
-	{
-		if (m_header->m_sections[k].m_length == 0)
-		{
-			alloc_section = k;
-			break;
-		}
-	}
-
-	TAssert(alloc_section >= 0);
-
-	int prev_section = -1;
-	int curr_section = m_header->m_first_section;
-
-	if (m_header->m_sections[curr_section].m_start - m_header_size >= size)
-	{
-		TAssert(stb_mod_eucl(m_header_size, 64) == 0);
-
-		m_header->m_sections[alloc_section].m_start = m_header_size;
-		m_header->m_sections[alloc_section].m_length = size;
-		m_header->m_sections[alloc_section].m_next = m_header->m_first_section;
-		m_header->m_first_section = alloc_section;
-		return alloc_section;
-	}
-
-	while (true)
-	{
-		TAssert(curr_section >= 0);
-
-		if (m_header->m_sections[curr_section].m_next < 0)
-		{
-			// This is the last one, we can allocate stuff after it.
-
-			int32 start = m_header->m_sections[curr_section].m_start + m_header->m_sections[curr_section].m_length;
-
-			TAssert(start <= m_memory.m_memory_size);
-
-			// Return memory aligned to a cache line.
-			int remainder = stb_mod_eucl(start, 64);
-			if (remainder)
-				start = start - remainder + 64;
-
-			int32 bytes_remaining = (int32)m_memory.m_memory_size - start;
-
-			if (bytes_remaining < size)
-			{
-				ResizeMap(size);
-
-				bytes_remaining = (int32)m_memory.m_memory_size - start;
-			}
-
-			TAssert(bytes_remaining >= size);
-			m_header->m_sections[alloc_section].m_start = start;
-			m_header->m_sections[alloc_section].m_length = size;
-			m_header->m_sections[alloc_section].m_next = -1;
-			m_header->m_sections[curr_section].m_next = alloc_section;
-			return alloc_section;
-		}
-		else
-		{
-			int next_section = m_header->m_sections[curr_section].m_next;
-			int32 next_start = m_header->m_sections[next_section].m_start;
-			int32 this_start = m_header->m_sections[curr_section].m_start;
-			int32 this_length = m_header->m_sections[curr_section].m_length;
-
-			if (next_start - (this_start + this_length) > size)
-			{
-				TUnimplemented();
-			}
-
-			curr_section = next_section;
-		}
-	}
-
-	return 0;
-}
-
-void ServerBuckets::FileMapping::Free(uint32 section)
-{
-	if (m_header->m_first_section == section)
-	{
-		m_header->m_sections[m_header->m_first_section].m_length = 0;
-		m_header->m_first_section = m_header->m_sections[m_header->m_first_section].m_next;
-		return;
-	}
-
-	int8 last_section = m_header->m_first_section;
-	int8 curr_section = m_header->m_sections[m_header->m_first_section].m_next;
-	while (curr_section != section)
-	{
-		last_section = curr_section;
-		curr_section = m_header->m_sections[m_header->m_first_section].m_next;
-	}
-
-	TAssert(curr_section == section); // If not, we tried to free an un-allocated section.
-
-	m_header->m_sections[curr_section].m_length = 0;
-	m_header->m_sections[last_section].m_next = m_header->m_sections[curr_section].m_next;
 }
 
 void ServerBuckets::FileMapping::ExpandStrokes(BucketHeader* bucket)
@@ -492,17 +376,17 @@ void ServerBuckets::FileMapping::ExpandStrokes(BucketHeader* bucket)
 
 	int new_size = m_header->m_sections[old_section].m_length * 2;
 
-	int new_section = Alloc(new_size);
+	int new_section = m_allocator.Alloc(new_size);
 
 	// This pointer was invalidated by the alloc.
 	section = m_header->GetBucketSections(&bucket->m_coordinates);
 	section->m_strokes_section = new_section;
 
-	memcpy((uint8*)m_memory.m_memory + m_header->m_sections[section->m_strokes_section].m_start,
-		(uint8*)m_memory.m_memory + m_header->m_sections[old_section].m_start,
+	memcpy((uint8*)m_memory.m_memory + m_header->m_sections[section->m_strokes_section].m_start + m_header_size,
+		(uint8*)m_memory.m_memory + m_header->m_sections[old_section].m_start + m_header_size,
 		m_header->m_sections[old_section].m_length);
 
-	Free(old_section);
+	m_allocator.Free(old_section);
 
 	bucket->m_max_strokes = m_header->m_sections[new_section].m_length/sizeof(StrokeInfo);
 
@@ -516,17 +400,17 @@ void ServerBuckets::FileMapping::ExpandVerts(BucketHeader* bucket)
 
 	int new_size = m_header->m_sections[old_section].m_length * 2;
 
-	int new_section = Alloc(new_size);
+	int new_section = m_allocator.Alloc(new_size);
 
 	// This pointer was invalidated by the alloc.
 	section = m_header->GetBucketSections(&bucket->m_coordinates);
 	section->m_verts_section = new_section;
 
-	memcpy((uint8*)m_memory.m_memory + m_header->m_sections[section->m_verts_section].m_start,
-		(uint8*)m_memory.m_memory + m_header->m_sections[old_section].m_start,
+	memcpy((uint8*)m_memory.m_memory + m_header->m_sections[section->m_verts_section].m_start + m_header_size,
+		(uint8*)m_memory.m_memory + m_header->m_sections[old_section].m_start + m_header_size,
 		m_header->m_sections[old_section].m_length);
 
-	Free(old_section);
+	m_allocator.Free(old_section);
 
 	bucket->m_max_verts = m_header->m_sections[new_section].m_length/sizeof(vec3);
 
@@ -540,6 +424,9 @@ void ServerBuckets::FileMapping::ResizeMap(uint32 size)
 	// We need to expand the file
 	::ResizeMap(&m_memory, m_memory.m_memory_size * 2 + size);
 	m_header = (FileMapping::SaveFileHeader*)m_memory.m_memory;
+
+	m_allocator.LoadFrom(m_header->m_sections, TArraySize(m_header->m_sections), m_memory.m_memory_size, &m_header->m_memory_info);
+	m_allocator.SetResizeCallback(ResizeFileMapping);
 
 	// Remapping the memory invalidated stroke and vert pointers, now we should
 	// update them.
@@ -558,7 +445,7 @@ void ServerBuckets::FileMapping::UpdateSectionPointers(BucketHeader* bucket)
 	if (pointers->m_strokes_section != TInvalid(uint32))
 	{
 		auto* strokes_section = &m_header->m_sections[pointers->m_strokes_section];
-		uint32 strokes_start = strokes_section->m_start;
+		uint32 strokes_start = strokes_section->m_start + m_header_size;
 		bucket->m_strokes = (StrokeInfo*)((uint8*)m_memory.m_memory + strokes_start);
 		TAssert(stb_mod_eucl((size_t)bucket->m_strokes, 64) == 0);
 	}
@@ -566,7 +453,7 @@ void ServerBuckets::FileMapping::UpdateSectionPointers(BucketHeader* bucket)
 	if (pointers->m_verts_section != TInvalid(uint32))
 	{
 		auto* verts_section = &m_header->m_sections[pointers->m_verts_section];
-		uint32 verts_start = verts_section->m_start;
+		uint32 verts_start = verts_section->m_start + m_header_size;
 		bucket->m_verts = (vec3*)((uint8*)m_memory.m_memory + verts_start);
 		TAssert(stb_mod_eucl((size_t)bucket->m_verts, 64) == 0);
 	}

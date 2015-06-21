@@ -2,6 +2,8 @@
 
 #include "stb_divide.h"
 
+#include "alloc_section.h"
+
 #include "buckets.h"
 
 #define NUM_SERVER_BUCKETS 4 // If this grows above 2^8, increase BucketHashIndex
@@ -31,14 +33,8 @@ struct ServerBuckets
 				uint32 m_num_verts;
 			} m_buckets[FILE_BUCKET_WIDTH][FILE_BUCKET_WIDTH][FILE_BUCKET_WIDTH];
 
-			struct MemorySection
-			{
-				int32 m_start;
-				int32 m_length;
-				int8  m_next;
-			} m_sections[FILE_BUCKET_WIDTH * FILE_BUCKET_WIDTH * FILE_BUCKET_WIDTH * 2];
-
-			int8 m_first_section;
+			MemorySection m_sections[FILE_BUCKET_WIDTH * FILE_BUCKET_WIDTH * FILE_BUCKET_WIDTH * 2];
+			MemorySectionInfo m_memory_info;
 
 			BucketSections* GetBucketSections(AlignedCoordinate* ac)
 			{
@@ -50,6 +46,8 @@ struct ServerBuckets
 			}
 		}* m_header;
 
+		SectionAllocator m_allocator;
+		
 		uint32 m_header_size; // TODO: Move this up to ServerBuckets to save memory
 		uint8 m_num_active_buckets; // How many of the buckets in this file are using it?
 
@@ -75,10 +73,6 @@ struct ServerBuckets
 
 		uint32 AllocStrokes(uint32 size, BucketCoordinate* bc);
 		uint32 AllocVerts(uint32 size, BucketCoordinate* bc);
-
-		// Caller's responsibility to fix up m_buckets
-		uint32 Alloc(uint32 size);
-		void Free(uint32 section);
 
 		void ResizeMap(uint32 size);
 
