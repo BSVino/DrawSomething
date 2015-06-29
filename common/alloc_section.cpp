@@ -149,6 +149,8 @@ int32 SectionAllocator::Alloc(int32 size)
 
 void SectionAllocator::Free(int32 section)
 {
+	TAssert(section >= 0 && section < m_num_sections);
+
 	CheckMemoryInfo();
 
 	if (m_memory_info->m_first_section == section)

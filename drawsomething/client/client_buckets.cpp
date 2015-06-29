@@ -14,7 +14,24 @@ BucketHeader* ClientBuckets::RetrieveBucket(BucketCoordinate* bc)
 
 	if (hash_index == TInvalid(BucketHashIndex))
 	{
-		TUnimplemented();
+		// TODO: unload FARTHEST bucket.
+		double LRU_time;
+		BucketHashIndex LRU;
+
+		m_shared.GetLRUBucket(&LRU, &LRU_time);
+		
+		TAssert(m_shared.m_buckets_hash[LRU].Valid());
+		m_shared.m_buckets_hash[LRU].Invalidate();
+
+		if (m_bucket_sections[LRU].m_strokes_section >= 0)
+			m_allocator.Free(m_bucket_sections[LRU].m_strokes_section);
+		if (m_bucket_sections[LRU].m_verts_section >= 0)
+			m_allocator.Free(m_bucket_sections[LRU].m_verts_section);
+
+		m_bucket_sections[LRU].m_strokes_section = m_bucket_sections[LRU].m_strokes_section = -1;
+
+		hash_index = m_shared.BucketHash_Insert(bc);
+		TAssert(hash_index != TInvalid(BucketHashIndex));
 	}
 
 	BucketHeader* bucket_header = &m_shared.m_buckets_hash[hash_index];
