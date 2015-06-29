@@ -77,20 +77,25 @@ void DSRenderer::Draw()
 	c.SetUniform(UNIFORM_CAMERA, local->m_position);
 	c.SetUniform(UNIFORM_CAMERA_DIRECTION, base.m_camera_direction);
 
-#if 0
-	for (int k = 0; k < g_client_data->m_num_strokes; k++)
+	color4 color_white(255, 255, 255, 255);
+
+	for (int q = 0; q < NUM_CLIENT_BUCKETS; q++)
 	{
-		c.BeginRenderLineStrip();
-			int first_point = g_client_data->m_strokes[k].m_first;
-			int max_point = g_client_data->m_strokes[k].m_first + g_client_data->m_strokes[k].m_size;
-			for (int j = first_point; j < max_point; j++)
-			{
-				vec3 point = g_client_data->m_stroke_points[j];
-				c.Vertex(point);
-			}
-		c.EndRender();
+		BucketHeader* bucket = &g_client_data->m_buckets.m_buckets_hash[q];
+		for (int k = 0; k < bucket->m_num_strokes; k++)
+		{
+			c.BeginRenderLineStrip();
+				c.Color(color_white);
+				VertexIndex first_vert = bucket->m_strokes[k].m_first_vertex;
+				VertexIndex max_point = bucket->m_strokes[k].m_first_vertex + bucket->m_strokes[k].m_num_verts;
+				for (int j = first_vert; j < max_point; j++)
+				{
+					vec3 point = bucket->m_verts[j];
+					c.Vertex(point);
+				}
+			c.EndRender();
+		}
 	}
-#endif
 
 #ifdef _DEBUG
 	c.UseShader(SHADER_DEBUGLINE);
@@ -98,7 +103,6 @@ void DSRenderer::Draw()
 	c.SetUniform(UNIFORM_CAMERA, local->m_position);
 	c.SetUniform(UNIFORM_CAMERA_DIRECTION, base.m_camera_direction);
 
-	color4 color_white(255, 255, 255, 255);
 	for (int x = 0; x < 10; x++)
 	{
 		for (int y = 0; y < 10; y++)
