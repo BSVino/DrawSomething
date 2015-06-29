@@ -10,6 +10,38 @@
 
 #include "../../server/ds_server.h"
 
+void DrawBox(Context& c, BucketCoordinate* bc, float margin, color4 color)
+{
+	c.BeginRenderLineStrip();
+		c.Color(color);
+		c.Vertex(vec3(bc->x+margin, (float)bc->y+margin, (float)bc->z+margin));
+		c.Vertex(vec3(bc->x+1-margin, (float)bc->y+margin, (float)bc->z+margin));
+		c.Vertex(vec3(bc->x+1-margin, (float)bc->y+1-margin, (float)bc->z+margin));
+		c.Vertex(vec3(bc->x+margin, (float)bc->y+1-margin, (float)bc->z+margin));
+		c.Vertex(vec3(bc->x+margin, (float)bc->y+margin, (float)bc->z+margin));
+		c.Vertex(vec3(bc->x+margin, (float)bc->y+margin, (float)bc->z+1-margin));
+		c.Vertex(vec3(bc->x+margin, (float)bc->y+1-margin, (float)bc->z+1-margin));
+		c.Vertex(vec3(bc->x+1-margin, (float)bc->y+1-margin, (float)bc->z+1-margin));
+		c.Vertex(vec3(bc->x+1-margin, (float)bc->y+margin, (float)bc->z+1-margin));
+		c.Vertex(vec3(bc->x+margin, (float)bc->y+margin, (float)bc->z+1-margin));
+	c.EndRender();
+	c.BeginRenderLineStrip();
+		c.Color(color);
+		c.Vertex(vec3(bc->x+1-margin, (float)bc->y+margin, (float)bc->z+margin));
+		c.Vertex(vec3(bc->x+1-margin, (float)bc->y+margin, (float)bc->z+1-margin));
+	c.EndRender();
+	c.BeginRenderLineStrip();
+		c.Color(color);
+		c.Vertex(vec3(bc->x+1-margin, (float)bc->y+1-margin, (float)bc->z+margin));
+		c.Vertex(vec3(bc->x+1-margin, (float)bc->y+1-margin, (float)bc->z+1-margin));
+	c.EndRender();
+	c.BeginRenderLineStrip();
+		c.Color(color);
+		c.Vertex(vec3(bc->x+margin, (float)bc->y+1-margin, (float)bc->z+margin));
+		c.Vertex(vec3(bc->x+margin, (float)bc->y+1-margin, (float)bc->z+1-margin));
+	c.EndRender();
+}
+
 void DSRenderer::Draw()
 {
 	Artist* local = g_client_data->GetLocalArtist();
@@ -93,88 +125,36 @@ void DSRenderer::Draw()
 	}
 
 #if 1
-	if (g_server_data)
+	// Client buckets are blue
+	color4 color_header_loaded(100, 100, 255, 255);
+	for (int k = 0; k < NUM_CLIENT_BUCKETS; k++)
 	{
-		color4 color_header_loaded(100, 100, 255, 255);
-		for (int k = 0; k < NUM_CLIENT_BUCKETS; k++)
-		{
-			BucketHeader* header = &g_client_data->m_buckets.m_buckets_hash[k];
-
-			if (!header->Valid())
-				continue;
-
-			BucketCoordinate* bc = &header->m_coordinates.m_bucket;
-
-			c.BeginRenderLineStrip();
-				c.Color(color_header_loaded);
-				c.Vertex(vec3(bc->x+0.02f, (float)bc->y+0.02f, (float)bc->z+0.02f));
-				c.Vertex(vec3(bc->x+0.98f, (float)bc->y+0.02f, (float)bc->z+0.02f));
-				c.Vertex(vec3(bc->x+0.98f, (float)bc->y+0.98f, (float)bc->z+0.02f));
-				c.Vertex(vec3(bc->x+0.02f, (float)bc->y+0.98f, (float)bc->z+0.02f));
-				c.Vertex(vec3(bc->x+0.02f, (float)bc->y+0.02f, (float)bc->z+0.02f));
-				c.Vertex(vec3(bc->x+0.02f, (float)bc->y+0.02f, (float)bc->z+0.98f));
-				c.Vertex(vec3(bc->x+0.02f, (float)bc->y+0.98f, (float)bc->z+0.98f));
-				c.Vertex(vec3(bc->x+0.98f, (float)bc->y+0.98f, (float)bc->z+0.98f));
-				c.Vertex(vec3(bc->x+0.98f, (float)bc->y+0.02f, (float)bc->z+0.98f));
-				c.Vertex(vec3(bc->x+0.02f, (float)bc->y+0.02f, (float)bc->z+0.98f));
-			c.EndRender();
-			c.BeginRenderLineStrip();
-				c.Color(color_header_loaded);
-				c.Vertex(vec3(bc->x+0.98f, (float)bc->y+0.02f, (float)bc->z+0.02f));
-				c.Vertex(vec3(bc->x+0.98f, (float)bc->y+0.02f, (float)bc->z+0.98f));
-			c.EndRender();
-			c.BeginRenderLineStrip();
-				c.Color(color_header_loaded);
-				c.Vertex(vec3(bc->x+0.98f, (float)bc->y+0.98f, (float)bc->z+0.02f));
-				c.Vertex(vec3(bc->x+0.98f, (float)bc->y+0.98f, (float)bc->z+0.98f));
-			c.EndRender();
-			c.BeginRenderLineStrip();
-				c.Color(color_header_loaded);
-				c.Vertex(vec3(bc->x+0.02f, (float)bc->y+0.98f, (float)bc->z+0.02f));
-				c.Vertex(vec3(bc->x+0.02f, (float)bc->y+0.98f, (float)bc->z+0.98f));
-			c.EndRender();
-		}
-	}
-
-	color4 color_header_loaded(100, 255, 100, 255);
-
-	for (int k = 0; k < NUM_SERVER_BUCKETS; k++)
-	{
-		BucketHeader* header = &g_server_data->m_buckets.m_buckets_hash[k];
+		BucketHeader* header = &g_client_data->m_buckets.m_buckets_hash[k];
 
 		if (!header->Valid())
 			continue;
 
 		BucketCoordinate* bc = &header->m_coordinates.m_bucket;
 
-		c.BeginRenderLineStrip();
-			c.Color(color_header_loaded);
-			c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.01f, (float)bc->z+0.01f));
-			c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.01f, (float)bc->z+0.01f));
-			c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.99f, (float)bc->z+0.01f));
-			c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.99f, (float)bc->z+0.01f));
-			c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.01f, (float)bc->z+0.01f));
-			c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.01f, (float)bc->z+0.99f));
-			c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.99f, (float)bc->z+0.99f));
-			c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.99f, (float)bc->z+0.99f));
-			c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.01f, (float)bc->z+0.99f));
-			c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.01f, (float)bc->z+0.99f));
-		c.EndRender();
-		c.BeginRenderLineStrip();
-			c.Color(color_header_loaded);
-			c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.01f, (float)bc->z+0.01f));
-			c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.01f, (float)bc->z+0.99f));
-		c.EndRender();
-		c.BeginRenderLineStrip();
-			c.Color(color_header_loaded);
-			c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.99f, (float)bc->z+0.01f));
-			c.Vertex(vec3(bc->x+0.99f, (float)bc->y+0.99f, (float)bc->z+0.99f));
-		c.EndRender();
-		c.BeginRenderLineStrip();
-			c.Color(color_header_loaded);
-			c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.99f, (float)bc->z+0.01f));
-			c.Vertex(vec3(bc->x+0.01f, (float)bc->y+0.99f, (float)bc->z+0.99f));
-		c.EndRender();
+		DrawBox(c, bc, 0.02f, color_header_loaded);
+	}
+
+	if (g_server_data)
+	{
+		// Server buckets are green
+		color4 color_header_loaded(100, 255, 100, 255);
+
+		for (int k = 0; k < NUM_SERVER_BUCKETS; k++)
+		{
+			BucketHeader* header = &g_server_data->m_buckets.m_buckets_hash[k];
+
+			if (!header->Valid())
+				continue;
+
+			BucketCoordinate* bc = &header->m_coordinates.m_bucket;
+
+			DrawBox(c, bc, 0.01f, color_header_loaded);
+		}
 	}
 #endif
 #endif

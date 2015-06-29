@@ -137,12 +137,21 @@ void LocalArtist::HandleInput(ControlData* input)
 
 		if (g_client_data->m_local_artist.m_current_stroke.Valid())
 		{
-			TUnimplemented();
-			/*
-			vec3 previous_point = g_client_data->m_buckets.m_shared.;
-			if ((new_point - previous_point).LengthSqr() < 0.000001f)
-				skip = true;
-			*/
+			BucketCoordinate bc = g_client_data->m_local_artist.m_current_stroke.m_bucket;
+			BucketHashIndex bucket_index = g_client_data->m_buckets.m_shared.BucketHash_Find(&bc);
+
+			if (bucket_index != TInvalid(BucketHashIndex))
+			{
+				BucketHeader* bucket = &g_client_data->m_buckets.m_shared.m_buckets_hash[bucket_index];
+				StrokeInfo* stroke = &bucket->m_strokes[g_client_data->m_local_artist.m_current_stroke.m_stroke_index];
+
+				TAssert(!stroke->m_next.Valid());
+
+				vec3 previous_point = bucket->m_verts[stroke->m_first_vertex + stroke->m_num_verts-1];
+
+				if ((new_point - previous_point).LengthSqr() < 0.000001f)
+					skip = true;
+			}
 		}
 
 		if (!skip)

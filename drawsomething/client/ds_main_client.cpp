@@ -63,10 +63,7 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 
 	g_client_data->m_window_data = game_data->m_window_data;
 
-	GLint samples;
-	glGetIntegerv(GL_SAMPLES, &samples);
-	g_client_data->m_shaders.Initialize(samples);
-	g_client_data->m_renderer.base.Initialize();
+	g_client_data->Initialize();
 
 	g_client_data->m_vb_strings.reserve(1024 * 10);
 
@@ -132,6 +129,17 @@ ServerData* g_server_data = nullptr; // This will only be non-null in listen ser
 extern "C" TDLLEXPORT void SetLocalNetworkMemory(GameData* game_data)
 {
 	g_server_data = (ServerData*)game_data->m_memory;
+}
+
+void ClientData::Initialize()
+{
+	GLint samples;
+	glGetIntegerv(GL_SAMPLES, &samples);
+
+	m_shaders.Initialize(samples);
+
+	m_renderer.base.Initialize();
+	m_buckets.Initialize();
 }
 
 void* tinker_vb_alloc(size_t memory_size, vb_alloc_type_t type)

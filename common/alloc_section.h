@@ -31,6 +31,7 @@ struct SectionAllocator
 {
 	MemorySection* m_sections;
 	MemorySectionInfo* m_memory_info;
+	MemorySectionInfo  m_memory_info_storage;
 	int   m_num_sections;
 
 	int32 m_memory_size;
@@ -45,7 +46,7 @@ struct SectionAllocator
 	// You allocate sections and pass it in. All datakeeping goes on in sections.
 	// SectionAllocator never touches the actual memory. In fact you don't even
 	// have to pass it in. memory_size is the size of the memory to be sectioned out.
-	void Initialize(MemorySection* sections, int num_sections, int32 memory_size, MemorySectionInfo* memory_info);
+	void Initialize(MemorySection* sections, int num_sections, int32 memory_size, MemorySectionInfo* memory_info = nullptr);
 
 	// Like Initialize but will not write initial values to the sections and memory info.
 	// Suitable for if you are loading an existing SectionAllocator from eg disk.
@@ -63,4 +64,6 @@ struct SectionAllocator
 	void Free(int32 section);
 
 	bool ResizeBackingMemory(int32 allocation_size);
+
+	void CheckMemoryInfo();
 };

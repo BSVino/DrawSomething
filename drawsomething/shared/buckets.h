@@ -90,14 +90,35 @@ struct BucketHeader
 	uint32      m_max_strokes; // Maximum strokes the buffer will hold
 	uint32      m_max_verts;   // Maximum verts the buffer will hold
 
-	FileMappingIndex m_file_mapping; // index into ServerBuckets::m_file_mappings
+	typedef enum {
+		HS_NONE = 0,
+		HS_REQUESTED_FROM_SERVER = (1<<0),
+	} header_status_t;
 
+	union {
+		struct {
+			FileMappingIndex m_file_mapping; // index into ServerBuckets::m_file_mappings
+		} s;
+		struct {
+			uint8 m_flags; // bit field from header_status_t
+		} c;
+	};
+
+	void Initialize(BucketCoordinate* bc);
 	void Initialize(AlignedCoordinate* bc);
 	void Invalidate();
 	bool Valid();
 	void Touch();
 
+	void SetStrokeInfoMemory(void* stroke_info, int length);
+	void SetVertsMemory(void* verts, int length);
+
 	StrokeCoordinate GetLastStroke();
+
+	void AddPointToStroke(vec3* point, StrokeCoordinate* stroke);
+
+	StrokeInfo* PushStroke();
+	vec3* PushVert(StrokeIndex stroke);
 };
 
 struct SharedBuckets
@@ -106,6 +127,15 @@ struct SharedBuckets
 	BucketHeader* m_buckets_hash;
 	int           m_num_buckets;
 
+	// Insert this coordinate into the hash table. If the hash
+	// table is full and there are no spots, return invalid. This algorithm
+	// assumes that buckets are never removed from the hash table until
+	// it's full.
+	BucketHashIndex BucketHash_Insert(BucketCoordinate* coordinate);
+
+	// Return a hash index corresponding to this coordinate. This algorithm
+	// assumes that buckets are never removed from the hash table until
+	// it's full.
 	BucketHashIndex BucketHash_Find(BucketCoordinate* coordinate);
 
 	// Least recently used

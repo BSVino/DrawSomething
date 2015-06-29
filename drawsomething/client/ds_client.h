@@ -53,6 +53,8 @@ struct ClientData
 		m_vb_items = m_vb_main1 = m_vb_main2 = m_vb_af1 = m_vb_af2 = 0;
 	}
 
+	void Initialize();
+
 	Artist* GetLocalArtist()
 	{
 		net_peer_t local = m_host.m_peer_index;

@@ -47,7 +47,7 @@ struct ServerBuckets
 		}* m_header;
 
 		SectionAllocator m_allocator;
-		
+
 		uint32 m_header_size; // TODO: Move this up to ServerBuckets to save memory
 		uint8 m_num_active_buckets; // How many of the buckets in this file are using it?
 
@@ -96,6 +96,8 @@ struct ServerBuckets
 	FileMappingIndex FindMapping(AlignedCoordinate* bc, FileMappingIndex* empty = nullptr);
 	FileMappingIndex LoadBucket(BucketHeader* bucket);
 
+	// Look up the bucket header by its coordinate.
+	// If it's not loaded, load it, even if you have to unload something else.
 	BucketHeader* RetrieveBucket(BucketCoordinate* bc);
 
 	void UnloadLRUBucket();
