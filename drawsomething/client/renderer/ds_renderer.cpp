@@ -71,13 +71,44 @@ void DSRenderer::Draw()
 		c.Vertex(vec3(-10, 10, 0));
 	c.EndRender();
 
+#ifdef _DEBUG
+	// Server buckets are green
+	color4 color_server(100, 255, 100, 255);
+
+	if (g_server_data)
+	{
+		c.UseShader(SHADER_DEBUGLINE);
+		c.SetUniform(UNIFORM_GLOBAL, mat4::s_identity);
+		c.SetUniform(UNIFORM_CAMERA, local->m_position);
+		c.SetUniform(UNIFORM_CAMERA_DIRECTION, base.m_camera_direction);
+
+		for (int q = 0; q < NUM_SERVER_BUCKETS; q++)
+		{
+			BucketHeader* bucket = &g_server_data->m_buckets.m_buckets_hash[q];
+			for (int k = 0; k < bucket->m_num_strokes; k++)
+			{
+				c.BeginRenderLineStrip();
+					c.Color(color_server);
+					VertexIndex first_vert = bucket->m_strokes[k].m_first_vertex;
+					VertexIndex max_point = bucket->m_strokes[k].m_first_vertex + bucket->m_strokes[k].m_num_verts;
+					for (int j = first_vert; j < max_point; j++)
+					{
+						vec3 point = bucket->m_verts[j];
+						c.Vertex(point);
+					}
+				c.EndRender();
+			}
+		}
+	}
+#endif
+
+	color4 color_white(255, 255, 255, 255);
+
 	c.UseShader(SHADER_LINE);
 
 	c.SetUniform(UNIFORM_GLOBAL, mat4::s_identity);
 	c.SetUniform(UNIFORM_CAMERA, local->m_position);
 	c.SetUniform(UNIFORM_CAMERA_DIRECTION, base.m_camera_direction);
-
-	color4 color_white(255, 255, 255, 255);
 
 	for (int q = 0; q < NUM_CLIENT_BUCKETS; q++)
 	{
@@ -145,9 +176,6 @@ void DSRenderer::Draw()
 
 	if (g_server_data)
 	{
-		// Server buckets are green
-		color4 color_header_loaded(100, 255, 100, 255);
-
 		for (int k = 0; k < NUM_SERVER_BUCKETS; k++)
 		{
 			BucketHeader* header = &g_server_data->m_buckets.m_buckets_hash[k];
@@ -157,7 +185,7 @@ void DSRenderer::Draw()
 
 			BucketCoordinate* bc = &header->m_coordinates.m_bucket;
 
-			DrawBox(c, bc, 0.01f, color_header_loaded);
+			DrawBox(c, bc, 0.01f, color_server);
 		}
 	}
 #endif

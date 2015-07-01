@@ -25,6 +25,8 @@ void SectionAllocator::LoadFrom(MemorySection* sections, int num_sections, int32
 
 int32 SectionAllocator::Alloc(int32 size)
 {
+	TAssert(size > 0);
+	
 	CheckMemoryInfo();
 
 	// Round up to the next cache line.

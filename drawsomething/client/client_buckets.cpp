@@ -28,7 +28,7 @@ BucketHeader* ClientBuckets::RetrieveBucket(BucketCoordinate* bc)
 		if (m_bucket_sections[LRU].m_verts_section >= 0)
 			m_allocator.Free(m_bucket_sections[LRU].m_verts_section);
 
-		m_bucket_sections[LRU].m_strokes_section = m_bucket_sections[LRU].m_strokes_section = -1;
+		m_bucket_sections[LRU].m_strokes_section = m_bucket_sections[LRU].m_verts_section = -1;
 
 		hash_index = m_shared.BucketHash_Insert(bc);
 		TAssert(hash_index != TInvalid(BucketHashIndex));
@@ -78,7 +78,28 @@ void ClientBuckets::AddPointToStroke(vec3* point)
 
 void ClientBuckets::EndStroke()
 {
+	LocalArtist* local_artist = &g_client_data->m_local_artist;
+	TAssert(local_artist->m_current_stroke.Valid());
 
+	BucketHashIndex hash_index = m_shared.BucketHash_Find(&local_artist->m_current_stroke.m_bucket);
+
+	TAssert(hash_index != TInvalid(BucketHashIndex));
+
+	BucketHeader* bucket_header = &m_shared.m_buckets_hash[hash_index];
+
+	// If it's not the right bucket we have a problem.
+	TAssert(bucket_header->Valid() && bucket_header->m_coordinates.m_bucket.Equals(&local_artist->m_current_stroke.m_bucket));
+
+	auto* stroke = &bucket_header->m_strokes[local_artist->m_current_stroke.m_stroke_index];
+
+	// Remove the stroke if there's only one vert.
+	if (!stroke->m_previous.Valid() && !stroke->m_next.Valid() && stroke->m_num_verts <= 1)
+		// It's not as easy as just num_strokes-- since we may not be the last stroke anymore.
+		// Don't want to rearrange stuff here, so we'll just kick it down the line for the
+		// defragmenter to worry about.
+		stroke->m_num_verts = 0;
+
+	local_artist->m_current_stroke.Invalidate();
 }
 
 StrokeInfo* ClientBuckets::PushStroke(BucketHeader* bucket_header)
@@ -123,6 +144,8 @@ void ClientBuckets::ExpandStrokes(BucketHeader* bucket)
 	}
 
 	m_buckets_hash[bucket_index].SetStrokeInfoMemory(m_bucket_memory + m_memory_sections[new_section].m_start, m_memory_sections[new_section].m_length);
+
+	TAssert(bucket->m_num_strokes < bucket->m_max_strokes);
 }
 
 void ClientBuckets::ExpandVerts(BucketHeader* bucket)
@@ -139,7 +162,7 @@ void ClientBuckets::ExpandVerts(BucketHeader* bucket)
 
 	TAssert(new_section >= 0);
 
-	m_bucket_sections[bucket_index].m_strokes_section = new_section;
+	m_bucket_sections[bucket_index].m_verts_section = new_section;
 
 	if (old_section >= 0)
 	{
@@ -151,4 +174,6 @@ void ClientBuckets::ExpandVerts(BucketHeader* bucket)
 	}
 
 	m_buckets_hash[bucket_index].SetVertsMemory(m_bucket_memory + m_memory_sections[new_section].m_start, m_memory_sections[new_section].m_length);
+
+	TAssert(bucket->m_num_verts < bucket->m_max_verts);
 }
