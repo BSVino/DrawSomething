@@ -85,6 +85,10 @@ void DSRenderer::Draw()
 		for (int q = 0; q < NUM_SERVER_BUCKETS; q++)
 		{
 			BucketHeader* bucket = &g_server_data->m_buckets.m_buckets_hash[q];
+
+			if (!bucket->Valid())
+				continue;
+
 			for (int k = 0; k < bucket->m_num_strokes; k++)
 			{
 				c.BeginRenderLineStrip();
@@ -113,6 +117,10 @@ void DSRenderer::Draw()
 	for (int q = 0; q < NUM_CLIENT_BUCKETS; q++)
 	{
 		BucketHeader* bucket = &g_client_data->m_buckets.m_buckets_hash[q];
+
+		if (!bucket->Valid())
+			continue;
+
 		for (int k = 0; k < bucket->m_num_strokes; k++)
 		{
 			c.BeginRenderLineStrip();

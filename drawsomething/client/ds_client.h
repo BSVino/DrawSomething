@@ -16,14 +16,14 @@
 
 struct ClientData
 {
+	ClientBuckets m_buckets;
+
 	ShaderLibrary m_shaders;
 	DSRenderer    m_renderer;
 
 	Artist m_artists[MAX_ARTISTS];
 	Artist m_local_artist_replicated;
 	LocalArtist m_local_artist;
-
-	ClientBuckets m_buckets;
 
 	NetClient m_host;
 	DSNetShared m_net_shared;

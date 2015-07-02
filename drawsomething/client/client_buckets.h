@@ -19,7 +19,7 @@ struct ClientBuckets
 		int32 m_verts_section;   // index into m_sections
 	} m_bucket_sections[NUM_CLIENT_BUCKETS]; // BucketHashIndex -> m_sections
 
-	MemorySection m_memory_sections[NUM_CLIENT_BUCKETS*2];
+	MemorySection m_memory_sections[NUM_CLIENT_BUCKETS*2+1]; // One extra for reallocs
 	MemorySectionInfo m_memory_info;
 	uint8 m_bucket_memory[1024*1024];
 

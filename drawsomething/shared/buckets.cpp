@@ -122,16 +122,17 @@ void BucketHeader::Initialize(BucketCoordinate* bc)
 {
 	m_coordinates.m_bucket = *bc;
 	m_last_used_time = g_shared_data->m_game_time;
-	m_num_strokes = 0;
-	m_num_verts = 0;
+	m_num_strokes = m_num_verts = 0;
+	m_max_strokes = m_max_verts = 0;
+	m_strokes = 0;
+	m_verts = 0;
 }
 
 void BucketHeader::Initialize(AlignedCoordinate* bc)
 {
 	m_coordinates = *bc;
-	m_last_used_time = g_shared_data->m_game_time;
-	m_num_strokes = 0;
-	m_num_verts = 0;
+
+	Initialize(&bc->m_bucket);
 }
 
 void BucketHeader::Invalidate()
