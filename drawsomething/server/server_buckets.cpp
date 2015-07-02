@@ -124,7 +124,7 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 	if (empty == TInvalid(FileMappingIndex) && index == TInvalid(FileMappingIndex))
 	{
 		// There are no empty slots and we couldn't find the right mapping.
-		UnloadInvactiveMappings();
+		UnloadInactiveMappings();
 
 		index = FindMapping(&bucket->m_coordinates, &empty);
 
@@ -173,6 +173,11 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 
 	bucket->m_num_strokes = pointers->m_num_strokes;
 	bucket->m_num_verts = pointers->m_num_verts;
+
+	TAssert((uint8*)bucket->m_strokes >= (uint8*)file_mapping->m_memory.m_memory);
+	TAssert((uint8*)bucket->m_verts >= (uint8*)file_mapping->m_memory.m_memory);
+	TAssert((uint8*)bucket->m_strokes < (uint8*)file_mapping->m_memory.m_memory + file_mapping->m_memory.m_memory_size);
+	TAssert((uint8*)bucket->m_verts < (uint8*)file_mapping->m_memory.m_memory + file_mapping->m_memory.m_memory_size);
 
 	return index;
 }
@@ -243,7 +248,7 @@ void ServerBuckets::UnloadBucket(BucketHashIndex i)
 	TAssert(!m_shared.m_buckets_hash[i].Valid());
 }
 
-void ServerBuckets::UnloadInvactiveMappings()
+void ServerBuckets::UnloadInactiveMappings()
 {
 	FileMappingIndex available = TInvalid(FileMappingIndex);
 
@@ -365,12 +370,20 @@ void ServerBuckets::FileMapping::ResizeMap(uint32 size)
 	{
 		BucketHeader* bucket = &g_server_data->m_buckets.m_shared.m_buckets_hash[k];
 
+		if (!bucket->Valid())
+			continue;
+
+		if (!bucket->m_coordinates.m_aligned.Equals(&m_bc))
+			continue;
+
 		UpdateSectionPointers(bucket);
 	}
 }
 
 void ServerBuckets::FileMapping::UpdateSectionPointers(BucketHeader* bucket)
 {
+	TAssert(bucket->m_coordinates.m_aligned.Equals(&m_bc));
+
 	auto* pointers = m_header->GetBucketSections(&bucket->m_coordinates);
 
 	if (pointers->m_strokes_section != TInvalid(uint32))

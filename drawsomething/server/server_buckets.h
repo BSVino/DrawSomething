@@ -103,6 +103,6 @@ struct ServerBuckets
 	void UnloadLRUBucket();
 	void UnloadBucket(BucketHashIndex i);
 
-	void UnloadInvactiveMappings();
+	void UnloadInactiveMappings();
 };
 
