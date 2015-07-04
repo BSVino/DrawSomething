@@ -3,9 +3,9 @@
 #include "stringtable.h"
 
 #include "client/renderer/shaders.h"
-#include "client/net_client.h"
 #include "client/client_buckets.h"
 #include "net_ds.h"
+#include "shared/tinker_shared.h"
 
 #include "renderer/ds_renderer.h"
 #include "game/c_artist.h"
@@ -25,14 +25,12 @@ struct ClientData
 	Artist m_local_artist_replicated;
 	LocalArtist m_local_artist;
 
-	NetClient m_host;
 	DSNetShared m_net_shared;
 	ENetMemory m_enet_memory;
 
-	struct WindowData* m_window_data;
+	TinkerShared m_shared;
 
-	double m_game_time;
-	float m_frame_time;
+	struct WindowData* m_window_data;
 
 	// Viewback stuff.
 	void* m_vb1;
@@ -55,14 +53,7 @@ struct ClientData
 
 	void Initialize();
 
-	Artist* GetLocalArtist()
-	{
-		net_peer_t local = m_host.m_peer_index;
-		if (local == TInvalid(net_peer_t))
-			return NULL;
-
-		return &m_artists[local];
-	}
+	Artist* GetLocalArtist();
 };
 
 extern ClientData* g_client_data;

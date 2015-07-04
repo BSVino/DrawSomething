@@ -42,7 +42,7 @@ mkdir -p $ProjectOutputDir/o/tinker
 
 pushd $ProjectOutputDir/o/tinker > /dev/null
 clang $CommonInclude $CommonFlags -c \
-	$ProjectDir/common/alloc_section.cpp \
+	$ProjectDir/common/alloc_section.cpp $ProjectDir/common/alloc_ring.cpp \
 	$ProjectDir/common/data.cpp $ProjectDir/common/platform_osx.cpp \
 	$ProjectDir/common/shell.cpp $ProjectDir/common/stringtable.cpp \
 	$ProjectDir/common/stb.cpp $ProjectDir/common/math/color.cpp \

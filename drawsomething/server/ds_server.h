@@ -1,8 +1,9 @@
 #pragma once
 
+#include "shared/tinker_shared.h"
+
 #include "game/s_artist.h"
 
-#include "server/net_host.h"
 #include "net_ds.h"
 #include "server_buckets.h"
 
@@ -18,12 +19,12 @@ struct ServerData
 
 	ServerBuckets m_buckets;
 
-	NetHost m_host;
 	DSNetShared m_net_shared;
 	ENetMemory m_enet_memory;
 
-	double m_game_time;
-	float m_frame_time;
+	TinkerShared m_shared;
+
+	void Initialize();
 };
 
 extern ServerData* g_server_data;

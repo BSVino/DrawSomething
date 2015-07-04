@@ -5,6 +5,14 @@
 
 #include <enet/enet.h>
 
+#include "tinker_shared.h"
+
+struct PacketDelayHeader {
+	double     m_delay_until_time;
+	net_peer_t m_net_peer;
+	int32      m_packet_size;
+};
+
 void NetShared::Initialize()
 {
 	m_replicated_fields_size = 0;
@@ -23,6 +31,35 @@ void NetShared::Initialize()
 	TAssert(sizeof(replicated_entity_t) == 1);          // If this gets larger, reads/writes need to start using tntoh/thton
 	TAssert(sizeof(replicated_entity_instance_t) == 1); // If this gets larger, reads/writes need to start using tntoh/thton
 	TAssert(pow(2.0f, (float)sizeof(net_peer_t) * 8) > MAX_PLAYERS);
+
+#ifdef _DEBUG
+	m_packet_send_delay = 0.8f;
+#else
+	m_packet_send_delay = 0;
+#endif
+
+	m_packet_queue_allocator.Initialize(m_packet_queue_memory, sizeof(m_packet_queue_memory));
+}
+
+void NetShared::Service()
+{
+	while (true)
+	{
+		PacketDelayHeader* header;
+		int32 memory_size;
+		m_packet_queue_allocator.PeekTail((void**)&header, &memory_size);
+		if (!header)
+			break;
+
+		if (g_shared_data->m_real_time < header->m_delay_until_time)
+			break;
+
+		TAssert(memory_size - sizeof(PacketDelayHeader) == header->m_packet_size);
+
+		g_shared_data->m_host.Packet_SendNow((uint8*)(header+1), header->m_packet_size, header->m_net_peer);
+
+		m_packet_queue_allocator.FreeTail(nullptr, nullptr);
+	}
 }
 
 replicated_entity_t NetShared::Replicated_AddEntity()
@@ -205,3 +242,53 @@ void NetShared::Packet_ReadValueChanges(uint8* packet, uint16 packet_size)
 	TAssert(current == packet_size);
 }
 
+void NetShared::Packet_Send(uint8* packet, uint16 packet_size, net_peer_t peer)
+{
+	if (m_packet_send_delay)
+	{
+		PacketDelayHeader* header = 0;
+		while (!header)
+		{
+			header = (PacketDelayHeader*)m_packet_queue_allocator.Alloc(packet_size + sizeof(PacketDelayHeader));
+			if (!header)
+			{
+				TAssert(false); // Make the ring buffer larger.
+				
+				if (m_packet_queue_allocator.IsEmpty())
+				{
+					g_shared_data->m_host.Packet_SendNow(packet, packet_size, peer);
+					return;
+				}
+
+				PacketDelayHeader* header;
+				int32 memory_size;
+				m_packet_queue_allocator.FreeTail((void**)&header, &memory_size);
+				g_shared_data->m_host.Packet_SendNow((uint8*)(header+1), header->m_packet_size, header->m_net_peer);
+			}
+		}
+
+		header->m_delay_until_time = g_shared_data->m_real_time + m_packet_send_delay;
+		header->m_net_peer = peer;
+		header->m_packet_size = packet_size;
+		memcpy((header+1), packet, packet_size);
+	}
+	else
+	{
+		while (!m_packet_queue_allocator.IsEmpty())
+		{
+			PacketDelayHeader* header;
+			int32 memory_size;
+			m_packet_queue_allocator.FreeTail((void**)&header, &memory_size);
+			if (!header)
+				break;
+
+			TAssert(memory_size - sizeof(PacketDelayHeader) == header->m_packet_size);
+		}
+
+		// If you hit this, send everything in this list before continuing to ensure
+		// everything is sent in the proper order.
+		TAssert(m_packet_queue_allocator.IsEmpty());
+
+		g_shared_data->m_host.Packet_SendNow(packet, packet_size, peer);
+	}
+}

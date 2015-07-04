@@ -42,6 +42,8 @@ void NetClient::Connect(const char* connect)
 
 void NetClient::Service()
 {
+	m_shared.Service();
+	
 	uint16 packet_size; // In bytes
 	uint8 packet_contents[MAX_PACKET_LENGTH];
 
@@ -69,12 +71,7 @@ void NetClient::Service()
 	}
 
 	if (packet_contents[1])
-	{
-		ENetPacket* packet = enet_packet_create(packet_contents, packet_size, ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_NO_ALLOCATE);
-		int result = enet_peer_send(m_enetpeer, 0, packet);
-
-		TCheck(result >= 0);
-	}
+		m_shared.Packet_Send(packet_contents, packet_size, 0);
 
 	ENetEvent event;
 	while (enet_host_service(m_enetclient, &event, 0) > 0)
@@ -138,9 +135,7 @@ void NetClient::Packet_SendCustom(uint8* contents, uint32 length)
 	packet_contents[0] = 'G';
 	memcpy(packet_contents+1, contents, length);
 
-	ENetPacket* packet = enet_packet_create(packet_contents, packet_length, ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_NO_ALLOCATE);
-	enet_peer_send(m_enetpeer, 0, packet);
-	enet_host_flush(m_enetclient); // Send packets now since packet_contents is about to go out of scope
+	m_shared.Packet_Send(packet_contents, packet_length, 0);
 }
 
 void NetClient::AddEntityFromServer(replicated_entity_instance_t entity_instance_index, replicated_entity_t entity_table_index, uint16 entity_index)
@@ -174,4 +169,13 @@ void NetClient::AddEntityFromServer(replicated_entity_instance_t entity_instance
 	}
 
 	AddEntityFromServerCallback(entity_instance_index, entity_table_index, entity_index);
+}
+
+void NetClient::Packet_SendNow(uint8* packet_contents, uint16 packet_size, net_peer_t peer)
+{
+	ENetPacket* packet = enet_packet_create(packet_contents, packet_size, ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_NO_ALLOCATE);
+	int result = enet_peer_send(m_enetpeer, 0, packet);
+	enet_host_flush(m_enetclient); // Send packets now so we can reclaim the memory
+
+	TCheck(result >= 0);
 }

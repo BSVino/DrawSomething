@@ -14,6 +14,8 @@
 #include "../server/ds_server.h"
 
 ClientData* g_client_data;
+ServerData* g_server_data = nullptr; // This will only be non-null in listen servers!
+TinkerShared* g_shared_data = nullptr;
 
 extern "C" TDLLEXPORT size_t GetMemorySize()
 {
@@ -65,30 +67,6 @@ extern "C" TDLLEXPORT bool GameInitialize(GameData* game_data, int argc, char** 
 
 	g_client_data->Initialize();
 
-	g_client_data->m_vb_strings.reserve(1024 * 10);
-
-	vb2_config_t config;
-	vb_config_initialize(&config);
-
-	config.alloc_callback = tinker_vb_alloc;
-	config.free_callback = tinker_vb_free;
-	config.num_data_controls = 1;
-
-	if (!vb_config_install(&config, 0, 0))
-		return 0;
-
-	vb_data_add_profile(vb_str("Default"), NULL);
-
-	vb_data_add_control_button(vb_str("shaders_reload"), ReloadShaders);
-
-	vb_server_create();
-
-	vb_static_retrieve(&g_client_data->m_vb1, &g_client_data->m_vb2);
-
-	g_client_data->m_host.Initialize();
-	g_client_data->m_host.Connect("localhost");
-	net_register_replications();
-
 	return 1;
 }
 
@@ -96,8 +74,9 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 {
 	g_client_data = (ClientData*)game_data->m_memory;
 
-	g_client_data->m_game_time = game_data->m_game_time;
-	g_client_data->m_frame_time = (float)game_data->m_frame_time;
+	g_client_data->m_shared.m_game_time = game_data->m_game_time;
+	g_client_data->m_shared.m_real_time = game_data->m_real_time;
+	g_client_data->m_shared.m_frame_time = (float)game_data->m_frame_time;
 
 	vb_static_reset(g_client_data->m_vb1, g_client_data->m_vb2);
 
@@ -113,7 +92,7 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 	}
 
 	// This receives updates from the server, but it also sends commands, so we do it after we handle input.
-	g_client_data->m_host.Service();
+	g_client_data->m_shared.m_host.Service();
 
 	g_client_data->m_local_artist.LocalThink();
 
@@ -124,8 +103,6 @@ extern "C" TDLLEXPORT bool GameFrame(GameData* game_data)
 	return 1;
 }
 
-ServerData* g_server_data = nullptr; // This will only be non-null in listen servers!
-
 extern "C" TDLLEXPORT void SetLocalNetworkMemory(GameData* game_data)
 {
 	g_server_data = (ServerData*)game_data->m_memory;
@@ -133,6 +110,8 @@ extern "C" TDLLEXPORT void SetLocalNetworkMemory(GameData* game_data)
 
 void ClientData::Initialize()
 {
+	g_shared_data = &m_shared;
+
 	GLint samples;
 	glGetIntegerv(GL_SAMPLES, &samples);
 
@@ -140,6 +119,39 @@ void ClientData::Initialize()
 
 	m_renderer.base.Initialize();
 	m_buckets.Initialize();
+
+	g_client_data->m_vb_strings.reserve(1024 * 10);
+
+	vb2_config_t config;
+	vb_config_initialize(&config);
+
+	config.alloc_callback = tinker_vb_alloc;
+	config.free_callback = tinker_vb_free;
+	config.num_data_controls = 1;
+
+	if (vb_config_install(&config, 0, 0))
+	{
+		vb_data_add_profile(vb_str("Default"), NULL);
+
+		vb_data_add_control_button(vb_str("shaders_reload"), ReloadShaders);
+
+		vb_server_create();
+
+		vb_static_retrieve(&g_client_data->m_vb1, &g_client_data->m_vb2);
+	}
+
+	g_client_data->m_shared.m_host.Initialize();
+	g_client_data->m_shared.m_host.Connect("localhost");
+	net_register_replications();
+}
+
+Artist* ClientData::GetLocalArtist()
+{
+	net_peer_t local = m_shared.m_host.m_peer_index;
+	if (local == TInvalid(net_peer_t))
+		return NULL;
+
+	return &m_artists[local];
 }
 
 void* tinker_vb_alloc(size_t memory_size, vb_alloc_type_t type)

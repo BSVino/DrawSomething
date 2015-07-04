@@ -2,6 +2,8 @@
 
 #include <common.h>
 
+#include <alloc_ring.h>
+
 typedef uint8 replicated_field_t;
 typedef uint8 replicated_entity_t;
 typedef uint8 replicated_entity_instance_t;
@@ -71,7 +73,13 @@ struct NetShared
 	uint8 m_replicated_fields_table_size;
 	uint8 m_replicated_entities_table_size;
 
+	float m_packet_send_delay;
+	RingAllocator m_packet_queue_allocator;
+	uint8 m_packet_queue_memory[4096];
+
 	void Initialize();
+
+	void Service();
 
 	replicated_entity_t Replicated_AddEntity();
 	replicated_field_t Replicated_AddField(uint16 offset, uint8 size, field_type_t type);
@@ -80,6 +88,10 @@ struct NetShared
 	void Packet_WriteValueChange(uint8* packet_contents, uint16* packet_size, replicated_field_t table_entry_index, replicated_entity_instance_t entity_instance_index);
 	// Reads all of the value changed packet and updates fields and everything.
 	void Packet_ReadValueChanges(uint8* packet, uint16 packet_size);
+
+	// Put a packet on the list of packets to be sent.
+	// This always copies the memory of packet elsewhere so it can be freed immediately.
+	void Packet_Send(uint8* packet, uint16 packet_size, net_peer_t peer);
 };
 
 // The game must define these. They can be simple pass-throughs.

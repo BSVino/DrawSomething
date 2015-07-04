@@ -97,8 +97,10 @@ int main(int argc, char** args)
 			g_client_code.Refresh();
 
 			g_server_code.m_game_data.m_game_time = game_time;
+			g_server_code.m_game_data.m_real_time = frame_start_time;
 			g_server_code.m_game_data.m_frame_time = frame_time;
 			g_client_code.m_game_data.m_game_time = game_time;
+			g_client_code.m_game_data.m_real_time = frame_start_time;
 			g_client_code.m_game_data.m_frame_time = frame_time;
 
 			window.PollEvents(&input);
@@ -136,6 +138,7 @@ int main(int argc, char** args)
 			g_server_code.Refresh();
 
 			g_server_code.m_game_data.m_game_time = game_time;
+			g_server_code.m_game_data.m_real_time = frame_start_time;
 			g_server_code.m_game_data.m_frame_time = frame_time;
 
 			game_active = g_server_code.m_game_frame(&g_server_code.m_game_data);
@@ -170,6 +173,7 @@ int main(int argc, char** args)
 			window.PollEvents(&input);
 
 			g_client_code.m_game_data.m_game_time = game_time;
+			g_client_code.m_game_data.m_real_time = frame_start_time;
 			g_client_code.m_game_data.m_frame_time = frame_time;
 
 			game_active = g_client_code.m_game_frame(&g_client_code.m_game_data);

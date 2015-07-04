@@ -1,26 +1,13 @@
 #include "artist.h"
 #include "net_ds.h"
-
-#ifdef CLIENT_LIBRARY
-#include "client/ds_client.h"
-#include "client/net_client.h"
-#else
-#include "server/ds_server.h"
-#include "server/net_host.h"
-#endif
+#include "ds_shared.h"
 
 #define STRUCT_OFFSET(s, f) (uint16)((size_t)&(s.f) - (size_t)&(s))
 
-#ifdef CLIENT_LIBRARY
-#define g_library_data g_client_data
-#else
-#define g_library_data g_server_data
-#endif
-
 void net_register_replications()
 {
-	NetShared* net_interface = &g_library_data->m_host.m_shared;
-	DSNetShared* ds_net = &g_library_data->m_net_shared;
+	NetShared* net_interface = &g_game_data->m_shared.m_host.m_shared;
+	DSNetShared* ds_net = &g_game_data->m_net_shared;
 
 	replicated_field_t current_field;
 
@@ -51,7 +38,7 @@ void* NetClient::GetEntityReplicatedMemory(replicated_entity_instance_t /*entity
 {
 	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index)
 	{
-		if (entity_index == g_client_data->m_host.m_peer_index)
+		if (entity_index == g_client_data->m_shared.m_host.m_peer_index)
 			return &g_client_data->m_local_artist_replicated;
 		else
 			return NULL;
@@ -76,7 +63,7 @@ void NetClient::AddEntityFromServerCallback(replicated_entity_instance_t /*entit
 {
 	g_client_data->m_artists[entity_index].m_active = 1;
 
-	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index && entity_index == g_client_data->m_host.m_peer_index)
+	if (g_client_data->m_net_shared.m_replicated_artist == entity_table_index && entity_index == g_client_data->m_shared.m_host.m_peer_index)
 		g_client_data->m_local_artist.m_local = &g_client_data->m_artists[entity_index];
 }
 #else
@@ -125,7 +112,7 @@ void NetHost::Packet_ReceiveCustom(net_peer_t from_peer, uint8* data, uint32 dat
 
 void tinker_enet_free(void* memory)
 {
-	ENetMemory* memory_reserve = &g_library_data->m_enet_memory;
+	ENetMemory* memory_reserve = &g_game_data->m_enet_memory;
 
 	if (memory == &memory_reserve->m_host)
 		return;
@@ -161,7 +148,7 @@ void tinker_enet_free(void* memory)
 
 void* tinker_enet_malloc(size_t size)
 {
-	ENetMemory* memory_reserve = &g_library_data->m_enet_memory;
+	ENetMemory* memory_reserve = &g_game_data->m_enet_memory;
 
 	if (size == sizeof(memory_reserve->m_host))
 		return &memory_reserve->m_host;
@@ -193,48 +180,48 @@ void* ENetMemoryTable::AllocOutgoing()
 {
 	TAssert(MAX_OUTGOING_COMMANDS <= sizeof(m_occupied_outgoing) * 8);
 
-	return Alloc(MAX_OUTGOING_COMMANDS, sizeof(ENetOutgoingCommand), &m_occupied_outgoing, (uint8*)&g_library_data->m_enet_memory.m_outgoing_commands[0]);
+	return Alloc(MAX_OUTGOING_COMMANDS, sizeof(ENetOutgoingCommand), &m_occupied_outgoing, (uint8*)&g_game_data->m_enet_memory.m_outgoing_commands[0]);
 }
 
 void ENetMemoryTable::FreeOutgoing(void* memory)
 {
-	Free(memory, MAX_OUTGOING_COMMANDS, sizeof(ENetOutgoingCommand), &m_occupied_outgoing, (uint8*)&g_library_data->m_enet_memory.m_outgoing_commands[0]);
+	Free(memory, MAX_OUTGOING_COMMANDS, sizeof(ENetOutgoingCommand), &m_occupied_outgoing, (uint8*)&g_game_data->m_enet_memory.m_outgoing_commands[0]);
 }
 
 void* ENetMemoryTable::AllocAcknowledgement()
 {
 	TAssert(MAX_ACKNOWLEDGEMENTS <= sizeof(m_occupied_acknowledgements) * 8);
 
-	return Alloc(MAX_ACKNOWLEDGEMENTS, sizeof(ENetAcknowledgement), &m_occupied_acknowledgements, (uint8*)&g_library_data->m_enet_memory.m_acknowledgements[0]);
+	return Alloc(MAX_ACKNOWLEDGEMENTS, sizeof(ENetAcknowledgement), &m_occupied_acknowledgements, (uint8*)&g_game_data->m_enet_memory.m_acknowledgements[0]);
 }
 
 void ENetMemoryTable::FreeAcknowledgement(void* memory)
 {
-	Free(memory, MAX_ACKNOWLEDGEMENTS, sizeof(ENetAcknowledgement), &m_occupied_acknowledgements, (uint8*)&g_library_data->m_enet_memory.m_acknowledgements[0]);
+	Free(memory, MAX_ACKNOWLEDGEMENTS, sizeof(ENetAcknowledgement), &m_occupied_acknowledgements, (uint8*)&g_game_data->m_enet_memory.m_acknowledgements[0]);
 }
 
 void* ENetMemoryTable::AllocPacket()
 {
 	TAssert(MAX_PACKETS <= sizeof(m_occupied_packets) * 8);
 
-	return Alloc(MAX_PACKETS, sizeof(ENetPacket), &m_occupied_packets, (uint8*)&g_library_data->m_enet_memory.m_packets[0]);
+	return Alloc(MAX_PACKETS, sizeof(ENetPacket), &m_occupied_packets, (uint8*)&g_game_data->m_enet_memory.m_packets[0]);
 }
 
 void ENetMemoryTable::FreePacket(void* memory)
 {
-	Free(memory, MAX_PACKETS, sizeof(ENetPacket), &m_occupied_packets, (uint8*)&g_library_data->m_enet_memory.m_packets[0]);
+	Free(memory, MAX_PACKETS, sizeof(ENetPacket), &m_occupied_packets, (uint8*)&g_game_data->m_enet_memory.m_packets[0]);
 }
 
 void* ENetMemoryTable::AllocData()
 {
 	TAssert(MAX_DATA <= DATA_LENGTH * 8);
 
-	return Alloc(MAX_DATA, DATA_LENGTH, &m_occupied_data, (uint8*)&g_library_data->m_enet_memory.m_data[0][0]);
+	return Alloc(MAX_DATA, DATA_LENGTH, &m_occupied_data, (uint8*)&g_game_data->m_enet_memory.m_data[0][0]);
 }
 
 void ENetMemoryTable::FreeData(void* memory)
 {
-	Free(memory, MAX_DATA, DATA_LENGTH, &m_occupied_data, (uint8*)&g_library_data->m_enet_memory.m_data[0][0]);
+	Free(memory, MAX_DATA, DATA_LENGTH, &m_occupied_data, (uint8*)&g_game_data->m_enet_memory.m_data[0][0]);
 }
 
 void* ENetMemoryTable::Alloc(uint64 max, uint64 size, uint8* occupied, uint8* reserve)

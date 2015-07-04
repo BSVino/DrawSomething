@@ -36,6 +36,8 @@ void NetHost::Create(net_peer_t max_players)
 
 void NetHost::Service()
 {
+	m_shared.Service();
+	
 	uint16 packet_sizes[MAX_PLAYERS]; // How long in bytes is each packet?
 	uint8 packet_contents[MAX_PLAYERS][MAX_PACKET_LENGTH];
 
@@ -80,12 +82,7 @@ void NetHost::Service()
 		if (!packet_contents[k][1])
 			continue;
 
-		packets[k] = enet_packet_create(packet_contents[k], packet_sizes[k], ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_NO_ALLOCATE);
-		int result = enet_peer_send(&m_enethost->peers[k], 0, packets[k]);
-		// We allocated the packet contents on the stack, so we would have to
-		// enet_host_flush if we weren't servicing immediately after.
-
-		TCheck(result >= 0);
+		m_shared.Packet_Send(packet_contents[k], packet_sizes[k], k);
 	}
 
 	ENetEvent event;
@@ -180,9 +177,7 @@ void NetHost::ClientConnected(net_peer_t peer_index)
 		packet_contents[0] = 'W';
 		packet_contents[1] = peer_index;
 
-		ENetPacket* packet = enet_packet_create(packet_contents, packet_length, ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_NO_ALLOCATE);
-		enet_peer_send(&m_enethost->peers[peer_index], 0, packet);
-		enet_host_flush(m_enethost); // Send packets now since packet_contents is about to go out of scope
+		m_shared.Packet_Send(packet_contents, packet_length, peer_index);
 	}
 
 	{
@@ -209,13 +204,7 @@ void NetHost::ClientConnected(net_peer_t peer_index)
 		}
 
 		if (packet_contents[1])
-		{
-			ENetPacket* packet = enet_packet_create(packet_contents, packet_size, ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_NO_ALLOCATE);
-			int result = enet_peer_send(&m_enethost->peers[peer_index], 0, packet);
-			enet_host_flush(m_enethost); // Send packets now since packet_contents is about to go out of scope
-
-			TCheck(result >= 0);
-		}
+			m_shared.Packet_Send(packet_contents, packet_size, peer_index);
 	}
 
 	ClientConnectedCallback(peer_index);
@@ -231,18 +220,23 @@ void NetHost::Packet_WriteCreateEntity(net_peer_t destination_peer, replicated_e
 	packet_contents[2] = entity_table_index;
 	*(uint16*)(&packet_contents[3]) = thtons(entity_index);
 
-	ENetPacket* packet = enet_packet_create(packet_contents, packet_length, ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_NO_ALLOCATE);
+	m_shared.Packet_Send(packet_contents, packet_length, destination_peer);
+}
 
-	if (destination_peer == TInvalid(net_peer_t))
+void NetHost::Packet_SendNow(uint8* packet_contents, uint16 packet_size, net_peer_t peer)
+{
+	ENetPacket* packet = enet_packet_create(packet_contents, packet_size, ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_NO_ALLOCATE);
+
+	if (peer == TInvalid(net_peer_t))
 		enet_host_broadcast(m_enethost, 0, packet);
 	else
 	{
-		TAssert(destination_peer < m_enethost->peerCount);
-		enet_peer_send(&m_enethost->peers[destination_peer], 0, packet);
+		TAssert(peer < m_enethost->peerCount);
+		int result = enet_peer_send(&m_enethost->peers[peer], 0, packet);
+		TCheck(result >= 0);
 	}
 
-	enet_host_flush(m_enethost); // Send packets now since packet_contents is about to go out of scope
+	enet_host_flush(m_enethost); // Send packets now so we can reclaim the memory
 }
-
 
 

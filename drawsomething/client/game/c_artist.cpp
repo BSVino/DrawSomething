@@ -26,43 +26,43 @@ void LocalArtist::HandleInput(ControlData* input)
 			float window_border_max_velocity = vb_const_float(vb_str("dm_border_max_velocity"), 4);
 			if (g_client_data->m_window_data->m_mouse_x < window_border)
 			{
-				m_draw_mode_velocity.x = Approach(-window_border_max_velocity, m_draw_mode_velocity.x, g_client_data->m_frame_time * window_border_acceleration);
+				m_draw_mode_velocity.x = Approach(-window_border_max_velocity, m_draw_mode_velocity.x, g_client_data->m_shared.m_frame_time * window_border_acceleration);
 				BumpDrawTime();
 			}
 			else if (g_client_data->m_window_data->m_mouse_x > g_client_data->m_window_data->m_width - window_border)
 			{
-				m_draw_mode_velocity.x = Approach(window_border_max_velocity, m_draw_mode_velocity.x, g_client_data->m_frame_time * window_border_acceleration);
+				m_draw_mode_velocity.x = Approach(window_border_max_velocity, m_draw_mode_velocity.x, g_client_data->m_shared.m_frame_time * window_border_acceleration);
 				BumpDrawTime();
 			}
 			else
-				m_draw_mode_velocity.x = Approach(0, m_draw_mode_velocity.x, g_client_data->m_frame_time * window_border_acceleration);
+				m_draw_mode_velocity.x = Approach(0, m_draw_mode_velocity.x, g_client_data->m_shared.m_frame_time * window_border_acceleration);
 
 			if (g_client_data->m_window_data->m_mouse_y < window_border)
 			{
-				m_draw_mode_velocity.y = Approach(-window_border_max_velocity, m_draw_mode_velocity.y, g_client_data->m_frame_time * window_border_acceleration);
+				m_draw_mode_velocity.y = Approach(-window_border_max_velocity, m_draw_mode_velocity.y, g_client_data->m_shared.m_frame_time * window_border_acceleration);
 				BumpDrawTime();
 			}
 			else if (g_client_data->m_window_data->m_mouse_y > g_client_data->m_window_data->m_height - window_border)
 			{
-				m_draw_mode_velocity.y = Approach(window_border_max_velocity, m_draw_mode_velocity.y, g_client_data->m_frame_time * window_border_acceleration);
+				m_draw_mode_velocity.y = Approach(window_border_max_velocity, m_draw_mode_velocity.y, g_client_data->m_shared.m_frame_time * window_border_acceleration);
 				BumpDrawTime();
 			}
 			else
-				m_draw_mode_velocity.y = Approach(0, m_draw_mode_velocity.y, g_client_data->m_frame_time * window_border_acceleration);
+				m_draw_mode_velocity.y = Approach(0, m_draw_mode_velocity.y, g_client_data->m_shared.m_frame_time * window_border_acceleration);
 		}
 		else
 		{
-			m_draw_mode_velocity.x = Approach(0, m_draw_mode_velocity.x, g_client_data->m_frame_time * window_border_acceleration);
-			m_draw_mode_velocity.y = Approach(0, m_draw_mode_velocity.y, g_client_data->m_frame_time * window_border_acceleration);
+			m_draw_mode_velocity.x = Approach(0, m_draw_mode_velocity.x, g_client_data->m_shared.m_frame_time * window_border_acceleration);
+			m_draw_mode_velocity.y = Approach(0, m_draw_mode_velocity.y, g_client_data->m_shared.m_frame_time * window_border_acceleration);
 		}
 
-		m_local->m_looking.y -= m_draw_mode_velocity.x * g_client_data->m_frame_time * window_border_velocity;
-		m_local->m_looking.p -= m_draw_mode_velocity.y * g_client_data->m_frame_time * window_border_velocity;
+		m_local->m_looking.y -= m_draw_mode_velocity.x * g_client_data->m_shared.m_frame_time * window_border_velocity;
+		m_local->m_looking.p -= m_draw_mode_velocity.y * g_client_data->m_shared.m_frame_time * window_border_velocity;
 	}
 	else
 	{
-		m_local->m_looking.p -= input->m_mouse_dy * g_client_data->m_frame_time * 30;
-		m_local->m_looking.y -= input->m_mouse_dx * g_client_data->m_frame_time * 30;
+		m_local->m_looking.p -= input->m_mouse_dy * g_client_data->m_shared.m_frame_time * 30;
+		m_local->m_looking.y -= input->m_mouse_dx * g_client_data->m_shared.m_frame_time * 30;
 	}
 
 	if (m_local->m_looking.p > 89.9f)
@@ -91,7 +91,7 @@ void LocalArtist::HandleInput(ControlData* input)
 	mat4 player_looking(m_local->m_looking);
 	vec3 transformed_velocity = player_looking * velocity;
 
-	m_local->m_position += transformed_velocity * g_client_data->m_frame_time;
+	m_local->m_position += transformed_velocity * g_client_data->m_shared.m_frame_time;
 
 	if (input->m_forward.m_down || input->m_back.m_down || input->m_left.m_down || input->m_right.m_down)
 		m_draw_time = -9999;
@@ -110,7 +110,7 @@ void LocalArtist::HandleInput(ControlData* input)
 		TStackAllocate(uint8, contents, length);
 		contents[0] = 'S'; // Stroke
 		contents[1] = 'N'; // New stroke
-		g_client_data->m_host.Packet_SendCustom(contents, length);
+		g_client_data->m_shared.m_host.Packet_SendCustom(contents, length);
 	}
 
 	if (input->m_draw.m_down)
@@ -164,7 +164,7 @@ void LocalArtist::HandleInput(ControlData* input)
 			contents[0] = 'S'; // Stroke
 			contents[1] = 'P'; // New point in the current stroke
 			*(vec3*)&contents[2] = new_point;
-			g_client_data->m_host.Packet_SendCustom(contents, length);
+			g_client_data->m_shared.m_host.Packet_SendCustom(contents, length);
 		}
 	}
 
@@ -177,13 +177,13 @@ void LocalArtist::HandleInput(ControlData* input)
 		TStackAllocate(uint8, contents, length);
 		contents[0] = 'S'; // Stroke
 		contents[1] = 'E'; // End the stroke
-		g_client_data->m_host.Packet_SendCustom(contents, length);
+		g_client_data->m_shared.m_host.Packet_SendCustom(contents, length);
 	}
 }
 
 void LocalArtist::BumpDrawTime()
 {
-	m_draw_time = g_client_data->m_game_time + 1.5;
+	m_draw_time = g_client_data->m_shared.m_game_time + 1.5;
 }
 
 void LocalArtist::LocalThink()
@@ -191,8 +191,8 @@ void LocalArtist::LocalThink()
 	if (!m_local)
 		return;
 
-	float draw_mode_goal = g_client_data->m_game_time < m_draw_time;
-	m_draw_mode = Approach(draw_mode_goal, m_draw_mode, g_client_data->m_frame_time * vb_const_float(vb_str("dm_lerp"), 10));
+	float draw_mode_goal = g_client_data->m_shared.m_game_time < m_draw_time;
+	m_draw_mode = Approach(draw_mode_goal, m_draw_mode, g_client_data->m_shared.m_frame_time * vb_const_float(vb_str("dm_lerp"), 10));
 
 	g_client_data->m_window_data->m_cursor_visible = !!draw_mode_goal;
 }

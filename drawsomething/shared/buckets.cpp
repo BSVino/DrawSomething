@@ -2,17 +2,11 @@
 
 #include "stb_divide.h"
 
-#ifdef CLIENT_LIBRARY
-#define g_shared_data g_client_data
-#include "ds_client.h"
-#else
-#define g_shared_data g_server_data
-#include "ds_server.h"
-#endif
+#include "ds_shared.h"
 
 BucketHashIndex BucketHash_Hash(BucketCoordinate* coordinate)
 {
-	return (uint32)(((coordinate->x * 3985513591) + (coordinate->y * 2283571245) + (coordinate->z * 806576490))) % g_shared_data->m_buckets.m_shared.m_num_buckets;
+	return (uint32)(((coordinate->x * 3985513591) + (coordinate->y * 2283571245) + (coordinate->z * 806576490))) % g_game_data->m_buckets.m_shared.m_num_buckets;
 }
 
 BucketHashIndex SharedBuckets::BucketHash_Insert(BucketCoordinate* coordinate)
@@ -63,7 +57,7 @@ BucketHashIndex SharedBuckets::BucketHash_Find(BucketCoordinate* coordinate)
 
 void SharedBuckets::GetLRUBucket(BucketHashIndex* LRU, double* LRU_time)
 {
-	double lru_time = g_shared_data->m_game_time + 1;
+	double lru_time = g_game_data->m_shared.m_game_time + 1;
 	BucketHashIndex lru = TInvalid(BucketHashIndex);
 
 	for (int k = 0; k < m_num_buckets; k++)
@@ -121,7 +115,7 @@ void StrokeInfo::Initialize(uint32 first_vertex)
 void BucketHeader::Initialize(BucketCoordinate* bc)
 {
 	m_coordinates.m_bucket = *bc;
-	m_last_used_time = g_shared_data->m_game_time;
+	m_last_used_time = g_game_data->m_shared.m_game_time;
 	m_num_strokes = m_num_verts = 0;
 	m_max_strokes = m_max_verts = 0;
 	m_strokes = 0;
@@ -147,7 +141,7 @@ bool BucketHeader::Valid()
 
 void BucketHeader::Touch()
 {
-	m_last_used_time = g_shared_data->m_game_time;
+	m_last_used_time = g_game_data->m_shared.m_game_time;
 }
 
 void BucketHeader::SetStrokeInfoMemory(void* stroke_info, int length)
@@ -173,9 +167,9 @@ void BucketHeader::AddPointToStroke(vec3* point, StrokeCoordinate* stroke)
 
 	if (stroke->m_stroke_index == TInvalid(StrokeIndex))
 	{
-		StrokeInfo* new_stroke = g_shared_data->m_buckets.PushStroke(this);
+		StrokeInfo* new_stroke = g_game_data->m_buckets.PushStroke(this);
 		TAssert(new_stroke == &m_strokes[m_num_strokes-1]);
-		*g_shared_data->m_buckets.PushVert(this, m_num_strokes-1) = point_in_bucket_space;
+		*g_game_data->m_buckets.PushVert(this, m_num_strokes-1) = point_in_bucket_space;
 
 		stroke->m_bucket = m_coordinates.m_bucket;
 		stroke->m_stroke_index = m_num_strokes-1;
@@ -186,7 +180,7 @@ void BucketHeader::AddPointToStroke(vec3* point, StrokeCoordinate* stroke)
 		if (stroke->Equals(&last_stroke))
 		{
 			// If the last stroke in the bucket is our current stroke then we can just append.
-			*g_shared_data->m_buckets.PushVert(this, stroke->m_stroke_index) = point_in_bucket_space;
+			*g_game_data->m_buckets.PushVert(this, stroke->m_stroke_index) = point_in_bucket_space;
 		}
 		else
 		{
@@ -202,18 +196,18 @@ void BucketHeader::AddPointToStroke(vec3* point, StrokeCoordinate* stroke)
 			else
 			{
 				// The previous part of this stroke is in another bucket.
-				BucketHeader* previous_bucket_header = g_shared_data->m_buckets.RetrieveBucket(&stroke->m_bucket);
+				BucketHeader* previous_bucket_header = g_game_data->m_buckets.RetrieveBucket(&stroke->m_bucket);
 				TAssert(Valid()); // Hopefully the old one wasn't pushed out.
 				TAssert(previous_bucket_header->Valid());
 
 				StrokeInfo* previous_stroke = &previous_bucket_header->m_strokes[stroke->m_stroke_index];
 				TAssert(!previous_stroke->m_next.Valid());
 
-				StrokeInfo* new_stroke = g_shared_data->m_buckets.PushStroke(this);
+				StrokeInfo* new_stroke = g_game_data->m_buckets.PushStroke(this);
 				StrokeIndex new_stroke_index = m_num_strokes-1;
 				TAssert(new_stroke == &m_strokes[new_stroke_index]);
 
-				*g_shared_data->m_buckets.PushVert(this, new_stroke_index) = point_in_bucket_space;
+				*g_game_data->m_buckets.PushVert(this, new_stroke_index) = point_in_bucket_space;
 
 				previous_stroke->m_next.Set(&bc, &new_stroke_index);
 				new_stroke->m_previous = *stroke;
