@@ -27,6 +27,9 @@ struct ServerBuckets
 
 		struct SaveFileHeader
 		{
+			uint8 m_preamble[3];
+			uint8 m_version;
+
 			struct BucketSections
 			{
 				uint32 m_strokes_section; // index into m_sections
@@ -64,6 +67,7 @@ struct ServerBuckets
 		}
 
 		void CreateSaveFileHeader();
+		void VerifySaveFileHeader();
 
 		uint32 AllocStrokes(uint32 size, BucketCoordinate* bc);
 		uint32 AllocVerts(uint32 size, BucketCoordinate* bc);

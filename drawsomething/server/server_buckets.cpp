@@ -155,6 +155,8 @@ FileMappingIndex ServerBuckets::LoadBucket(BucketHeader* bucket)
 
 		if (file_mapping->m_memory.m_created)
 			file_mapping->CreateSaveFileHeader();
+		else
+			file_mapping->VerifySaveFileHeader();
 	}
 
 	// We are not caching the result of GetBucketSections because it invalidates over Alloc().
@@ -269,9 +271,16 @@ void ServerBuckets::UnloadInactiveMappings()
 	m_file_mappings[available].m_header = nullptr; // Invalidate
 }
 
+#define SAV_VERSION 0
+
 void ServerBuckets::FileMapping::CreateSaveFileHeader()
 {
 	memset(m_header, 0, sizeof(*m_header));
+
+	m_header->m_preamble[0] = 'L'; // Line
+	m_header->m_preamble[1] = 'C'; // Craft
+	m_header->m_preamble[2] = 'S'; // Save file
+	m_header->m_version = SAV_VERSION;
 
 	for (int i = 0; i < FILE_BUCKET_WIDTH; i++)
 	{
@@ -287,6 +296,13 @@ void ServerBuckets::FileMapping::CreateSaveFileHeader()
 
 	m_allocator.Initialize(m_header->m_sections, TArraySize(m_header->m_sections), m_memory.m_memory_size, &m_header->m_memory_info);
 	m_allocator.SetResizeCallback(ResizeFileMapping);
+}
+
+void ServerBuckets::FileMapping::VerifySaveFileHeader()
+{
+	// TODO: What the hell do I do here?
+	if (m_header->m_preamble[0] != 'L' || m_header->m_preamble[1] != 'C' || m_header->m_preamble[2] != 'S' || m_header->m_version != SAV_VERSION)
+		TAssert(false);
 }
 
 uint32 ServerBuckets::FileMapping::AllocStrokes(uint32 size, BucketCoordinate* bc)
