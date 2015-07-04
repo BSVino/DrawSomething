@@ -18,6 +18,8 @@ struct ServerBuckets
 	// m_buckets_hash : BucketHashIndex -> BucketHeader
 	BucketHeader m_buckets_hash[NUM_SERVER_BUCKETS];
 
+	uint32 m_file_header_size;
+
 	struct FileMapping
 	{
 		BucketCoordinate m_bc; // Aligned
@@ -48,20 +50,12 @@ struct ServerBuckets
 
 		SectionAllocator m_allocator;
 
-		uint32 m_header_size; // TODO: Move this up to ServerBuckets to save memory
 		uint8 m_num_active_buckets; // How many of the buckets in this file are using it?
 
 		FileMapping()
 		{
 			m_header = nullptr;
 			m_num_active_buckets = 0;
-
-			m_header_size = sizeof(SaveFileHeader);
-
-			// Round the header size up to the next cache line.
-			int remainder = stb_mod_eucl(m_header_size, 64);
-			if (remainder)
-				m_header_size = m_header_size - remainder + 64;
 		}
 
 		bool Valid()
@@ -84,7 +78,14 @@ struct ServerBuckets
 
 	ServerBuckets()
 		: m_shared(m_buckets_hash, NUM_SERVER_BUCKETS)
-	{}
+	{
+		m_file_header_size = sizeof(FileMapping::SaveFileHeader);
+
+		// Round the header size up to the next cache line.
+		int remainder = stb_mod_eucl(m_file_header_size, 64);
+		if (remainder)
+			m_file_header_size = m_file_header_size - remainder + 64;
+	}
 
 	void AddNewStroke(net_peer_t from_peer);
 	void AddPointToStroke(net_peer_t from_peer, vec3* new_point);

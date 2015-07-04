@@ -322,8 +322,8 @@ void ServerBuckets::FileMapping::ExpandStrokes(BucketHeader* bucket)
 	section = m_header->GetBucketSections(&bucket->m_coordinates);
 	section->m_strokes_section = new_section;
 
-	memcpy((uint8*)m_memory.m_memory + m_header->m_sections[section->m_strokes_section].m_start + m_header_size,
-		(uint8*)m_memory.m_memory + m_header->m_sections[old_section].m_start + m_header_size,
+	memcpy((uint8*)m_memory.m_memory + m_header->m_sections[section->m_strokes_section].m_start + g_server_data->m_buckets.m_file_header_size,
+		(uint8*)m_memory.m_memory + m_header->m_sections[old_section].m_start + g_server_data->m_buckets.m_file_header_size,
 		m_header->m_sections[old_section].m_length);
 
 	m_allocator.Free(old_section);
@@ -344,8 +344,8 @@ void ServerBuckets::FileMapping::ExpandVerts(BucketHeader* bucket)
 	section = m_header->GetBucketSections(&bucket->m_coordinates);
 	section->m_verts_section = new_section;
 
-	memcpy((uint8*)m_memory.m_memory + m_header->m_sections[section->m_verts_section].m_start + m_header_size,
-		(uint8*)m_memory.m_memory + m_header->m_sections[old_section].m_start + m_header_size,
+	memcpy((uint8*)m_memory.m_memory + m_header->m_sections[section->m_verts_section].m_start + g_server_data->m_buckets.m_file_header_size,
+		(uint8*)m_memory.m_memory + m_header->m_sections[old_section].m_start + g_server_data->m_buckets.m_file_header_size,
 		m_header->m_sections[old_section].m_length);
 
 	m_allocator.Free(old_section);
@@ -389,7 +389,7 @@ void ServerBuckets::FileMapping::UpdateSectionPointers(BucketHeader* bucket)
 	if (pointers->m_strokes_section != TInvalid(uint32))
 	{
 		auto* strokes_section = &m_header->m_sections[pointers->m_strokes_section];
-		uint32 strokes_start = strokes_section->m_start + m_header_size;
+		uint32 strokes_start = strokes_section->m_start + g_server_data->m_buckets.m_file_header_size;
 		TAssert(strokes_start >= 0 && strokes_start < m_memory.m_memory_size);
 		bucket->SetStrokeInfoMemory((void*)((uint8*)m_memory.m_memory + strokes_start), strokes_section->m_length);
 		TAssert(stb_mod_eucl((size_t)bucket->m_strokes, 64) == 0);
@@ -398,7 +398,7 @@ void ServerBuckets::FileMapping::UpdateSectionPointers(BucketHeader* bucket)
 	if (pointers->m_verts_section != TInvalid(uint32))
 	{
 		auto* verts_section = &m_header->m_sections[pointers->m_verts_section];
-		uint32 verts_start = verts_section->m_start + m_header_size;
+		uint32 verts_start = verts_section->m_start + g_server_data->m_buckets.m_file_header_size;
 		TAssert(verts_start >= 0 && verts_start < m_memory.m_memory_size);
 		bucket->SetVertsMemory((void*)((uint8*)m_memory.m_memory + verts_start), verts_section->m_length);
 		TAssert(stb_mod_eucl((size_t)bucket->m_verts, 64) == 0);
