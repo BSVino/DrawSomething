@@ -89,6 +89,8 @@ void DSRenderer::Draw()
 			if (!bucket->Valid())
 				continue;
 
+			vec3 bucket_origin = vec3(bucket->m_coordinates.m_bucket.x, bucket->m_coordinates.m_bucket.y, bucket->m_coordinates.m_bucket.z);
+
 			for (int k = 0; k < bucket->m_num_strokes; k++)
 			{
 				c.BeginRenderLineStrip();
@@ -97,7 +99,7 @@ void DSRenderer::Draw()
 					VertexIndex max_point = bucket->m_strokes[k].m_first_vertex + bucket->m_strokes[k].m_num_verts;
 					for (int j = first_vert; j < max_point; j++)
 					{
-						vec3 point = bucket->m_verts[j];
+						vec3 point = bucket->m_verts[j] + bucket_origin;
 						c.Vertex(point);
 					}
 				c.EndRender();
@@ -121,6 +123,8 @@ void DSRenderer::Draw()
 		if (!bucket->Valid())
 			continue;
 
+		vec3 bucket_origin = vec3(bucket->m_coordinates.m_bucket.x, bucket->m_coordinates.m_bucket.y, bucket->m_coordinates.m_bucket.z);
+
 		for (int k = 0; k < bucket->m_num_strokes; k++)
 		{
 			c.BeginRenderLineStrip();
@@ -129,7 +133,7 @@ void DSRenderer::Draw()
 				VertexIndex max_point = bucket->m_strokes[k].m_first_vertex + bucket->m_strokes[k].m_num_verts;
 				for (int j = first_vert; j < max_point; j++)
 				{
-					vec3 point = bucket->m_verts[j];
+					vec3 point = bucket->m_verts[j] + bucket_origin;
 					c.Vertex(point);
 				}
 			c.EndRender();

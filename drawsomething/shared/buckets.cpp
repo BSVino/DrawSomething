@@ -169,11 +169,13 @@ void BucketHeader::AddPointToStroke(vec3* point, StrokeCoordinate* stroke)
 	bc.y = (BucketIndex)floor(point->y);
 	bc.z = (BucketIndex)floor(point->z);
 
+	vec3 point_in_bucket_space = *point - vec3(bc.x, bc.y, bc.z);
+
 	if (stroke->m_stroke_index == TInvalid(StrokeIndex))
 	{
 		StrokeInfo* new_stroke = g_shared_data->m_buckets.PushStroke(this);
 		TAssert(new_stroke == &m_strokes[m_num_strokes-1]);
-		*g_shared_data->m_buckets.PushVert(this, m_num_strokes-1) = *point;
+		*g_shared_data->m_buckets.PushVert(this, m_num_strokes-1) = point_in_bucket_space;
 
 		stroke->m_bucket = m_coordinates.m_bucket;
 		stroke->m_stroke_index = m_num_strokes-1;
@@ -184,7 +186,7 @@ void BucketHeader::AddPointToStroke(vec3* point, StrokeCoordinate* stroke)
 		if (stroke->Equals(&last_stroke))
 		{
 			// If the last stroke in the bucket is our current stroke then we can just append.
-			*g_shared_data->m_buckets.PushVert(this, stroke->m_stroke_index) = *point;
+			*g_shared_data->m_buckets.PushVert(this, stroke->m_stroke_index) = point_in_bucket_space;
 		}
 		else
 		{
@@ -211,7 +213,7 @@ void BucketHeader::AddPointToStroke(vec3* point, StrokeCoordinate* stroke)
 				StrokeIndex new_stroke_index = m_num_strokes-1;
 				TAssert(new_stroke == &m_strokes[new_stroke_index]);
 
-				*g_shared_data->m_buckets.PushVert(this, new_stroke_index) = *point;
+				*g_shared_data->m_buckets.PushVert(this, new_stroke_index) = point_in_bucket_space;
 
 				previous_stroke->m_next.Set(&bc, &new_stroke_index);
 				new_stroke->m_previous = *stroke;
